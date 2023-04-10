@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+</head>
+<body>
+<div class="container p-3">
+    <div class="contact-box">
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="nr_zp" class="form-label fw-bold">NrZp</label>
+        <input type="text" name="NrZp"  value="{{ data.NrZp }}" class="form-control"  id="id_NrZp" readonly>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-auto">
+            <label  class="form-label " style="display: inline-block;">Artykul:</label>
+            <input type="text"  class="form-control"   style="display: inline-block; width: auto;" readonly value="{{ data.Artykul }}">
+        </div>
+            <div class="col-auto">
+                <label  class="form-label" style="display: inline-block;">Rodzaj:</label>
+                 <input type="text" name="Rodzaj"  style="display: inline-block; width: auto;"  value="{{ data.Rodzaj }}" class="form-control"  id="id_Rodzaj" readonly>
+            </div>
+          <div class="col-auto">
+                <label  class="form-label" style="display: inline-block;">Operator:</label>
+                 <input type="text" class="form-control" name="UserName"  style="display: inline-block; width: auto;" id="id_UserName" value="{{ user }}" readonly>
+            </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="data" class="form-label fw-bold">Data produkcji</label>
+        <input type="date" name="Data"  class="form-control"  id="id_Data">
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-auto">
+        <label for="data" class="form-label">Zmiana</label>
+        <input type="text"  class="form-control" name="Zmiana" id="id_Zmiana">
+      </div>
+        <div class="col-auto">
+        <label for="rolka" class="form-label">Nr Rolki</label>
+        <input type="text" class="form-control"  name="Rolka" id="id_Rolka">
+      </div>
+        <div class="col-auto">
+            <label for="status" class="form-label">NrWytł</label>
+            <select class="form-select" name="NrWytl" id="id_NrWytl" aria-label="Default select example">
+              <option value="0">W1</option>
+              <option value="1">W2</option>
+              <option value="2">W3</option>
+        </select>
+    </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-auto">
+        <label for="dlugrolkiprod" class="form-label">DługRolkiProd [mb]</label>
+        <input type="number" class="form-control" name="DlugRolkiProd" id="id_DługRolkiProd">
+      </div>
+        <div class="col-auto">
+        <label for="wagarolkiprod" class="form-label">WagaRolkiProd [kg]</label>
+        <input type="number" class="form-control"  name="WagaRolkiProd" id="id_WagaRolkiProd">
+      </div>
+          <div class="col-auto ">
+            <label class="form-label" for="walce">Walce</label>
+            <input type="number"  name="Walce" id="id_Walce" class="form-control" />
+        </div>
+          <div class="col-auto ">
+            <label class="form-label" for="slimak">Ślimak</label>
+            <input type="number"  name="Slimak" id="id_Slimak" class="form-control"/>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col_auto">
+            <label for="grubosc" class="form-label">Wynikowa grubość [mikrony]</label>
+            <input type="number" class="form-control" name="Wynikowa" id="id_Wynikowa">
+        </div>
+         <div class="col_auto">
+            <label for="wynik" class="form-label">GrubośćWynik %</label>
+            <input type="number"  class="form-control" name="Wynik" id="id_Wynik">
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col_auto">
+            <label for="mieszanka" class="form-label">Mieszanka</label>
+            <input type="text" class="form-control" name="Mieszanka" id="id_Mieszanka"  maxlength="40">
+        </div>
+         <div class="col_auto">
+            <label for="uwagi" class="form-label">Uwagi</label>
+            <input type="text" class="form-control" name="Uwagi" id="id_Uwagi"  maxlength="40">
+        </div>
+    </div>
+
+
+    <button type="submit" class="btn btn-primary fw-bold " >Dodaj</button>
+</form>
+     </div>
+    </div>
+</body>
+</html>

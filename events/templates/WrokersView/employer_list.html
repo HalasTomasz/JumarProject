@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Employers</title>
+	<style>
+		table {
+			border-collapse: collapse;
+			width: 100%;
+		}
+		th, td {
+			text-align: left;
+			padding: 8px;
+			border-bottom: 1px solid #ddd;
+		}
+		tr:hover {background-color:#f5f5f5;}
+		th {
+			background-color: #4CAF50;
+			color: white;
+		}
+         .button-spacing {
+        margin-bottom: 10px;
+    }
+
+     .add-user-btn {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+	</style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href={% static "css/table.css" %}>
+</head>
+<body>
+ {% include 'navbar.html' %}
+ <br>
+	<h1>Pracownicy</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>Nazwa Użytwkonika</th>
+				<th>Rola</th>
+                <th>Funckja</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for employer in employers %}
+			<tr>
+				<td>{{ employer.username }}</td>
+				<td>{{ employer.groups.all.0.name }}</td>
+                <td>
+                     <div class="col-2   justify-content-around d-flex flex-column ">
+                            <div class="pb-10">
+                               <button class="m-1 button-spacing btn btn-dark " type="button">
+                                        <a href="{% url 'Edycja.views.index' employer.username %}">
+                                            Edytuj
+                                        </a>
+                                    </button>
+                         </div>
+                             <div>
+                                 <button class="btn btn-danger" data-user-id="{{ employer.username }}" onclick="deleteUser(this)">Usuń</button>
+                             </div>
+                         </div>
+            </td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+    <div class="add-user-btn">
+    <a href="{% url 'Register.views.index' %}">Dodaj nową osobę</a>
+  </div>
+
+</body>
+<script>
+    function deleteUser(button) {
+    const userId = button.getAttribute('data-user-id');
+    console.log(userId)
+    fetch(`/usun/${userId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = 'pracownicy';
+        } else {
+            alert('An error occurred while deleting the user');
+        }
+    })
+    .catch(error => {
+        alert('An error occurred while deleting the user');
+    });
+}
+
+</script>
+</html>

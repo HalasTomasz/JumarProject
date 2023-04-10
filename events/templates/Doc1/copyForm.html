@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+</head>
+<body>
+<div class="container p-3">
+    <div class="contact-box">
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="nr_zp" class="form-label fw-bold">NrZp</label>
+        <input type="text" name="NrZp"  value="{{ data.NrZp }}" class="form-control"  id="id_NrZp" readonly>
+    </div>
+
+    <div class="mb-3">
+        <label for="artykul" class="form-label fw-bold">Artykuł</label>
+        <input type="text" name="Artykul"  value="{{ data.Artykul }}" class="form-control"  id="id_Artykul" placeholder="Produkowana folia" maxlength="40">
+    </div>
+    <div class="row g-4 mb-3">
+      <div class="col-auto">
+        <label for="data" class="form-label">Data</label>
+        <input type="date" value="{{ data.Data }}" class="form-control" name="Data" id="id_Data">
+      </div>
+        <div class="col-auto">
+        <label for="kod" class="form-label">Kod</label>
+        <input type="text" class="form-control" value="{{ data.Kod }}"  name="Kod" id="id_Kod">
+      </div>
+        <div class="col-auto">
+            <label class="form-label" for="ilosczlec">IlośćZlec [szt]</label>
+            <input type="number" value="{{ data.IloscZlec }}"   name="IloscZlec" id="id_IloscZlec" class="form-control" onchange="dlugfoliplanFunc()" />
+        </div>
+            <div class="col-auto">
+                <label class="form-label" for="rodzaj">Rodzaj folii</label>
+                <select class="form-select" name="Rodzaj" id="id_Rodzaj" aria-label="Default select example" onchange="wagafolizlecFunc()">
+                  <option value="0">HDPE</option>
+                  <option value="1">LDPE</option>
+                  <option value="2">MDPE</option>
+                </select>
+            </div>
+    </div>
+
+    <div class="row g-4 mb-3">
+      <div class="col-auto">
+        <label for="mmk" class="form-label">MMK</label>
+        <input type="text" value="{{ data.MMK}}" class="form-control" name="MMK" id="id_MMK">
+      </div>
+        <div class="col-auto">
+        <label for="barwnik" class="form-label">Barwnik</label>
+        <input type="text" value="{{ data.Barwnik}}" class="form-control"  name="Barwnik" id="id_Barwnik">
+      </div>
+        <div class="col-auto">
+            <label for="status" class="form-label">Status</label>
+        <select class="form-select" name="Status" id="id_Status" aria-label="Default select example">
+          <option value="0">Planowane</option>
+          <option value="1">W realizacji</option>
+          <option value="2">Zrealizowane</option>
+          <option value="3">Anulowane</option>
+        </select>
+      </div>
+        <div class="col-auto">
+            <label for="status" class="form-label">NrWytł</label>
+        <select class="form-select" name="NrWyt" id="id_NrWyt" aria-label="Default select example">
+          <option value="0">W1</option>
+          <option value="1">W2</option>
+          <option value="2">W3</option>
+        </select>
+    </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-auto ">
+            <label class="form-label" for="szerworka">SzerWorka [mm]</label>
+            <input type="number" value="{{ data.SzerWorka }}" name="SzerWorka" id="id_SzerWorka" class="form-control" onchange="zakladkaFunc()" />
+        </div>
+        <div class="col-auto ">
+            <label class="form-label" for="szerrekawa">SzerRękawa [mm]</label>
+            <input type="number" value="{{ data.SzerRekawa }}" name="SzerRekawa" id="id_SzerRekawa" class="form-control"  onchange="zakladkaFunc()" />
+        </div>
+        <div class=" col-auto ">
+            <label class="form-label" for="zaklada">Zakładka [mm]</label>
+            <input class="form-control"  value="{{ data.Zakladka }}" name="Zakladka" id="id_Zakladka" type="number" aria-label="Disabled input example"  readonly>
+         </div>
+
+    </div>
+
+       <div class="row g-4 mb-3">
+        <div class="col-auto ">
+            <label class="form-label" for="dlugworka">DługWorka [mm]</label>
+            <input type="number" value="{{ data.DlugWorka }}" name="DlugWorka" id="id_DlugWorka" class="form-control" onchange="dlugfoliplanFunc()" />
+        </div>
+        <div class="col-auto ">
+            <label class="form-label" for="grubworka">GrubWorka [mm]</label>
+            <input type="number" value="{{ data.GrubWorka }}" name="GrubWorka"  id="id_GrubWorka" class="form-control"/>
+        </div>
+           <div class="col-auto ">
+            <label class="form-label" for="dolneodch">DolneOdch [mikr]</label>
+            <input type="number" value="{{ data.DolneOdch }}" name="DolneOdch" id="id_DolneOdch" class="form-control"/>
+        </div>
+           <div class="col-auto ">
+            <label class="form-label" for="dlugfoliplan_korekta">DługFoilPlan Korekta [?]</label>
+            <input type="number" step="0.01" value="{{ data.DlugFoilPlan_Korekta }}" name="DlugFoilPlan_Korekta" id="id_DlugFoilPlan_Korekta" class="form-control" onchange="dlugfoliplanFunc()"/>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-auto ">
+            <label class="form-label" for="wagafolizlec">WagaFoliZlec [kg]</label>
+            <input type="number" name="WagaFoliZlec" id="id_WagaFoliZlec"  value="{{ data.WagaFoliZlec }}"  class="form-control"  aria-label="Disabled input example"  readonly onchange="wagarolkizlecFunc()"/>
+        </div>
+        <div class="col-auto ">
+            <label class="form-label" for="dlugfoliplan">DługFoliPlan [mb]</label>
+            <input type="number" name="DlugFoliPlan" id="id_DlugFoliPlan" class="form-control" value="{{ data.DlugFoliPlan }}" aria-label="Disabled input example"  readonly onchange="dlugrolkiplanFunc()" />
+        </div>
+    </div>
+
+
+    <div class="row g-2 mb-3">
+        <div class="col-auto ">
+            <label class="form-label" for="iloscrolekzlec">IlośćRolekZlec [szt]</label>
+            <input type="number" name="IloscRolekZlec" id="id_IloscRolekZlec"  value="{{ data.IloscRolekZlec }}" class="form-control" onchange="dlugrolkiplanFunc(); wagarolkizlecFunc();dlugfolizlecFunc()" />
+        </div>
+        <div class="col-auto ">
+            <label class="form-label" for="dlugrolkizlec_korekta">DługRolkiZlec korekta [mb]</label>
+            <input type="number" name="DlugRolkiZlec_Korekta" id="id_DlugRolkiZlec_Korekta"  value="{{ data.DlugRolkiZlec_Korekta }}" class="form-control" onchange="dlugfolizlecFunc()" />
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-auto">
+            <label class="form-label" for="dlugrolkiplan">DługRolkiPlan [mb]</label>
+            <input type="number" name="DlugRolkiPlan"  id="id_DlugRolkiPlan"  value="{{ data.DlugRolkiPlan }}" class="form-control" aria-label="Disabled input example" readonly/>
+        </div>
+        <div class="col-auto">
+            <label class="form-label" for="dlugfolizlec_korekta">DługFoilZlec korekta [mb]</label>
+            <input type="number" name="DlugFoliZlec_Korekta" id="id_DlugFoliZlec_Korekta" value="{{ data.DlugFoliZlec_Korekta }}" class="form-control" aria-label="Disabled input example"  readonly />
+        </div>
+        <div class="col-auto">
+            <label class="form-label" for="wagarolkizlec">WagaRolkiZlec [kg]</label>
+            <input type="number" name="WagaRolkiZlec" id="id_WagaRolkiZlec"  value="{{ data.WagaRolkiZlec }}"  class="form-control"  aria-label="Disabled input example"  readonly />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="uwagi" class="form-label">Uwagi</label>
+        <input type="text" value="{{ data.Uwagi}}" class="form-control" name="Uwagi" id="id_Uwagi"  maxlength="40">
+    </div>
+    <button type="submit" class="btn btn-primary fw-bold " >Edytuj</button>
+</form>
+     </div>
+    </div>
+</body>
+
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+     <script type="text/javascript">
+
+         var rodzaj = document.getElementById("id_Rodzaj");
+        for(i=0; i<rodzaj.options.length; i++){
+            if(rodzaj.options[i].value == {{ data.Rodzaj }}){
+                rodzaj.selectedIndex = i;
+            }
+        }
+
+        var rodzaj = document.getElementById("id_Status");
+        for(i=0; i<rodzaj.options.length; i++){
+            if(rodzaj.options[i].value == {{ data.Status }}){
+                rodzaj.selectedIndex = i;
+            }
+        }
+
+        var rodzaj = document.getElementById("id_NrWyt");
+        for(i=0; i<rodzaj.options.length; i++){
+            if(rodzaj.options[i].value == {{ data.NrWyt }}){
+                rodzaj.selectedIndex = i;
+            }
+        }
+
+        var dict = {
+          "0": 0.97,
+          "1": 0.94,
+        };
+          function zakladkaFunc() {
+            var input = document.getElementById('id_SzerRekawa');
+            var input2 = document.getElementById('id_SzerWorka');
+
+            if (input.value && input2.value) {
+                var zakaldka = document.getElementById('id_Zakladka');
+                console.log(input.value)
+                console.log(input2.value)
+                zakaldka.value = (Number(input2.value) - Number(input.value))/2;
+            }
+
+          }
+
+          function wagafolizlecFunc() {
+            var input = document.getElementById('id_SzerRekawa');
+            var input2 = document.getElementById('id_DolneOdch');
+            var input3 = document.getElementById('id_DlugFoliPlan');
+            var input4 = document.getElementById('id_Rodzaj');
+
+            if (input.value && input2.value && input3.value && input4.value) {
+                var waga = document.getElementById('id_WagaFoliZlec');
+                var gest = Number(dict[input4.value])
+                waga.value = (Number(input.value)/1000 * Number(input2.value)/1000 * Number(input3.value)*1.9*gest).toFixed(2);
+            }
+          }
+
+        function dlugfoliplanFunc() {
+            var input = document.getElementById('id_IloscZlec');
+            var input2 = document.getElementById('id_DlugWorka');
+            var input3 = document.getElementById('id_DlugFoilPlan_Korekta');
+            if (input.value && input2.value  && input3.value) {
+                var dlug = document.getElementById('id_DlugFoliPlan');
+                dlug.value = ((Number(input.value) * Number(input2.value)*Number(input3.value))/1000).toFixed(2);
+                wagafolizlecFunc()
+            }
+
+          }
+
+        function dlugrolkiplanFunc() {
+            var input = document.getElementById('id_DlugFoliPlan');
+            var input2 = document.getElementById('id_IloscRolekZlec');
+            if (input.value && input2.value) {
+                var dlug = document.getElementById('id_DlugRolkiPlan');
+                dlug.value = (Number(input.value) / Number(input2.value)).toFixed(2);
+            }
+          }
+
+        function wagarolkizlecFunc() {
+            var input = document.getElementById('id_WagaFoliZlec');
+            var input2 = document.getElementById('id_IloscRolekZlec');
+
+            if (input.value && input2.value) {
+                console.log(input.value)
+                console.log(input2.value)
+                var waga = document.getElementById('id_WagaRolkiZlec');
+                waga.value = (Number(input.value)/Number(input2.value)).toFixed(2);
+            }
+          }
+
+        function dlugfolizlecFunc() {
+            var input = document.getElementById('id_DlugRolkiZlec_Korekta');
+            var input2 = document.getElementById('id_IloscRolekZlec');
+            if (input.value && input2.value) {
+                var dlug = document.getElementById('id_DlugFoliZlec_Korekta');
+                dlug.value = (Number(input.value) * Number(input2.value)).toFixed(2);
+            }
+          }
+
+          var isFirstLoad = localStorage.getItem('isFirstLoad');
+
+        if (!isFirstLoad) {
+         zakladkaFunc();
+         wagafolizlecFunc();
+         dlugfoliplanFunc();
+         dlugrolkiplanFunc();
+         wagarolkizlecFunc();
+         dlugfolizlecFunc();
+         localStorage.setItem('isFirstLoad', 'true');
+        }
+
+    </script>
+
+</html>

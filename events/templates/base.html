@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+  </head>
+  <body>
+  {% include 'navbar.html' %}
+  <br/>
+
+   {% block content %}
+   
+   {% endblock %}
+
+  <br/>
+    <div class="container">
+  <div class="row mt-3">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Dokument 1</h2>
+            <p class="card-text">Zlecenia produkcyjne planowane</p>
+            <button class="btn btn-primary"> <a href="{%  url "PlanProc.views.index" %}" >
+                 Zlecenia Planowane </a> </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Dokument 5</h2>
+            <p class="card-text">Zlecenia produkcyjne w realizacji</p>
+            <button  class="btn btn-primary">
+                <a href="{%  url "PlanFolia.views.index" %}" >
+                </a> Zlecenia W Realizacji
+                </button>
+        </div>
+      </div>
+    </div>
+      <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Dokument 6</h2>
+            <p class="card-text">Wydajność na Zmianach</p>
+            <button class="btn btn-primary">
+                <a href="{%  url "Form.views.index" %}" > </a> Wydajność</button>
+        </div>
+      </div>
+    </div>
+  </div>
+        {% if user_kierownik %}
+  <div class="row mt-3">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Planowanie Formula</h2>
+            <p class="card-text"> Planowanie produkcji formula</p>
+            <button href="{%  url "Form.views.index" %}" class="btn btn-primary">Planowanie Formula</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Dokument 2</h2>
+            <p class="card-text">Zlecenia w realizacji po wytłaczarkach
+            <button class="btn btn-primary">Zlecenia w Realizacji</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Box 3</h2>
+          <p class="card-text">Content for Box 3 <button class="btn btn-primary">Button 6</button></p>
+        </div>
+      </div>
+    </div>
+  </div>
+        {% endif %}
+            {% if admin %}
+        <div class="row mt-3">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Dokument 4</h2>
+          <p class="card-text"> Zlecenia produkcyjne zrealizowane lub anulowane<p>
+            <button class="btn btn-primary">Zlecenia Zakonczone</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Dokument 3</h2>
+            <p class="card-text"> Zlecenia Zrealizowane po WYTLACZARKACH </p>
+            <button class="btn btn-primary">Zlecenia Zrealizowane</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Pracownicy</h2>
+          <p class="card-text">Wszyscy pracownicy<p>
+            <button class="btn btn-primary">Pracownicy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+    {% endif %}
+</div>
+
+  </body>
+</html>
