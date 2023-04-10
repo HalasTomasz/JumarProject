@@ -54,6 +54,8 @@
 <body>
      {% include 'navbar.html' %}
      <br>
+     {% csrf_token %}
+     <h1 class="mb-2">Zlecenia zrealizowane po wytłaczarkach </h1>
     <!-- =======  Data-Table  = Start  ========================== -->
                 <div class="data_table">
                     <table border="0" cellspacing="5" cellpadding="5">
@@ -123,15 +125,15 @@
                                  <td>{{ post.DlugRolkiZlec_Korekta }}</td>
                                 <td>{{ post.DlugFoliZlec_Korekta }}</td>
                                 <td>{{ post.WagaRolkiZlec }}</td>
-                                <td>{{ post.Rodzaj }}</td>
-                                 <td>{{ post.NrWyt }}</td>
-                                <td>{{ realizacja }}</td>
-                                <td>{{ post.Status }}</td>
+                                <td>{{ folia_dict|get_item:post.Rodzaj }}</td>
+                                 <td>{{ nrwyt_dict|get_item:post.NrWyt }}</td>
+                                <td>{%  divide  post.Research.dlugProd post.DlugFoliZlec_Korekta %}</td>
+                                <td>{{  status_dict|get_item:post.Status }}</td>
                                 <td>{{ post.Uwagi }}</td>
                                  <td>{{ post.Kod }}</td>
                                  <td>{{ post.MMK }}</td>
                                  <td>{{ post.Barwnik }}</td>
-                                 <td> <button onclick="showPopup({{  post.NrZp  }})">Change Status</button> </td>
+                                 <td> <button onclick="showPopup('{{ post.NrZp }}')">Change Status</button> </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -140,12 +142,11 @@
 
                 <div class="popup">
         <div class="popup-content">
-            <h2>Change Status</h2>
-            <select id="status-select">
-                <option value="0">New</option>
-                <option value="1">In Progress</option>
-                <option value="2">Completed</option>
-                <option value="3">Cancelled</option>
+            <h2>Zmień Status</h2>
+            <select class="form-select"  name="Status" id="id_Status" aria-label="Default select example">
+              <option value="1">W realizacji</option>
+              <option value="2">Zrealizowane</option>
+              <option value="3">Anulowane</option>
             </select>
             <br><br>
             <button onclick="updateStatus()">Save</button>

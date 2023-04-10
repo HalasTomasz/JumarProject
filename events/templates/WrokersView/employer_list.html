@@ -34,11 +34,11 @@
 <body>
  {% include 'navbar.html' %}
  <br>
-	<h1>Pracownicy</h1>
+	<h1 class="mb-5">Pracownicy</h1>
 	<table>
 		<thead>
 			<tr>
-				<th>Nazwa Użytwkonika</th>
+				<th>Nazwa Użytkownika</th>
 				<th>Rola</th>
                 <th>Funckja</th>
 			</tr>
@@ -49,16 +49,16 @@
 				<td>{{ employer.username }}</td>
 				<td>{{ employer.groups.all.0.name }}</td>
                 <td>
-                     <div class="col-2   justify-content-around d-flex flex-column ">
+                     <div class="col-2  justify-content-around d-flex flex-column ">
                             <div class="pb-10">
-                               <button class="m-1 button-spacing btn btn-dark " type="button">
+                               <button class="button-spacing btn btn-dark " type="button">
                                         <a href="{% url 'Edycja.views.index' employer.username %}">
                                             Edytuj
                                         </a>
                                     </button>
-                         </div>
+                                 </div>
                              <div>
-                                 <button class="btn btn-danger" data-user-id="{{ employer.username }}" onclick="deleteUser(this)">Usuń</button>
+                                 <button class="mr-4 btn btn-danger" data-user-id="{{ employer.username }}" onclick="deleteUser(this)">Usuń</button>
                              </div>
                          </div>
             </td>

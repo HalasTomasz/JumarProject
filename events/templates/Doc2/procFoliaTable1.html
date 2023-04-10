@@ -26,7 +26,7 @@
                 <tbody>
                     {% for post in serialized_data %}
 	<tr id="special">
-		<td rowspan="3"> {{ forloop.counter0 }}</td>
+		<td rowspan="3"> {{ forloop.counter }}</td>
 		<td rowspan="3" data-id={{ post.NrZp }}> {{ post.NrZp }} </td>
 		<td rowspan="3">{{ nrwyt_dict|get_item:post.NrWyt }}</td>
 		<td colspan="3" rowspan="3">{{ post.Artykul }}</td>
@@ -38,7 +38,7 @@
 		<td rowspan="3">{{ post.WagaFoliZlec }}</td>
 		<td rowspan="3">{{ post.IloscRolekZlec }}</td>
 		<td rowspan="3">{{ post.Kod }}</td>
-		<td rowspan="3">{{ post.Rodzaj }}</td>
+		<td rowspan="3">{{ folia_dict|get_item:post.Rodzaj }}</td>
 		<td rowspan="3">{{ post.MMK}} </td>
 		<td rowspan="3"> {{ post.Barwnik}}</td>
 	</tr><tr>

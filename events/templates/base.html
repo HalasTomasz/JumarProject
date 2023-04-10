@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -26,19 +27,21 @@
         <div class="card-body">
           <h2 class="card-title">Dokument 1</h2>
             <p class="card-text">Zlecenia produkcyjne planowane</p>
-            <button class="btn btn-primary"> <a href="{%  url "PlanProc.views.index" %}" >
-                 Zlecenia Planowane </a> </button>
+            <button class="btn btn-primary " >
+                <a class="text-white" href="{%  url "PlanProc.views.index" %}" >
+                 Zlecenia Planowane </a>
+            </button>
         </div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="card">
         <div class="card-body">
-          <h2 class="card-title">Dokument 5</h2>
+          <h2 class="card-title">Dokument 2</h2>
             <p class="card-text">Zlecenia produkcyjne w realizacji</p>
             <button  class="btn btn-primary">
-                <a href="{%  url "PlanFolia.views.index" %}" >
-                </a> Zlecenia W Realizacji
+                <a class="text-white"  href="{%  url "PlanFolia.views.index" %}" >
+                Zlecenia w Realizacji </a>
                 </button>
         </div>
       </div>
@@ -49,7 +52,7 @@
           <h2 class="card-title">Dokument 6</h2>
             <p class="card-text">Wydajność na Zmianach</p>
             <button class="btn btn-primary">
-                <a href="{%  url "Form.views.index" %}" > </a> Wydajność</button>
+                <a class="text-white"  href="{%  url "procPrac.views.index" %}" >  Wydajność </a></button>
         </div>
       </div>
     </div>
@@ -61,7 +64,10 @@
         <div class="card-body">
           <h2 class="card-title">Planowanie Formula</h2>
             <p class="card-text"> Planowanie produkcji formula</p>
-            <button href="{%  url "Form.views.index" %}" class="btn btn-primary">Planowanie Formula</button>
+            <button class="btn btn-primary">
+                    <a class="text-white"
+                       href="{%  url "Form.views.index" %}">Planowanie Formula </a>
+            </button>
         </div>
       </div>
     </div>
@@ -70,28 +76,36 @@
         <div class="card-body">
           <h2 class="card-title">Dokument 2</h2>
             <p class="card-text">Zlecenia w realizacji po wytłaczarkach
-            <button class="btn btn-primary">Zlecenia w Realizacji</button>
+            <button class="btn btn-primary">
+                <a class="text-white"
+                       href="{%  url "Form.views.index" %}"> Zlecenia w Realizacji </a>
+            </button>
         </div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="card">
         <div class="card-body">
-          <h2 class="card-title">Box 3</h2>
-          <p class="card-text">Content for Box 3 <button class="btn btn-primary">Button 6</button></p>
+          <h2 class="card-title">Dokument 5</h2>
+           <p class="card-text">Zlecenia produkcyjne w realizacji
+            <button class="btn btn-primary">
+                <a class="text-white"
+                       href="{%  url 'Realizacja.views.index' %}"> Zlecenia produkcyjne w realizacji </a>
+            </button>
         </div>
       </div>
     </div>
   </div>
         {% endif %}
             {% if admin %}
-        <div class="row mt-3">
+        <div class="row mt-3 mb-4">
     <div class="col-md-4">
       <div class="card">
         <div class="card-body">
           <h2 class="card-title">Dokument 4</h2>
           <p class="card-text"> Zlecenia produkcyjne zrealizowane lub anulowane<p>
-            <button class="btn btn-primary">Zlecenia Zakonczone</button>
+            <button class="btn btn-primary">
+                <a class="text-white" href="{%  url "procReal.views.index" %}"> Zlecenia Zakonczone </a> </button>
         </div>
       </div>
     </div>
@@ -99,8 +113,10 @@
       <div class="card">
         <div class="card-body">
           <h2 class="card-title">Dokument 3</h2>
-            <p class="card-text"> Zlecenia Zrealizowane po WYTLACZARKACH </p>
-            <button class="btn btn-primary">Zlecenia Zrealizowane</button>
+            <p class="card-text"> Zlecenia Zrealizowane po wytłaczarkach </p>
+            <button class="btn btn-primary">
+                <a class="text-white" href="{%  url "procFolia.views.index" %}"> Zlecenia Zrealizowane Rolki </a>
+            </button>
         </div>
       </div>
     </div>
@@ -109,7 +125,9 @@
         <div class="card-body">
           <h2 class="card-title">Pracownicy</h2>
           <p class="card-text">Wszyscy pracownicy<p>
-            <button class="btn btn-primary">Pracownicy</button>
+            <button class="btn btn-primary">
+                <a class="text-white" href="{%  url "Pracownicy.views.index" %}">Pracownicy </a>
+            </button>
         </div>
       </div>
     </div>

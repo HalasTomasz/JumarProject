@@ -1,0 +1,71 @@
+{% extends 'Doc5/foliaRaport.html' %}
+
+{% block table %}
+<div class=" w-100 overflow-auto ">
+    <div class="row">
+        <div class="col-12">
+            <div class="data_table">
+                <table id="example" class="table table-striped table-bordered small">
+
+	<tr>
+		<td>Lp</td>
+		<td>Nr ZP</td>
+		<td colspan="4">Artykuł</td>
+		<td>NrWytl</td>
+		<td>Rodzaj folii</td>
+		<td>IlośćZlec/szt/</td>
+		<td>SzerWorka/mm/</td>
+		<td>SzerRekawa/mm/</td>
+		<td>Zakładka/mm/</td>
+		<td>DługWorka/mm/</td>
+		<td>GrubWorka/mikron/</td>
+		<td>DolneOdch/mikr/</td>
+		<td>WagaFoilZlec/kg/</td>
+		<td>Waga produkcja/kg/</td>
+		<td>Waga do zakończenia/kg/</td>
+		<td>DługFoliZlec korekta [mb]</td>
+		<td>Długość produkcja/mb/</td>
+		<td>Długość do zakończenia/mb/</td>
+		<td>Procent realizacji</td>
+		<td>Status</td>
+		<td colspan="4">Uwagi</td>
+		<td>Funkcja</td>
+	</tr>
+	<tr>
+		<td rowspan="2">{{ forloop.counter }}</td>
+		<td rowspan="2">{{ post.NrZp}}</td>
+		<td colspan="4">{{ post.Artykul}}</td>
+		<td rowspan="2">{{ nrwyt_dict|get_item:post.NrWyt}}</td>
+		<td rowspan="2">{{ folia_dict|get_item:post.Rodzaj}}</td>
+		<td rowspan="2">{{ post.IloscZlec}}</td>
+		<td rowspan="2">{{ post.SzerWorka }}</td>
+		<td rowspan="2">{{ post.SzerRekawa }}</td>
+		<td rowspan="2">{{ post.Zakladka }}</td>
+		<td rowspan="2">{{ post.DlugWorka}}</td>
+		<td rowspan="2">{{ post.GrubWorka}}</td>
+		<td rowspan="2">{{ post.DolneOdch}}</td>
+		<td rowspan="2">{{ post.WagaFoliZlec}}</td>
+		<td rowspan="2">{{ post.Research.wagaSum }}</td>
+		<td rowspan="2">{{ post.Research.wagaEnd }}</td>
+		<td rowspan="2">{{ post.DlugFoliZlec_Korekta}}</td>
+		<td rowspan="2">{{ post.Research.dlugProd }}</td>
+		<td rowspan="2">{{ post.Research.dlugEnd }}</td>
+		<td rowspan="2">{%  divide  post.Research.dlugProd post.DlugFoliZlec_Korekta %} </td>
+		<td rowspan="2"> {{ status_dict|get_item:post.Status }}</td>
+		<td colspan="4" rowspan="2"> {{ post.Uwagi}}</td>
+		<td rowspan="2">edit</td>
+	</tr>
+	<tr>
+		<td>Data zlecenia</td>
+		<td>{{ post.Data}}</td>
+		<td>Kod</td>
+		<td>{{ post.Kod}}</td>
+	</tr>
+</table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

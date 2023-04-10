@@ -48,11 +48,12 @@ $(document).ready(function(){
 
 // =============  Data Table - (End) ================= //
 
+var global_id = NaN
 function showPopup(id) {
     // Show the popup
     $(".popup").show();
     // Set the selected object ID
-    $("#popup-id").val(id);
+    global_id = id
 }
 
 function hidePopup() {
@@ -62,14 +63,14 @@ function hidePopup() {
 
 function updateStatus() {
     // Get the selected object ID and status value
-    var id = $("#popup-id").val();
-    var status = $("#status-select").val();
+
+    var status = $("#id_Status").val();
     // Update the object status in the database
     $.ajax({
-        url: "{% url 'update_status' %}",
+        url: "/update_status",
         method: "POST",
         data: {
-            "id": id,
+            "id": global_id,
             "status": status,
             "csrfmiddlewaretoken": "{{ csrf_token }}"
         },

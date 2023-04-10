@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Sum, Count
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, CreateView, UpdateView
 from rest_framework.generics import ListAPIView
@@ -13,15 +14,20 @@ from .serializer import ZamSerializer, RolSerializer, RolkiSumSerializer
 from django.urls import reverse_lazy
 from datetime import date, datetime
 from .forms import AddForm, AddRolkiForm, AddUser
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.template.defaulttags import register
-from django.contrib.auth.forms import UserCreationForm
 from .decorators import unathenticted_user,allowed_user
 from django.contrib.auth import authenticate,login,logout, get_user
 
 @register.filter
 def get_item(dictionary, key):
   return dictionary.get(key)
+
+@register.simple_tag
+def divide(a, b):
+    if b == 0:
+        return 0
+    return round(a / b, 2)
 
 status_dict = {
     0:"Planowane",
@@ -96,9 +102,9 @@ def home(request):
             user_kierownik = True
             admin = True
         return render(request, 'home.html', {
-        "name": user.username,
-        "user_kierownik":user_kierownik,
-        "admin":admin
+        "name" : user.username,
+        "user_kierownik" : user_kierownik,
+        "admin" : admin
     })
 
 @login_required(login_url='/login')
@@ -141,13 +147,19 @@ class ProductionOrdersPlanningView(LoginRequiredMixin, ListView):
         return context
 
 
-class copyForm(LoginRequiredMixin, CreateView):
+class copyForm(LoginRequiredMixin,UserPassesTestMixin, CreateView):
     model = Zamowienie
     serializer_class = ZamSerializer
     form_class = AddForm
     template_name = "Doc1/copyForm.html"
     success_url = reverse_lazy('PlanProc.views.index')
 
+
+    def test_func(self):
+        if self.request.user.groups.filter(name='admin').exists() & self.request.user.groups.filter(name='kierownik').exists() :
+            return True
+        else:
+            return False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -162,19 +174,23 @@ class copyForm(LoginRequiredMixin, CreateView):
         nr_zp = str(date.today()) + "/" + str(nr_zp_id)
         form.instance.pk = None
         form.instance.NrZp = nr_zp
-        print(form)
         return super().form_valid(form)
 
-class updateForm(LoginRequiredMixin, UpdateView):
+class updateForm(LoginRequiredMixin,UserPassesTestMixin, UpdateView):
     model = Zamowienie
     serializer_class = ZamSerializer
     form_class = AddForm
     template_name = "Doc1/editForm.html"
     success_url = reverse_lazy('PlanProc.views.index')
 
+    def test_func(self):
+        if self.request.user.groups.filter(name='admin').exists() | self.request.user.groups.filter(name='kierownik').exists() :
+            return True
+        else:
+            return False
+
     def get_object(self, queryset=None):
         obj = super().get_object(queryset=queryset)
-        print(obj)
         return obj
 
     def get_context_data(self, **kwargs):
@@ -182,19 +198,6 @@ class updateForm(LoginRequiredMixin, UpdateView):
         serializer = self.serializer_class(instance=self.object)
         context['data'] = serializer.data
         return context
-
-
-    # def form_valid(self, form):
-    #     print("HERE")
-    #     if 'submit-button' in self.request.POST and self.request.POST['submit-button'] == 'save':
-    #         # Save the form data
-    #         instance = form.save(commit=False)
-    #         instance.user = self.request.user
-    #         instance.save()
-    #
-    #     # Call the parent class's form_valid() method to redirect the user to the success URL
-    #     return super().form_valid(form)
-
 
 class foliaPlanning(LoginRequiredMixin, ListView):
     model = Zamowienie
@@ -204,31 +207,15 @@ class foliaPlanning(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         serializer = ZamSerializer(context['object_list'], many=True)
+        # for data_dict in serializer.data:
+        #     print()
+        #     data_dict['NrWytl'] = nrwyt_dict[data_dict['NrWytl']]
+
         context['serialized_data'] = serializer.data
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
         context['folia_dict'] = folia_dict
         return context
-
-@login_required(login_url='/login')
-def order(request):
-    return render(request, 'Doc346/some.html')
-
-
-# class foliaRaport(ListView):
-#     model = Rolki
-#     template_name = "foliaForm.html"
-#     queryset = Rolki.objects.filter(Status=0)
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         serializer = ZamSerializer(context['object_list'], many=True)
-#         context['serialized_data'] = serializer.data
-#         context['status_dict'] = status_dict
-#         context['nrwyt_dict'] = nrwyt_dict
-#         context['folia_dict'] = folia_dict
-#         return context
-
 
 class foliaForm(LoginRequiredMixin, CreateView):
 
@@ -253,7 +240,6 @@ class foliaForm(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        # Modify the data before it is saved
         return super().form_valid(form)
 
 class upateRolForm(LoginRequiredMixin, UpdateView):
@@ -264,7 +250,6 @@ class upateRolForm(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         obj = super().get_object(queryset=queryset)
-        print(obj)
         return obj
 
     def get_context_data(self, **kwargs):
@@ -280,7 +265,7 @@ def get_data(request, date, pk):
         data_list.append({'id': item.NrZp, 'data': item.Data,
                           'zmiana': item.Zmiana,
                           "rolka": item.Rolka,
-                          "nrwytl": item.NrWytl,
+                          "nrwytl": nrwyt_dict[item.NrWytl],
                           "operator": item.UserName,
                           "dlugrolkiprod": item.DlugRolkiProd,
                           "wagarolkiprod": item.WagaRolkiProd,
@@ -313,13 +298,27 @@ def get_dataCal(request, date, pk):
 
     return JsonResponse({'calc': [waga_sum, waga_end, dlugProd, dlugEnd , sumRol, finishRol]})
 
+@csrf_exempt
+def update_status(request):
+    if request.method == 'POST':
+        id = request.POST.get('id')
+        status = request.POST.get('status')
+        zamowienie = get_object_or_404(Zamowienie, NrZp=id)
+        zamowienie.Status = status
+        zamowienie.save()
+        return HttpResponse(status=200)
+
+
+### EMPLOER SECTION
 @login_required(login_url='/login')
+@allowed_user(allowed_groups=['admin'])
 def employer_list(request):
     employers = User.objects.all()
     context = {'employers': employers}
     return render(request, 'WrokersView/employer_list.html', context)
 
 @login_required(login_url='/login')
+@allowed_user(allowed_groups=['admin'])
 @require_POST
 def delete_user(request, name):
     user = get_object_or_404(User, username=name)
@@ -327,12 +326,17 @@ def delete_user(request, name):
     return redirect('Home.views.index')
 
 
-class UserUpdateView(LoginRequiredMixin, UpdateView):
+class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = User
     form_class = AddUser
     template_name = 'WrokersView/EditWorker.html'
     success_url = reverse_lazy('Pracownicy.views.index')
 
+    def test_func(self):
+        if self.request.user.groups.filter(name='admin').exists():
+            return True
+        else:
+            return False
 
     def get_object(self, queryset=None):
         # Get the user object based on the username from the URL
@@ -349,13 +353,17 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
 
 #### DATA VALIDATION SECTOR
-
-class procFolia(LoginRequiredMixin,ListView ):
+class procFolia(LoginRequiredMixin,UserPassesTestMixin, ListView ):
 
     model = Rolki
     template_name = "Doc346/ZlecWytl.html"
     serializer_class = RolSerializer
 
+    def test_func(self):
+        if self.request.user.groups.filter(name='admin').exists():
+            return True
+        else:
+            return False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -373,12 +381,13 @@ class procFolia(LoginRequiredMixin,ListView ):
 
         return context
 
-class procPrac(ListView):
+class procPrac(LoginRequiredMixin, ListView):
     model = Rolki
     template_name = "Doc346/ProdPrac.html"
     serializer_class = RolkiSumSerializer
     queryset = Rolki.objects.filter()
 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['status_dict'] = status_dict
@@ -388,23 +397,74 @@ class procPrac(ListView):
         context['serialized_data'] = serialized_data.data
         return context
 
-class procReal(ListView):
+class procReal(LoginRequiredMixin,UserPassesTestMixin, ListView):
     model = Zamowienie
     template_name = "Doc346/procZrel.html"
     serializer_class = ZamSerializer
     queryset = Zamowienie.objects.filter(Status__gt=1)
 
+    def test_func(self):
+        if self.request.user.groups.filter(name='admin').exists():
+            return True
+        else:
+            return False
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
         context['folia_dict'] = folia_dict
         serialized_data = self.serializer_class(context['object_list'], many=True)
+        for data in serialized_data.data:
+            data["Research"] = realCaluclator(data['NrZp'])
         context['serialized_data'] = serialized_data.data
-        context['realizacja'] = 10
+
         print(context)
 
         return context
 
-def tmp(request):
-        return render(request, 'Doc346/some.html')
+### REALIZACJA
+
+class RealPlan(LoginRequiredMixin, ListView):
+    model = Zamowienie
+    template_name = "Doc5/ProductionTable.html"
+    queryset = Zamowienie.objects.filter(Status=1)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        serializer = ZamSerializer(context['object_list'], many=True)
+        context['serialized_data'] = serializer.data
+        for data in serializer.data:
+            data["Research"] = realCaluclator(data['NrZp'])
+        context['status_dict'] = status_dict
+        context['nrwyt_dict'] = nrwyt_dict
+        context['folia_dict'] = folia_dict
+        return context
+
+def realCaluclator(NrZp):
+    dataRol = Rolki.objects.filter(NrZp=NrZp)
+    dataOrder = Zamowienie.objects.get(NrZp=NrZp)
+
+    if not dataRol:
+        return {'wagaSum':0,
+                'wagaEnd':0,
+                'dlugProd':0,
+                'dlugEnd':0,
+                'sumRol':0,
+                'finishRol':0}
+
+    waga_sum = dataRol.aggregate(Sum('WagaRolkiProd'))['WagaRolkiProd__sum']
+    waga_end = dataOrder.WagaFoliZlec - waga_sum
+    dlugProd = dataRol.aggregate(Sum('DlugRolkiProd'))['DlugRolkiProd__sum']
+    dlugEnd = dataOrder.IloscRolekZlec * dataOrder.DlugRolkiZlec_Korekta - dlugProd
+    sumRol = dataRol.aggregate(Count('Rolka'))['Rolka__count']
+    finishRol = dataOrder.IloscRolekZlec - sumRol
+
+    return {'wagaSum': waga_sum,
+            'wagaEnd': waga_end,
+            'dlugProd': dlugProd,
+            'dlugEnd':dlugEnd,
+            'sumRol': sumRol,
+            'finishRol': finishRol}
+
+

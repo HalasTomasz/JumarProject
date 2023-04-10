@@ -8,6 +8,7 @@
                 <table id="example" class="table table-striped table-bordered small">
 
 	<tr>
+        <th >Nr</th>
 		<th >NR ZP</th>
 		<th colspan="4">Artykuł</th>
 		<th>IlośćZlec<br>/szt/</th>
@@ -29,6 +30,7 @@
 		<th>Funkcja</th>
 	</tr>
 	<tr>
+        <td rowspan="4"> {{ forloop.counter }} </td>
 		<td rowspan="4"> {{post.NrZp}} </td>
 		<td colspan="4" rowspan="3">{{ post.Artykul }}</td>
 		<td rowspan="2">{{ post.IloscZlec}}</td>

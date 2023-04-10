@@ -26,6 +26,8 @@
 <body>
      {% include 'navbar.html' %}
      <br>
+     <h1 class="mb-2">Zlecenia produkcyjne zrealizowane lub anulowane </h1>
+
     <!-- =======  Data-Table  = Start  ========================== -->
                 <div class="data_table">
                     <table border="0" cellspacing="5" cellpadding="5">
@@ -74,7 +76,7 @@
                                 <td>{{  nrwyt_dict|get_item:post.zamowienie.NrWyt }}</td>
                                 <td>{{ post.NrZp }}</td>
                                 <td> {{ post.Zmiana }}</td>
-                                 <td>{{ post.Data|date:"Y/m/d" }}</td>
+                                 <td> {{ post.Data|date:"Y/m/d" }}</td>
                                 <td> {{ post.Rolka }} </td>
                                 <td> {{ post.zamowienie.Artykul }} </td>
                                 <td> {{ folia_dict|get_item:post.zamowienie.Rodzaj }} </td>

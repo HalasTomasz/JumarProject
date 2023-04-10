@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from .views import ProductionOrdersPlanningView, updateForm,copyForm, foliaPlanning, foliaForm, \
-    upateRolForm, UserUpdateView, procFolia, procPrac, procReal
+    upateRolForm, UserUpdateView, procFolia, procPrac, procReal, RealPlan
 
 urlpatterns = [
     path('', views.home, name='Home.views.index'),
@@ -25,10 +25,11 @@ urlpatterns = [
     path('pracownicy/Edycja/<str:name>', UserUpdateView.as_view(), name='Edycja.views.index'),
     path('usun/<str:name>', views.delete_user, name='Usun.views.index'),
 
+    path('realizacja', RealPlan.as_view(), name='Realizacja.views.index'),
 
     ### Raport section
     path('doc5',procFolia.as_view() , name='procFolia.views.index'),
     path('doc6', procPrac.as_view(), name='procPrac.views.index'),
     path('doc4', procReal.as_view() ,  name='procReal.views.index'),
-    path('tmp', views.tmp)
+    path('update_status', views.update_status, name='update_status'),
 ]
