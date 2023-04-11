@@ -56,13 +56,13 @@
                         {% for post in serialized_data %}
                              <tr>
                                 <td>{{ forloop.counter }}</td>
-                                <td>{{  nrwyt_dict|get_item:post.nr_wytl }}</td>
-                                <td> {{ post.zmiana }}</td>
-                                 <td>{{ post.datas}}</td>
-                                <td> {{ folia_dict|get_item:post.rodzaj }} </td>
-                                <td>{{ post.dlug_rolki_prod_sum }}</td>
-                                 <td>{{ post.waga_rolki_prod_sum }}</td>
-                                 <td>{{ post.operator }}</td>
+                                <td>{{  nrwyt_dict|get_item:post.NrWytl }}</td>
+                                <td> {{ post.Zmiana }}</td>
+                                 <td>{{ post.Data}}</td>
+                                <td> {{ folia_dict|get_item:post.Rodzaj }} </td>
+                                <td>{{ post.DlugRolkiProd__sum }}</td>
+                                 <td>{{ post.WagaRolkiProd__sum }}</td>
+                                 <td>{{ post.UserName }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

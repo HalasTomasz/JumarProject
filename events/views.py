@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Max
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -27,7 +27,8 @@ def get_item(dictionary, key):
 def divide(a, b):
     if b == 0:
         return 0
-    return round(a / b, 2)
+    tmp = a / b * 100
+    return round(tmp, 2)
 
 status_dict = {
     0:"Planowane",
@@ -233,10 +234,18 @@ class foliaForm(LoginRequiredMixin, CreateView):
         user = get_user(request=self.request)
         context['data'] = serializer.data
         context['user'] = user.username
+        max_rolka = Rolki.objects.filter(NrZp=NrZp).aggregate(Max('Rolka'))['Rolka__max']
+
+        if max_rolka is None:
+            max_rolka = 1
+        else:
+            max_rolka += 1
+
+        context['rolka'] = max_rolka
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
         context['folia_dict'] = folia_dict
-        print(context)
+
         return context
 
     def form_valid(self, form):
@@ -245,15 +254,29 @@ class foliaForm(LoginRequiredMixin, CreateView):
 class upateRolForm(LoginRequiredMixin, UpdateView):
     model = Rolki
     form_class = AddRolkiForm
-    template_name = "Doc2/foliaForm.html"
+    template_name = "Doc2/editForm.html"
     success_url = reverse_lazy('PlanFolia.views.index')
 
+
     def get_object(self, queryset=None):
-        obj = super().get_object(queryset=queryset)
+        # Get the object with NrZp="AAA" and Rolka="aa"
+        date = self.kwargs.get('date')
+        pk = self.kwargs.get('pk')
+        rolka = self.kwargs.get('rolka')
+        nrzp = str(date) + "/" + str(pk)
+        obj = Rolki.objects.get(NrZp=nrzp, Rolka=rolka)
         return obj
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        serializer = RolSerializer(context['object'], many=False)
+        context['rols'] = serializer.data
+        date = self.kwargs.get('date')
+        pk = self.kwargs.get('pk')
+        nrzp = str(date) + "/" + str(pk)
+        data = Zamowienie.objects.get(NrZp=nrzp)
+        dataSem = ZamSerializer(data)
+        context['data'] = dataSem.data
         return context
 
 @login_required(login_url='/login')
@@ -262,6 +285,7 @@ def get_data(request, date, pk):
     data = Rolki.objects.filter(NrZp=NrZp)
     data_list = []
     for item in data:
+        print(item.UserName)
         data_list.append({'id': item.NrZp, 'data': item.Data,
                           'zmiana': item.Zmiana,
                           "rolka": item.Rolka,
@@ -393,8 +417,12 @@ class procPrac(LoginRequiredMixin, ListView):
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
         context['folia_dict'] = folia_dict
-        serialized_data = self.serializer_class(context['object_list'], many=True)
-        context['serialized_data'] = serialized_data.data
+        queary = Rolki.objects.values('Data', 'Zmiana', 'NrWytl', 'Rodzaj' ,'UserName').annotate(
+            Sum('DlugRolkiProd'), Sum('WagaRolkiProd')
+        )
+
+        context['serialized_data'] = queary
+        print(context)
         return context
 
 class procReal(LoginRequiredMixin,UserPassesTestMixin, ListView):
@@ -418,9 +446,6 @@ class procReal(LoginRequiredMixin,UserPassesTestMixin, ListView):
         for data in serialized_data.data:
             data["Research"] = realCaluclator(data['NrZp'])
         context['serialized_data'] = serialized_data.data
-
-        print(context)
-
         return context
 
 ### REALIZACJA

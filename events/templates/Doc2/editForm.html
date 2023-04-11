@@ -28,30 +28,30 @@
             </div>
           <div class="col-auto">
                 <label  class="form-label" style="display: inline-block;">Operator:</label>
-                 <input type="text" class="form-control" value="{{ user }}"  id="id_UserName"   name="UserName"  style="display: inline-block; width: auto;" readonly>
+                 <input type="text" class="form-control" name="UserName"  style="display: inline-block; width: auto;" id="id_UserName" value="{{ rols.UserName }}" readonly>
             </div>
           <div class="col-auto">
                 <label  class="form-label" style="display: inline-block;">Dolne Odch:</label>
-                 <input type="text" class="form-control" name="DolneOdch"  style="display: inline-block; width: auto;" id="id_DolneOdch" value="{{ data.DolneOdch }}" readonly>
+                 <input type="text" class="form-control" name="UserName"  style="display: inline-block; width: auto;" id="id_DolneOdch" value="{{ data.DolneOdch }}" readonly>
             </div>
           <div class="col-auto">
                 <label  class="form-label" style="display: inline-block;">WagaRolkiZlec:</label>
-                 <input type="text" class="form-control" name="WagaRolkiZlec"  style="display: inline-block; width: auto;" id="id_WagaRolkiZlec" value="{{ data.WagaRolkiZlec }}" readonly>
+                 <input type="text" class="form-control" name="UserName"  style="display: inline-block; width: auto;" id="id_WagaRolkiZlec" value="{{ data.WagaRolkiZlec }}" readonly>
             </div>
     </div>
 
     <div class="mb-3">
         <label for="data" class="form-label fw-bold">Data produkcji</label>
-        <input type="date" name="Data"  class="form-control"  id="id_Data">
+        <input type="date" name="Data"  class="form-control"  id="id_Data" value="{{ rols.Data }}">
     </div>
     <div class="row g-3 mb-3">
       <div class="col-auto">
         <label for="data" class="form-label">Zmiana</label>
-        <input type="number"   min="1" max="3" step="1"  class="form-control" name="Zmiana" id="id_Zmiana" >
+        <input type="number" class="form-control" name="Zmiana" id="id_Zmiana" value="{{ rols.Zmiana }}" readonly >
       </div>
         <div class="col-auto">
         <label for="rolka" class="form-label">Nr Rolki</label>
-        <input type="text" class="form-control"  value="{{rolka}}" name="Rolka" id="id_Rolka" readonly>
+        <input type="text" class="form-control"  name="Rolka" id="id_Rolka" value="{{ rols.Rolka }}" readonly>
       </div>
         <div class="col-auto">
             <label for="status" class="form-label">NrWytł</label>
@@ -66,41 +66,41 @@
     <div class="row g-3 mb-3">
       <div class="col-auto">
         <label for="dlugrolkiprod" class="form-label">DługRolkiProd [mb]</label>
-        <input type="number" class="form-control" name="DlugRolkiProd" id="id_DługRolkiProd">
+        <input type="number" class="form-control" name="DlugRolkiProd" id="id_DlugRolkiProd" value="{{ rols.Rolka }}">
       </div>
         <div class="col-auto">
         <label for="wagarolkiprod" class="form-label">WagaRolkiProd [kg]</label>
-        <input type="number" step="0.01" class="form-control"  name="WagaRolkiProd" id="id_WagaRolkiProd" onchange="zakladkaFunc()">
+        <input type="number" step="0.01" class="form-control"  name="WagaRolkiProd" id="id_WagaRolkiProd" value="{{ rols.WagaRolkiProd }}" onchange="zakladkaFunc()">
       </div>
           <div class="col-auto ">
             <label class="form-label" for="walce">Walce</label>
-            <input type="number"  name="Walce" id="id_Walce" class="form-control" />
+            <input type="number"  name="Walce" id="id_Walce" class="form-control" value="{{ rols.Walce }}" />
         </div>
           <div class="col-auto ">
             <label class="form-label" for="slimak">Ślimak</label>
-            <input type="number"  name="Slimak" id="id_Slimak" class="form-control"/>
+            <input type="number"  name="Slimak" id="id_Slimak" class="form-control" value="{{ rols.Slimak }}"/>
         </div>
     </div>
 
     <div class="row g-2 mb-3">
         <div class="col_auto">
             <label for="grubosc" class="form-label">Wynikowa grubość [mikrony]</label>
-            <input type="number" class="form-control" name="Wynikowa" id="id_Wynikowa" readonly>
+            <input type="number" class="form-control" name="Wynikowa" id="id_Wynikowa" value="{{ rols.Wynikowa }}" readonly>
         </div>
          <div class="col_auto">
             <label for="wynik" class="form-label">GrubośćWynik %</label>
-            <input type="number"  class="form-control" name="Wynik" id="id_Wynik" readonly>
+            <input type="number"  class="form-control" name="Wynik" id="id_Wynik"  value="{{ rols.Wynik }}" readonly>
         </div>
     </div>
 
     <div class="row g-2 mb-3">
         <div class="col_auto">
             <label for="mieszanka" class="form-label">Mieszanka</label>
-            <input type="text" class="form-control" name="Mieszanka" id="id_Mieszanka"  maxlength="40">
+            <input type="text" class="form-control" name="Mieszanka" id="id_Mieszanka" value="{{ rols.Mieszanka }}" maxlength="40">
         </div>
          <div class="col_auto">
             <label for="uwagi" class="form-label">Uwagi</label>
-            <input type="text" class="form-control" name="Uwagi" id="id_Uwagi"  maxlength="40">
+            <input type="text" class="form-control" name="Uwagi" id="id_Uwagi" value="{{ rols.Uwagi }}"  maxlength="40">
         </div>
     </div>
 
@@ -111,18 +111,24 @@
     </div>
 </body>
 </html>
+<script type="text/javascript">
+    var rodzaj = document.getElementById("id_NrWytl");
+        for(i=0; i<rodzaj.options.length; i++){
+            if(rodzaj.options[i].value == {{ rols.NrWytl }}){
+                rodzaj.selectedIndex = i;
+            }
+        }
+</script>
  <script type="text/javascript">
 
         //Dolne odchylenie*WagaRolkiProd/WagaRolkiZlec
           function zakladkaFunc() {
-              var tmp = document.getElementById('id_UserName');
-              console.log(tmp.value)
             var input = document.getElementById('id_DolneOdch');
             var input2 = document.getElementById('id_WagaRolkiProd');
             var input3 = document.getElementById('id_WagaRolkiZlec');
             if (input.value && input2.value && input3.value) {
                 var zakaldka = document.getElementById('id_Wynikowa');
-                zakaldka.value = ((Number(input.value) * Number(input2.value))/Number(input3.value)).toFixed(2);
+                zakaldka.value = (Number(input.value) * Number(input2.value))/Number(input3.value);
             }
             wagafolizlecFunc();
           }
@@ -133,7 +139,7 @@
 
             if (input.value && input2.value) {
                 var waga = document.getElementById('id_Wynik');
-                waga.value = (Number(input.value)/Number(input2.value)*100).toFixed(2);
+                waga.value = Number(input.value)/Number(input2.value)*100;
             }
           }
 </script>

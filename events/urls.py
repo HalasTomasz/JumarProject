@@ -10,11 +10,10 @@ urlpatterns = [
 
     path("form", views.addProduct, name='Form.views.index'), #1
     path('planProc', ProductionOrdersPlanningView.as_view(), name='PlanProc.views.index'),
-
-    path("editForm/<int:pk>", updateForm.as_view(), name="editForm"), #2
+    path("editForm/<int:pk>", updateForm.as_view(), name="editForm"),
     path("copyForm/<int:pk>", copyForm.as_view(), name="copyForm"),
 
-    path('planFolia', foliaPlanning.as_view(), name="PlanFolia.views.index"), #3
+    path('planFolia', foliaPlanning.as_view(), name="PlanFolia.views.index"), #3  # 3
     path('formFolia/<str:date>/<int:pk>', foliaForm.as_view(), name="formFolia.views.index"),
     path('get-data/<str:date>/<int:pk>', views.get_data, name='get-data'),
     path('get-dataCal/<str:date>/<int:pk>', views.get_dataCal, name='get-dataCal'),

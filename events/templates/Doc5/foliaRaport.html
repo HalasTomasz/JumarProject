@@ -10,14 +10,99 @@
     <!-- Google Fonts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href={% static "css/table.css" %}>
+      <style>
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .popup-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+</style>
 </head>
 <body>
    {% include 'navbar.html' %}
     <br>
-
+        {% csrf_token %}
     {% for post in serialized_data %}
        {% block table %}
 
        {% endblock %}
  {% endfor %}
+  <div class="popup">
+        <div class="popup-content">
+            <h2>Zmień Status</h2>
+            <select class="form-select"  name="Status" id="id_Status" aria-label="Default select example">
+              <option value="0">Planowane</option>
+              <option value="1">W realizacji</option>
+              <option value="2">Zrealizowane</option>
+              <option value="3">Anulowane</option>
+            </select>
+            <br><br>
+            <button onclick="updateStatus()">Save</button>
+            <button onclick="hidePopup()">Cancel</button>
+        </div>
+    </div>
 </body>
+<script src={% static "js/jquery-3.6.0.min.js" %}></script>
+<script>
+
+var global_id = NaN
+function showPopup(id) {
+    // Show the popup
+    console.log(id)
+    $(".popup").show();
+    // Set the selected object ID
+    global_id = id
+}
+
+function hidePopup() {
+    // Hide the popup
+    $(".popup").hide();
+}
+
+function updateStatus() {
+    // Get the selected object ID and status value
+
+    var status = $("#id_Status").val();
+    // Update the object status in the database
+    $.ajax({
+        url: "/update_status",
+        method: "POST",
+        data: {
+            "id": global_id,
+            "status": status,
+            "csrfmiddlewaretoken": "{{ csrf_token }}"
+        },
+        success: function(data) {
+            // Hide the popup and refresh the page
+            hidePopup();
+            window.location.reload();
+        },
+        error: function(xhr, status, error) {
+            // Handle error
+            alert("Error updating status.");
+        }
+    });
+}
+
+</script>

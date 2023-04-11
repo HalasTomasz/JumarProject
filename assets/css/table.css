@@ -1,6 +1,7 @@
 .table {
     border:none;
     border-collapse: collapse;
+    padding-bottom: 10px;
 }
 
 .table td {
@@ -9,7 +10,7 @@
     border-left: 2px solid #000;
     border-right: 2px solid #000;
     font-size: 1em;
-    padding: 2px !important;
+    padding: 5px !important;
     height: 1px;
     text-align: center;
   vertical-align: middle;
@@ -25,7 +26,8 @@
 }
 
 .table th {
-  font-size: 0.6em;
+  font-size: 0.8em;
+    margin: 3px;
   height: 1px;
   border-bottom: 2px solid black;
   border-top: 2px solid black;
@@ -34,6 +36,7 @@
   text-align: center;
     vertical-align: middle;
   padding: 0.3em;
-    background-color: chartreuse;
-}
+    background-color: lightgrey;
+      color: black;
 
+}
