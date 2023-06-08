@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,82 +9,86 @@
 
 </head>
 <body>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+                      <div class="alert alert-dismissible alert-warning">
+              <button type="button" class="close" data-dismiss="alert">
+              ×
+              </button>
+              <strong>{{message}}</strong>
+        </div>
+        {% endfor %}
+    </ul>
+{% endif %}
+
 <div class="container p-3">
     <div class="contact-box">
-<form method="post">
+<form method="POST">
     {% csrf_token %}
     <div class="mb-3">
+         <label class="text-danger"  style="font-size: 18px;">Pola obowiązkowe    </label>&nbsp <!-- Red color for mandatory fields -->
+        <label class="text-info"  style="font-size: 18px;">Pola nieobowiązkowe     </label> &nbsp <!-- Secondary color for optional fields -->
+        <label class="text-secondary"  style="font-size: 18px;">Pola automatycznie</label>
+    </div>
+    <div class="mb-3">
         <label for="nr_zp" class="form-label fw-bold">NrZp</label>
-        <input type="text" name="NrZp"  value="{{ data.NrZp }}" class="form-control"  id="id_NrZp" readonly>
+        <input style="border-color: #FF0000;" type="text" name="NrZp"  value="{{ data.NrZp }}" class="form-control"  id="id_NrZp" readonly>
     </div>
 
     <div class="mb-3">
         <label for="artykul" class="form-label fw-bold">Artykuł</label>
-        <input type="text" name="Artykul"  value="{{ data.Artykul }}" class="form-control"  id="id_Artykul" placeholder="Produkowana folia" maxlength="40">
+        <input style="border-color: #FF0000;" type="text" name="Artykul" class="form-control" id="id_Artykul" placeholder="Produkowana folia" maxlength="40" value="{{ data.Artykul }}">
     </div>
-    <div class="row g-4 mb-3">
+    <div class="row g-5 mb-3">
       <div class="col-auto">
         <label for="data" class="form-label">Data</label>
-        <input type="date" value="{{ data.Data }}" class="form-control" name="Data" id="id_Data">
-      </div>
-        <div class="col-auto">
-        <label for="kod" class="form-label">Kod</label>
-        <input type="text" class="form-control" value="{{ data.Kod }}"  name="Kod" id="id_Kod">
+        <input style="border-color: #FF0000;" type="date" class="form-control" name="Data" id="id_Data" value="{{ data.Data }}">
       </div>
         <div class="col-auto">
             <label class="form-label" for="ilosczlec">IlośćZlec [szt]</label>
-            <input type="number" value="{{ data.IloscZlec }}"   name="IloscZlec" id="id_IloscZlec" class="form-control" onchange="dlugfoliplanFunc()" />
+            <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_IloscZlec')" value="{{ data.IloscZlec|readable_integer }}"  name="IloscZlec" id="id_IloscZlec" class="form-control" onchange="dlugfoliplanFunc()" />
         </div>
             <div class="col-auto">
                 <label class="form-label" for="rodzaj">Rodzaj folii</label>
-                <select class="form-select" name="Rodzaj" id="id_Rodzaj" aria-label="Default select example" onchange="wagafolizlecFunc()">
+                <select style="border-color: #FF0000;" class="form-select" name="Rodzaj" id="id_Rodzaj" aria-label="Default select example"  onchange="wagafolizlecFunc()">
                   <option value="0">HDPE</option>
                   <option value="1">LDPE</option>
                   <option value="2">MDPE</option>
                 </select>
             </div>
-    </div>
-
-    <div class="row g-4 mb-3">
-      <div class="col-auto">
-        <label for="mmk" class="form-label">MMK</label>
-        <input type="text" value="{{ data.MMK}}" class="form-control" name="MMK" id="id_MMK">
-      </div>
-        <div class="col-auto">
-        <label for="barwnik" class="form-label">Barwnik</label>
-        <input type="text" value="{{ data.Barwnik}}" class="form-control"  name="Barwnik" id="id_Barwnik">
-      </div>
         <div class="col-auto">
             <label for="status" class="form-label">Status</label>
-        <select class="form-select" name="Status" id="id_Status" aria-label="Default select example">
-          <option value="0">Planowane</option>
-          <option value="1">W realizacji</option>
-          <option value="2">Zrealizowane</option>
-          <option value="3">Anulowane</option>
-        </select>
-      </div>
+            <select style="border-color: #FF0000;" class="form-select"  name="Status" id="id_Status" aria-label="Default select example">
+              <option value="0">Planowane</option>
+              <option value="1">W realizacji</option>
+              <option value="2">Zrealizowane</option>
+              <option value="3">Anulowane</option>
+            </select>
+          </div>
         <div class="col-auto">
             <label for="status" class="form-label">NrWytł</label>
-        <select class="form-select" name="NrWyt" id="id_NrWyt" aria-label="Default select example">
-          <option value="0">W1</option>
-          <option value="1">W2</option>
-          <option value="2">W3</option>
-        </select>
-    </div>
+            <select style="border-color: #FF0000;" class="form-select" name="NrWyt" id="id_NrWyt" aria-label="Default select example">
+              <option value="0">W1</option>
+              <option value="1">W2</option>
+              <option value="2">W3</option>
+            </select>
+        </div>
     </div>
 
     <div class="row g-3 mb-3">
         <div class="col-auto ">
             <label class="form-label" for="szerworka">SzerWorka [mm]</label>
-            <input type="number" value="{{ data.SzerWorka }}" name="SzerWorka" id="id_SzerWorka" class="form-control" onchange="zakladkaFunc()" />
+            <input style="border-color: #FF0000;" type="text"  value="{{ data.SzerWorka | readable_integer }}"  onkeyup="addSeparator('id_SzerWorka')"  name="SzerWorka" id="id_SzerWorka" class="form-control" onchange="zakladkaFunc()" />
         </div>
         <div class="col-auto ">
             <label class="form-label" for="szerrekawa">SzerRękawa [mm]</label>
-            <input type="number" value="{{ data.SzerRekawa }}" name="SzerRekawa" id="id_SzerRekawa" class="form-control"  onchange="zakladkaFunc()" />
+            <input style="border-color: #FF0000;" type="text" value="{{ data.SzerRekawa | readable_integer  }}"  onkeyup="addSeparator('id_SzerRekawa')" name="SzerRekawa" id="id_SzerRekawa" class="form-control"  onchange="zakladkaFunc(), wagafolizlecFunc()" />
         </div>
         <div class=" col-auto ">
             <label class="form-label" for="zaklada">Zakładka [mm]</label>
-            <input class="form-control"  value="{{ data.Zakladka }}" name="Zakladka" id="id_Zakladka" type="number" aria-label="Disabled input example"  readonly>
+            <input style="border-color: #CCCCCC;" class="form-control" value="{{ data.Zakladka | readable_integer  }}"  name="Zakladka" id="id_Zakladka" type="text"   aria-label="Disabled input example"  readonly>
          </div>
 
     </div>
@@ -91,30 +96,30 @@
        <div class="row g-4 mb-3">
         <div class="col-auto ">
             <label class="form-label" for="dlugworka">DługWorka [mm]</label>
-            <input type="number" value="{{ data.DlugWorka }}" name="DlugWorka" id="id_DlugWorka" class="form-control" onchange="dlugfoliplanFunc()" />
+            <input  style="border-color: #FF0000;" type="text" value="{{ data.DlugWorka | readable_integer }}"  onkeyup="addSeparator('id_DlugWorka')" name="DlugWorka" id="id_DlugWorka" class="form-control" onchange="dlugfoliplanFunc()" />
         </div>
         <div class="col-auto ">
-            <label class="form-label" for="grubworka">GrubWorka [mm]</label>
-            <input type="number" value="{{ data.GrubWorka }}" name="GrubWorka"  id="id_GrubWorka" class="form-control"/>
+            <label class="form-label" for="grubworka">GrubWorka [mikr]</label>
+            <input style="border-color: #FF0000;" type="text"  value="{{ data.GrubWorka | readable_integer }}" onkeyup="addSeparator('id_GrubWorka')" name="GrubWorka"  id="id_GrubWorka" class="form-control"/>
         </div>
            <div class="col-auto ">
             <label class="form-label" for="dolneodch">DolneOdch [mikr]</label>
-            <input type="number" value="{{ data.DolneOdch }}" name="DolneOdch" id="id_DolneOdch" class="form-control"/>
+            <input style="border-color: #FF0000;" type="text" value="{{ data.DolneOdch | readable_integer }}"  onkeyup="addSeparator('id_DolneOdch')" name="DolneOdch" id="id_DolneOdch" class="form-control" onchange="wagafolizlecFunc()"/>
         </div>
            <div class="col-auto ">
-            <label class="form-label" for="dlugfoliplan_korekta">DługFoilPlan Korekta [?]</label>
-            <input type="number" step="0.01" value="{{ data.DlugFoilPlan_Korekta }}" name="DlugFoilPlan_Korekta" id="id_DlugFoilPlan_Korekta" class="form-control" onchange="dlugfoliplanFunc()"/>
+            <label class="form-label" for="dlugfoliplan_korekta">DługFoilPlan Korekta [%]</label>
+            <input style="border-color: #FF0000;" type="text"  value="{{ data.DlugFoilPlan_Korekta  }}"  onkeyup="addSeparator('id_DlugFoilPlan_Korekta')"  name="DlugFoilPlan_Korekta" id="id_DlugFoilPlan_Korekta" class="form-control" onchange="dlugfoliplanFunc()" />
         </div>
     </div>
 
     <div class="row g-2 mb-3">
         <div class="col-auto ">
-            <label class="form-label" for="wagafolizlec">WagaFoliZlec [kg]</label>
-            <input type="number" name="WagaFoliZlec" id="id_WagaFoliZlec"  value="{{ data.WagaFoliZlec }}"  class="form-control"  aria-label="Disabled input example"  readonly onchange="wagarolkizlecFunc()"/>
+            <label class="form-label" for="wagafolizlec">WagaFoilZlec [kg]</label>
+            <input style="border-color: #CCCCCC;" type="text"  value="{{ data.WagaFoliZlec | readable_integer }}" name="WagaFoliZlec" id="id_WagaFoliZlec" class="form-control"  aria-label="Disabled input example"  readonly onchange="wagarolkizlecFunc()"/>
         </div>
         <div class="col-auto ">
-            <label class="form-label" for="dlugfoliplan">DługFoliPlan [mb]</label>
-            <input type="number" name="DlugFoliPlan" id="id_DlugFoliPlan" class="form-control" value="{{ data.DlugFoliPlan }}" aria-label="Disabled input example"  readonly onchange="dlugrolkiplanFunc()" />
+            <label class="form-label" for="dlugfoliplan">DługFoilPlan [mb]</label>
+            <input style="border-color: #CCCCCC;" type="text"  value="{{ data.DlugFoliPlan | readable_integer }}" name="DlugFoliPlan" id="id_DlugFoliPlan" class="form-control"  aria-label="Disabled input example"  readonly onchange="dlugrolkiplanFunc()" />
         </div>
     </div>
 
@@ -122,147 +127,227 @@
     <div class="row g-2 mb-3">
         <div class="col-auto ">
             <label class="form-label" for="iloscrolekzlec">IlośćRolekZlec [szt]</label>
-            <input type="number" name="IloscRolekZlec" id="id_IloscRolekZlec"  value="{{ data.IloscRolekZlec }}" class="form-control" onchange="dlugrolkiplanFunc(); wagarolkizlecFunc();dlugfolizlecFunc()" />
+            <input style="border-color: #FF0000;" type="text" value="{{ data.IloscRolekZlec | readable_integer }}" onkeyup="addSeparator('id_IloscRolekZlec')" name="IloscRolekZlec" id="id_IloscRolekZlec" class="form-control" onchange="dlugrolkiplanFunc(); wagarolkizlecFunc();dlugfolizlecFunc()" />
         </div>
         <div class="col-auto ">
             <label class="form-label" for="dlugrolkizlec_korekta">DługRolkiZlec korekta [mb]</label>
-            <input type="number" name="DlugRolkiZlec_Korekta" id="id_DlugRolkiZlec_Korekta"  value="{{ data.DlugRolkiZlec_Korekta }}" class="form-control" onchange="dlugfolizlecFunc()" />
+            <input style="border-color: #FF0000;" type="text"  value="{{ data.DlugRolkiZlec_Korekta | readable_integer }}" onkeyup="addSeparator('id_DlugRolkiZlec_Korekta')" name="DlugRolkiZlec_Korekta" id="id_DlugRolkiZlec_Korekta" class="form-control" onchange="dlugfolizlecFunc()" />
         </div>
     </div>
 
     <div class="row g-3 mb-3">
         <div class="col-auto">
             <label class="form-label" for="dlugrolkiplan">DługRolkiPlan [mb]</label>
-            <input type="number" name="DlugRolkiPlan"  id="id_DlugRolkiPlan"  value="{{ data.DlugRolkiPlan }}" class="form-control" aria-label="Disabled input example" readonly/>
+            <input style="border-color: #CCCCCC;" type="text"  value="{{ data.DlugRolkiPlan | readable_integer }}" onkeyup="addSeparator('id_DlugRolkiPlan')" name="DlugRolkiPlan"  id="id_DlugRolkiPlan" class="form-control"  aria-label="Disabled input example" readonly/>
         </div>
         <div class="col-auto">
             <label class="form-label" for="dlugfolizlec_korekta">DługFoilZlec korekta [mb]</label>
-            <input type="number" name="DlugFoliZlec_Korekta" id="id_DlugFoliZlec_Korekta" value="{{ data.DlugFoliZlec_Korekta }}" class="form-control" aria-label="Disabled input example"  readonly />
+            <input style="border-color: #CCCCCC;" type="text" value="{{ data.DlugFoliZlec_Korekta | readable_integer }}" onkeyup="addSeparator('id_DlugFoliZlec_Korekta')" name="DlugFoliZlec_Korekta" id="id_DlugFoliZlec_Korekta" class="form-control"  aria-label="Disabled input example"  readonly />
         </div>
         <div class="col-auto">
             <label class="form-label" for="wagarolkizlec">WagaRolkiZlec [kg]</label>
-            <input type="number" name="WagaRolkiZlec" id="id_WagaRolkiZlec"  value="{{ data.WagaRolkiZlec }}"  class="form-control"  aria-label="Disabled input example"  readonly />
+            <input style="border-color: #CCCCCC;" type="text" value="{{ data.WagaRolkiZlec | readable_integer }}" name="WagaRolkiZlec" id="id_WagaRolkiZlec" class="form-control"  aria-label="Disabled input example"  readonly />
         </div>
     </div>
 
     <div class="mb-3">
         <label for="uwagi" class="form-label">Uwagi</label>
-        <input type="text" value="{{ data.Uwagi}}" class="form-control" name="Uwagi" id="id_Uwagi"  maxlength="40">
+        <input  style="border-color: #00BFFF;" value="{{ data.Uwagi | default_if_none:''}}" type="text" class="form-control" name="Uwagi" id="id_Uwagi"  maxlength="40" >
     </div>
-    <button type="submit" class="btn btn-primary fw-bold " >Edytuj</button>
+    <div class="row g-3 mb-5">
+    <div class="col-auto">
+        <label for="kod" class="form-label">Kod</label>
+        <input style="border-color: #00BFFF;" value="{{ data.Kod | default_if_none:'' }}" type="text" class="form-control"  maxlength="20" name="Kod" id="id_Kod" >
+      </div>
+    <div class="col-auto">
+        <label for="mmk" class="form-label">MMK</label>
+        <input style="border-color: #00BFFF;"  value="{{ data.MMK | default_if_none:''}}" type="text" class="form-control" maxlength="20" name="MMK" id="id_MMK" ">
+      </div>
+        <div class="col-auto">
+        <label for="barwnik" class="form-label">Barwnik</label>
+        <input style="border-color: #00BFFF;"  value="{{ data.Barwnik | default_if_none:''}}" type="text" class="form-control"  maxlength="20" name="Barwnik" id="id_Barwnik" >
+      </div>
+    </div>
+    <div class="col text-center">
+        <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'PlanProc.views.index' %}'">Anuluj</button>
+      <button type="submit" class="btn btn-secondary fw-bold">Zapisz</button>
+    </div>
 </form>
      </div>
     </div>
 </body>
 
+
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-     <script type="text/javascript">
-
-         var rodzaj = document.getElementById("id_Rodzaj");
-        for(i=0; i<rodzaj.options.length; i++){
-            if(rodzaj.options[i].value == {{ data.Rodzaj }}){
-                rodzaj.selectedIndex = i;
-            }
-        }
-
-        var rodzaj = document.getElementById("id_Status");
-        for(i=0; i<rodzaj.options.length; i++){
-            if(rodzaj.options[i].value == {{ data.Status }}){
-                rodzaj.selectedIndex = i;
-            }
-        }
-
-        var rodzaj = document.getElementById("id_NrWyt");
-        for(i=0; i<rodzaj.options.length; i++){
-            if(rodzaj.options[i].value == {{ data.NrWyt }}){
-                rodzaj.selectedIndex = i;
-            }
-        }
+   <script src={% static "js/sep.js" %}></script>
+    <script type="text/javascript">
 
         var dict = {
-          "0": 0.97,
-          "1": 0.94,
+          "0": 0.96,
+          "1": 0.935,
+            "2":0.94,
         };
-          function zakladkaFunc() {
-            var input = document.getElementById('id_SzerRekawa');
-            var input2 = document.getElementById('id_SzerWorka');
 
-            if (input.value && input2.value) {
-                var zakaldka = document.getElementById('id_Zakladka');
-                console.log(input.value)
-                console.log(input2.value)
-                zakaldka.value = (Number(input2.value) - Number(input.value))/2;
-            }
+      function zakladkaFunc() {
+  var input = document.getElementById('id_SzerRekawa');
+  var input2 = document.getElementById('id_SzerWorka');
+  var zakladka = document.getElementById('id_Zakladka');
 
-          }
+  if (input.value.trim() && input2.value.trim()) {
+    var value1 = input.value.replace(/ /g, '');
+    var value2 = input2.value.replace(/ /g, '');
 
-          function wagafolizlecFunc() {
-            var input = document.getElementById('id_SzerRekawa');
-            var input2 = document.getElementById('id_DolneOdch');
-            var input3 = document.getElementById('id_DlugFoliPlan');
-            var input4 = document.getElementById('id_Rodzaj');
+    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2)) {
+      var result = (parseFloat(value1) - parseFloat(value2)) / 2;
+      zakladka.value = result;
+      addSeparator('id_Zakladka');
+    } else {
+      zakladka.value = '';
+    }
+  }
+}
 
-            if (input.value && input2.value && input3.value && input4.value) {
-                var waga = document.getElementById('id_WagaFoliZlec');
-                var gest = Number(dict[input4.value])
-                waga.value = (Number(input.value)/1000 * Number(input2.value)/1000 * Number(input3.value)*1.9*gest).toFixed(2);
-            }
-          }
+function wagafolizlecFunc() {
+  var input = document.getElementById('id_SzerRekawa');
+  var input2 = document.getElementById('id_DolneOdch');
+  var input3 = document.getElementById('id_DlugFoliPlan');
+  var input4 = document.getElementById('id_Rodzaj');
+  var waga = document.getElementById('id_WagaFoliZlec');
 
-        function dlugfoliplanFunc() {
-            var input = document.getElementById('id_IloscZlec');
-            var input2 = document.getElementById('id_DlugWorka');
-            var input3 = document.getElementById('id_DlugFoilPlan_Korekta');
-            if (input.value && input2.value  && input3.value) {
-                var dlug = document.getElementById('id_DlugFoliPlan');
-                dlug.value = ((Number(input.value) * Number(input2.value)*Number(input3.value))/1000).toFixed(2);
-                wagafolizlecFunc()
-            }
+  if (input.value.trim() && input2.value.trim() && input3.value.trim() && input4.value.trim()) {
+    var value1 = input.value.replace(/ /g, '');
+    var value2 = input2.value.replace(/ /g, '');
+    var value3 = input3.value.replace(/ /g, '');
 
-          }
+    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && /^\d*\.?\d+$/.test(value3)) {
+      var gest = parseFloat(dict[input4.value]);
 
-        function dlugrolkiplanFunc() {
-            var input = document.getElementById('id_DlugFoliPlan');
-            var input2 = document.getElementById('id_IloscRolekZlec');
-            if (input.value && input2.value) {
-                var dlug = document.getElementById('id_DlugRolkiPlan');
-                dlug.value = (Number(input.value) / Number(input2.value)).toFixed(2);
-            }
-          }
+      if (!isNaN(gest)) {
+        var result = (parseFloat(value1) / 1000 * parseFloat(value2) / 1000 * parseFloat(value3) * 1.9 * gest).toFixed(2);
+        waga.value = result;
+        addSeparator('id_WagaFoliZlec');
+        wagarolkizlecFunc();
+      } else {
+        waga.value = '';
+      }
+    } else {
+      waga.value = '';
+    }
+  }
+}
 
-        function wagarolkizlecFunc() {
-            var input = document.getElementById('id_WagaFoliZlec');
-            var input2 = document.getElementById('id_IloscRolekZlec');
+function dlugfoliplanFunc() {
+  var input = document.getElementById('id_IloscZlec');
+  var input2 = document.getElementById('id_DlugWorka');
+  var input3 = document.getElementById('id_DlugFoilPlan_Korekta');
+  var dlug = document.getElementById('id_DlugFoliPlan');
 
-            if (input.value && input2.value) {
-                console.log(input.value)
-                console.log(input2.value)
-                var waga = document.getElementById('id_WagaRolkiZlec');
-                waga.value = (Number(input.value)/Number(input2.value)).toFixed(2);
-            }
-          }
+  if (input.value.trim() && input2.value.trim() && input3.value.trim()) {
+    var value1 = input.value.replace(/ /g, '');
+    var value2 = input2.value.replace(/ /g, '');
+    var value3 = input3.value.replace(/ /g, '');
 
-        function dlugfolizlecFunc() {
-            var input = document.getElementById('id_DlugRolkiZlec_Korekta');
-            var input2 = document.getElementById('id_IloscRolekZlec');
-            if (input.value && input2.value) {
-                var dlug = document.getElementById('id_DlugFoliZlec_Korekta');
-                dlug.value = (Number(input.value) * Number(input2.value)).toFixed(2);
-            }
-          }
+    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && /^\d*\.?\d+$/.test(value3)) {
+      var result = (parseFloat(value1) * parseFloat(value2) * parseFloat(value3) / 1000).toFixed(2);
+      dlug.value = result;
+      addSeparator('id_DlugFoliPlan');
+      wagafolizlecFunc();
+      dlugrolkiplanFunc();
+    } else {
+      dlug.value = '';
+      wagafolizlecFunc();
+    }
+  }
+}
 
-          var isFirstLoad = localStorage.getItem('isFirstLoad');
+function dlugrolkiplanFunc() {
+  var input = document.getElementById('id_DlugFoliPlan');
+  var input2 = document.getElementById('id_IloscRolekZlec');
+  var dlug = document.getElementById('id_DlugRolkiPlan');
 
-        if (!isFirstLoad) {
-         zakladkaFunc();
-         wagafolizlecFunc();
-         dlugfoliplanFunc();
-         dlugrolkiplanFunc();
-         wagarolkizlecFunc();
-         dlugfolizlecFunc();
-         localStorage.setItem('isFirstLoad', 'true');
-        }
+  if (input.value.trim() && input2.value.trim()) {
+    var value1 = input.value.replace(/ /g, '');
+    var value2 = input2.value.replace(/ /g, '');
+
+    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && parseFloat(value2) !== 0) {
+      var result = (parseFloat(value1) / parseFloat(value2)).toFixed(2);
+      dlug.value = result;
+      addSeparator('id_DlugRolkiPlan');
+    } else {
+      dlug.value = '';
+    }
+  }
+}
+
+function wagarolkizlecFunc() {
+  var input = document.getElementById('id_WagaFoliZlec');
+  var input2 = document.getElementById('id_IloscRolekZlec');
+  var waga = document.getElementById('id_WagaRolkiZlec');
+
+  if (input.value.trim() && input2.value.trim()) {
+    var value1 = input.value.replace(/ /g, '');
+    var value2 = input2.value.replace(/ /g, '');
+
+    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && parseFloat(value2) !== 0) {
+      var result = (parseFloat(value1) / parseFloat(value2)).toFixed(2);
+      waga.value = result;
+      addSeparator('id_WagaRolkiZlec');
+    } else {
+      waga.value = '';
+    }
+  }
+}
+
+function dlugfolizlecFunc() {
+  var input = document.getElementById('id_DlugRolkiZlec_Korekta');
+  var input2 = document.getElementById('id_IloscRolekZlec');
+  var dlug = document.getElementById('id_DlugFoliZlec_Korekta');
+
+  if (input.value.trim() && input2.value.trim()) {
+    var value1 = input.value.replace(/ /g, '');
+    var value2 = input2.value.replace(/ /g, '');
+
+    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2)) {
+      var result = (parseFloat(value1) * parseFloat(value2)).toFixed(2);
+      dlug.value = result;
+      addSeparator('id_DlugFoliZlec_Korekta');
+    } else {
+      dlug.value = '';
+    }
+  }
+}
+
 
     </script>
+<script type="text/javascript">
+    var rodzaj = document.getElementById("id_NrWyt");
+  var selectedValue = "{{ data.NrWyt }}";  // Assuming form is a valid context variable in your template
+
+  for (var i = 0; i < rodzaj.options.length; i++) {
+    if (rodzaj.options[i].value == selectedValue) {
+      rodzaj.selectedIndex = i;
+      break;
+    }
+  }
+
+  var rodzaj2 = document.getElementById("id_Status");
+  var selectedValue2 = "{{ data.Status }}";  // Assuming form is a valid context variable in your template
+
+  for (var i = 0; i < rodzaj2.options.length; i++) {
+    if (rodzaj2.options[i].value == selectedValue2) {
+      rodzaj2.selectedIndex = i;
+      break;
+    }
+  }
+    var rodzaj3 = document.getElementById("id_Rodzaj");
+  var selectedValue3 = "{{ data.Rodzaj }}";  // Assuming form is a valid context variable in your template
+
+  for (var i = 0; i < rodzaj3.options.length; i++) {
+    if (rodzaj3.options[i].value == selectedValue3) {
+      rodzaj3.selectedIndex = i;
+      break;
+    }
+  }
+</script>
 
 </html>

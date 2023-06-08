@@ -33,22 +33,22 @@
         <td rowspan="4"> {{ forloop.counter }} </td>
 		<td rowspan="4"> {{post.NrZp}} </td>
 		<td colspan="4" rowspan="3">{{ post.Artykul }}</td>
-		<td rowspan="2">{{ post.IloscZlec}}</td>
-		<td rowspan="2">{{ post.SzerWorka }}</td>
-		<td rowspan="2">{{ post.SzerRekawa }}</td>
-		<td rowspan="2">{{ post.Zakladka }}</td>
-		<td rowspan="2">{{ post.DlugWorka }}</td>
-		<td rowspan="2">{{ post.GrubWorka }}</td>
-		<td rowspan="2">{{ post.WagaFoliZlec }} </td>
-		<td rowspan="2"> {{ post.DlugRolkiPlan }} </td>
-		<td rowspan="4"> {{ post.IloscRolekZlec }} </td>
+		<td rowspan="2">{{ post.IloscZlec | readable_integer }}</td>
+		<td rowspan="2">{{ post.SzerWorka | readable_integer }}</td>
+		<td rowspan="2">{{ post.SzerRekawa | readable_integer }}</td>
+		<td rowspan="2">{{ post.Zakladka | readable_integer }}</td>
+		<td rowspan="2">{{ post.DlugWorka | readable_integer }}</td>
+		<td rowspan="2">{{ post.GrubWorka | readable_integer }}</td>
+		<td rowspan="2">{{ post.WagaFoliZlec | readable_integer }} </td>
+		<td rowspan="2"> {{ post.DlugRolkiPlan | readable_integer }} </td>
+		<td rowspan="4"> {{ post.IloscRolekZlec | readable_integer }} </td>
 		<th rowspan="2">DługRolkiPlan<br>/mb/</th>
-		<td rowspan="2">{{ post.DlugRolkiPlan }}</td>
-		<td rowspan="4">{{ post.DlugFoliZlec_Korekta }}</td>
-		<td rowspan="4">{{ post.WagaRolkiZlec }}</td>
-		<td rowspan="4">{{ folia_dict|get_item:post.Rodzaj }}</td>
-		<td rowspan="4">{{ nrwyt_dict|get_item:post.NrWyt }}</td>
-		<td rowspan="4">{{ post.Uwagi }}</td>
+		<td rowspan="2">{{ post.DlugRolkiPlan | readable_integer }}</td>
+		<td rowspan="4">{{ post.DlugFoliZlec_Korekta | readable_integer }}</td>
+		<td rowspan="4">{{ post.WagaRolkiZlec | readable_integer }}</td>
+		<td rowspan="4">{{ folia_dict | get_item:post.Rodzaj }}</td>
+		<td rowspan="4">{{ nrwyt_dict | get_item:post.NrWyt }}</td>
+		<td rowspan="4">{{ post.Uwagi |default_if_none:"" }}</td>
 		<td colspan="4" rowspan="4"> {{ status_dict|get_item:post.Status }}</td>
 		<td rowspan="4">
             <div class="container mt-2">
@@ -75,8 +75,8 @@
 	</tr>
 	<tr>
 		<th>MMK</th>
-		<td colspan="3">{{ post.MMK}}</td>
-		<th rowspan="2">DolneOdch<br>/mikr/</th>
+		<td colspan="3">{{ post.MMK | default_if_none:"" }}</td>
+		<th rowspan="2">DolneOdch | readable_integer<br>/mikr/</th>
 		<td rowspan="2"> {{ post.DolneOdch}} </td>
 		<th rowspan="2">DługFoilPlan<br>korekta</th>
 		<td rowspan="2"> {{ post.DlugFoilPlan_Korekta }} </td>
@@ -87,9 +87,9 @@
 		<th>Data zlecenia</th>
 		<td>{{ post.Data}}</td>
 		<th>Kod</th>
-		<td>{{ post.Kod }}</td>
+		<td>{{ post.Kod | default_if_none:"" }}</td>
 		<th>Barwnik</th>
-		<td  colspan="3">{{ post.Barwnik}}</td>
+		<td  colspan="3">{{ post.Barwnik | default_if_none:"" }}</td>
 
 	</tr>
                     </table>

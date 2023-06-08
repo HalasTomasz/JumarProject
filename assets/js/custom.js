@@ -32,7 +32,7 @@ $(document).ready(function(){
 
     var table = $('#example').DataTable({
         
-        buttons:['copy', 'csv', 'excel', 'pdf', 'print'],
+        buttons:['copy',  'excel', 'print'],
         footerCallback: function (row, data, start, end, display) {
         var api = this.api();
 
@@ -89,6 +89,14 @@ $(document).ready(function(){
     $('#min, #max').on('change', function () {
         table.draw();
     });
+    $('#reset-filter').on('click', function() {
+    // Clear the input fields
+    minDate.val('');
+    maxDate.val('');
+
+    // Redraw the table to remove the applied filtering
+    table.draw();
+  });
 
 });
 

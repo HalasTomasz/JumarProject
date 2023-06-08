@@ -10,13 +10,13 @@
 		<td>Nr ZP</td>
 		<td>NrWytl</td>
 		<td colspan="3">Artykuł</td>
-		<td>SzerWorka<br>/mm/</td>
-		<td>Zakładka<br>/mm/</td>
-		<td>GrubWorka<br>/mikrony/</td>
-		<td>Dolne odchylenie<br>/mikrony/</td>
-		<td>DługRolkiZlec<br>korekta<br>/mb/</td>
-		<td>WagaRolkiZlec<br>/kg/</td>
-		<td>IlośćRolekZlec<br>/szt/</td>
+		<td>SzerWorka<br>[mm]</td>
+		<td>Zakładka<br>[mm]</td>
+		<td>GrubWorka<br>[mikr]</td>
+		<td>Dolne odchylenie<br>[mikr]</td>
+		<td>DługRolkiZlec<br>korekta<br>[mb]</td>
+		<td>WagaRolkiZlec<br>[kg]</td>
+		<td>IlośćRolekZlec<br>[szt]</td>
 		<td>Kod</td>
 		<td>Rodzaj folii</td>
 		<td>MMK</td>
@@ -26,17 +26,17 @@
                 <tbody>
                     {% for post in serialized_data %}
 	<tr id="special">
-		<td rowspan="3"> {{ forloop.counter }}</td>
-		<td rowspan="3" data-id={{ post.NrZp }}> {{ post.NrZp }} </td>
+		<td rowspan="3"  class="counter-cell"> {{ forloop.counter }}</td>
+		<td rowspan="3" data-id="{{ post.NrZp }}" {% if selected_id == post.NrZp %} class="selected-cell"{% endif %}>{{ post.NrZp }}</td>
 		<td rowspan="3">{{ nrwyt_dict|get_item:post.NrWyt }}</td>
 		<td colspan="3" rowspan="3">{{ post.Artykul }}</td>
-		<td rowspan="3">{{ post.SzerWorka }}</td>
-		<td rowspan="3">{{ post.Zakladka }}</td>
-		<td rowspan="3">{{ post.GrubWorka }}</td>
-		<td rowspan="3">{{ post.DolneOdch }}</td>
-		<td rowspan="3">{{ post.DlugFoilPlan_Korekta }}</td>
-		<td rowspan="3">{{ post.WagaFoliZlec }}</td>
-		<td rowspan="3">{{ post.IloscRolekZlec }}</td>
+		<td rowspan="3">{{ post.SzerWorka | readable_integer }}</td>
+		<td rowspan="3">{{ post.Zakladka | readable_integer }}</td>
+		<td rowspan="3">{{ post.GrubWorka | readable_integer }}</td>
+		<td rowspan="3">{{ post.DolneOdch | readable_integer }}</td>
+		<td rowspan="3">{{ post.DlugFoliZlec_Korekta | readable_integer  }}</td>
+		<td rowspan="3">{{ post.WagaRolkiZlec | readable_integer }}</td>
+		<td rowspan="3">{{ post.IloscRolekZlec | readable_integer }}</td>
 		<td rowspan="3">{{ post.Kod }}</td>
 		<td rowspan="3">{{ folia_dict|get_item:post.Rodzaj }}</td>
 		<td rowspan="3">{{ post.MMK}} </td>

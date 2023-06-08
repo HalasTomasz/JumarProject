@@ -12,7 +12,7 @@
     <br>
     <label for="filter-column">Filtracja po Wytłaczarkach:</label>
     <select id="filter-column">
-      <option value="">All</option>
+      <option value="">Wszystko</option>
       <option value="w1">W1</option>
       <option value="w2">W2</option>
       <option value="w3">W3</option>
@@ -32,6 +32,7 @@
   </div>
 </div>
 
+
 {#    {% endfor %}#}
 {#    {% for post in number_data %}#}
 
@@ -41,27 +42,50 @@
 </body>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script>
-		$(document).ready(function(){
-			$("td[data-id]").click(function(){
-				// Get ID of clicked cell
-				var id = $(this).data("id");
-				// Activate button below the table
-				$("#btn-below").prop("disabled", false).data("id", id);
-			});
+        var selectedCell = null;
 
-			$("#btn-below").click(function(){
-				// Get ID of clicked button
-				var id = $(this).data("id");
+    $(document).ready(function(){
 
-				// Redirect to Django page with ID parameter
-				window.location.href = "/formFolia/" + id;
-			});
-		});
-	</script>
+        $("td[data-id]").click(function(){
+            // Remove previous selection if any
+            if (selectedCell !== null) {
+                selectedCell.removeClass("selected-cell");
+            }
+            $("td[data-id]").removeClass("selected-cell");
+
+            console.log("HIHI")
+            // Get ID of clicked cell
+            var id = $(this).data("id");
+            // Set current cell as selected
+            console.log(selectedCell)
+            selectedCell = $(this);
+            console.log(selectedCell)
+            selectedCell.addClass("selected-cell");
+
+            // Activate button below the table
+            $("#btn-below").prop("disabled", false).data("id", id);
+        });
+
+        $("#btn-below").click(function(){
+            // Get ID of clicked button
+            var id = $(this).data("id");
+
+            // Redirect to Django page with ID parameter
+            window.location.href = "/formFolia/" + id;
+        });
+    });
+</script>
+
+<style>
+    .selected-cell {
+        background-color: #d33333; /* Change the background color as desired */
+    }
+</style>
    <script>
   $(document).ready(function() {
     $('td[data-id]').click(function() {
       var id = $(this).data("id");
+      console.log(id)
       $.ajax({
         url: 'get-data/' + id,
         success: function(data) {
@@ -90,16 +114,23 @@
             var pk = row2.id.split('/')[1];  // extract the pk component from the row2.id string
             var rolka = row2.rolka;
             var editUrl = `/editRolForm/${date}/${pk}/${rolka}`;
-            var editButton = $('<a>').attr('href', editUrl).text('Edyt');
+            var editButton = $('<a>').attr('href', editUrl).text('Edytuj');
             $('<td>').append(editButton).appendTo(tr);
             tbody.append(tr);
             counter++;
             });
           });
+            $('td:nth-child(13)').each(function() {
+            var value = $(this).text();
+            if (parseFloat(value.replace(',', '.')) > 100) {
+              $(this).css('color', 'red');
+            }
+          });
         }
       });
     });
   });
+
   </script>
    <script>
   $(document).ready(function() {
@@ -130,6 +161,26 @@
 
 </script>
 <script>
+    $(document).ready(function(){
+        // Function to check if a value is over 100
+        function isOver100(value) {
+            return parseFloat(value.replace(',', '.')) > 100;
+        }
+
+        // Iterate over each row in the table
+        $("#data-table tbody tr").each(function(){
+            // Get the value in the "GrubośćWynikdoZakl" cell
+            var value = $(this).find("td:nth-child(13)").text();
+            console.log(value)
+            // Check if the value is over 100
+            if (isOver100(value)) {
+                // Apply the red color to the cell
+                $(this).find("td:nth-child(13)").css("color", "red");
+            }
+        });
+    });
+</script>
+<script>
      $(document).ready(function() {
     $('td[data-id]').click(function() {
       var id = $(this).data("id");
@@ -137,7 +188,7 @@
         url: 'get-dataCal/' + id,
         success: function(data) {
             $.each(data, function(index, row) {
-                console.log(row)
+
 
                 $('#wagaProd').html(row[0]);
                 $('#wagaEnd').html(row[1]);

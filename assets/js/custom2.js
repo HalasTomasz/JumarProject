@@ -1,5 +1,4 @@
 // =============  Data Table - (Start) ================= //
-
 var minDate, maxDate;
 
 // Custom filtering function which will search data in column four between two values
@@ -8,7 +7,6 @@ $.fn.dataTable.ext.search.push(
         var min = minDate.val();
         var max = maxDate.val();
         var date = new Date( data[3] );
-        console.log(date)
         if (
             ( min === null && max === null ) ||
             ( min === null && date <= max ) ||
@@ -31,8 +29,8 @@ $(document).ready(function(){
     });
 
     var table = $('#example').DataTable({
-        
-        buttons:['copy', 'csv', 'excel', 'pdf', 'print'],
+
+        buttons:['copy', 'excel', 'print'],
         footerCallback: function (row, data, start, end, display) {
         var api = this.api();
 
@@ -79,16 +77,25 @@ $(document).ready(function(){
         $('#total-data').html('WagaRolkaProd:  ' + pageTotal + '   |   DługRolkaProd:  ' + pageTotal2);
       },
       scrollX: true,
-        
+
     });
-    
-    
+
+
     table.buttons().container()
     .appendTo('#example_wrapper .col-md-6:eq(0)');
 
     $('#min, #max').on('change', function () {
         table.draw();
     });
+    $('#reset-filter').on('click', function() {
+    // Clear the input fields
+    minDate.val('');
+    maxDate.val('');
+
+    // Redraw the table to remove the applied filtering
+    table.draw();
+  });
+
 
 });
 

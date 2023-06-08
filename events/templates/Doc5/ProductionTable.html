@@ -37,29 +37,29 @@
 		<td colspan="4">{{ post.Artykul}}</td>
 		<td rowspan="2">{{ nrwyt_dict|get_item:post.NrWyt}}</td>
 		<td rowspan="2">{{ folia_dict|get_item:post.Rodzaj}}</td>
-		<td rowspan="2">{{ post.IloscZlec}}</td>
-		<td rowspan="2">{{ post.SzerWorka }}</td>
-		<td rowspan="2">{{ post.SzerRekawa }}</td>
-		<td rowspan="2">{{ post.Zakladka }}</td>
-		<td rowspan="2">{{ post.DlugWorka}}</td>
-		<td rowspan="2">{{ post.GrubWorka}}</td>
-		<td rowspan="2">{{ post.DolneOdch}}</td>
-		<td rowspan="2">{{ post.WagaFoliZlec}}</td>
-		<td rowspan="2">{{ post.Research.wagaSum }}</td>
-		<td rowspan="2">{{ post.Research.wagaEnd }}</td>
-		<td rowspan="2">{{ post.DlugFoliZlec_Korekta}}</td>
-		<td rowspan="2">{{ post.Research.dlugProd }}</td>
-		<td rowspan="2">{{ post.Research.dlugEnd }}</td>
+		<td rowspan="2">{{ post.IloscZlec | readable_integer}}</td>
+		<td rowspan="2">{{ post.SzerWorka | readable_integer }}</td>
+		<td rowspan="2">{{ post.SzerRekawa | readable_integer }}</td>
+		<td rowspan="2">{{ post.Zakladka | readable_integer }}</td>
+		<td rowspan="2">{{ post.DlugWorka | readable_integer}}</td>
+		<td rowspan="2">{{ post.GrubWorka | readable_integer}}</td>
+		<td rowspan="2">{{ post.DolneOdch | readable_integer}}</td>
+		<td rowspan="2">{{ post.WagaFoliZlec | readable_integer}}</td>
+		<td rowspan="2">{{ post.Research.wagaSum | readable_integer }}</td>
+		<td rowspan="2">{{ post.Research.wagaEnd  | readable_integer}}</td>
+		<td rowspan="2">{{ post.DlugFoliZlec_Korekta | readable_integer}}</td>
+		<td rowspan="2">{{ post.Research.dlugProd | readable_integer }}</td>
+		<td rowspan="2">{{ post.Research.dlugEnd  | readable_integer}}</td>
 		<td rowspan="2">{%  divide  post.Research.dlugProd post.DlugFoliZlec_Korekta %} </td>
 		<td rowspan="2"> {{ status_dict|get_item:post.Status }}</td>
-		<td colspan="4" rowspan="2"> {{ post.Uwagi}}</td>
+		<td colspan="4" rowspan="2"> {{ post.Uwagi | default_if_none:''}}</td>
 		<td rowspan="2"> <button onclick="showPopup('{{ post.NrZp }}')">Change Status</button> </td>
 	</tr>
 	<tr>
 		<td>Data zlecenia</td>
 		<td>{{ post.Data}}</td>
 		<td>Kod</td>
-		<td>{{ post.Kod}}</td>
+		<td>{{ post.Kod | default_if_none:''}}</td>
 	</tr>
 </table>
 

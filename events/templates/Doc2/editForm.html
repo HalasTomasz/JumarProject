@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +9,19 @@
 
 </head>
 <body>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+                      <div class="alert alert-dismissible alert-warning">
+              <button type="button" class="close" data-dismiss="alert">
+              ×
+              </button>
+              <strong>{{message}}</strong>
+        </div>
+        {% endfor %}
+    </ul>
+{% endif %}
 <div class="container p-3">
     <div class="contact-box">
 <form method="post">
@@ -32,22 +46,22 @@
             </div>
           <div class="col-auto">
                 <label  class="form-label" style="display: inline-block;">Dolne Odch:</label>
-                 <input type="text" class="form-control" name="UserName"  style="display: inline-block; width: auto;" id="id_DolneOdch" value="{{ data.DolneOdch }}" readonly>
+                 <input type="text" class="form-control" name="DolneOdch"  style="display: inline-block; width: auto;" id="id_DolneOdch" value="{{ data.DolneOdch }}" readonly>
             </div>
           <div class="col-auto">
                 <label  class="form-label" style="display: inline-block;">WagaRolkiZlec:</label>
-                 <input type="text" class="form-control" name="UserName"  style="display: inline-block; width: auto;" id="id_WagaRolkiZlec" value="{{ data.WagaRolkiZlec }}" readonly>
+                 <input type="text" class="form-control" name="WagaRolkiZlec"  style="display: inline-block; width: auto;" id="id_WagaRolkiZlec" value="{{ data.WagaRolkiZlec | readable_integer }}" readonly>
             </div>
     </div>
 
     <div class="mb-3">
         <label for="data" class="form-label fw-bold">Data produkcji</label>
-        <input type="date" name="Data"  class="form-control"  id="id_Data" value="{{ rols.Data }}">
+        <input style="border-color: #FF0000;" type="date" name="Data"  class="form-control"  id="id_Data" value="{{ rols.Data }}">
     </div>
     <div class="row g-3 mb-3">
       <div class="col-auto">
         <label for="data" class="form-label">Zmiana</label>
-        <input type="number" class="form-control" name="Zmiana" id="id_Zmiana" value="{{ rols.Zmiana }}" readonly >
+        <input style="border-color: #CCCCCC;" type="number" class="form-control" name="Zmiana" id="id_Zmiana" value="{{ rols.Zmiana }}" readonly >
       </div>
         <div class="col-auto">
         <label for="rolka" class="form-label">Nr Rolki</label>
@@ -55,7 +69,7 @@
       </div>
         <div class="col-auto">
             <label for="status" class="form-label">NrWytł</label>
-            <select class="form-select" name="NrWytl" id="id_NrWytl" aria-label="Default select example">
+            <select style="border-color: #FF0000;" class="form-select" name="NrWytl" id="id_NrWytl" aria-label="Default select example">
               <option value="0">W1</option>
               <option value="1">W2</option>
               <option value="2">W3</option>
@@ -66,46 +80,49 @@
     <div class="row g-3 mb-3">
       <div class="col-auto">
         <label for="dlugrolkiprod" class="form-label">DługRolkiProd [mb]</label>
-        <input type="number" class="form-control" name="DlugRolkiProd" id="id_DlugRolkiProd" value="{{ rols.Rolka }}">
+        <input style="border-color: #FF0000;" onkeyup="addSeparator('id_DlugRolkiProd')"  type="text" class="form-control" name="DlugRolkiProd" id="id_DlugRolkiProd" value="{{ rols.DlugRolkiProd | readable_integer}}">
       </div>
         <div class="col-auto">
         <label for="wagarolkiprod" class="form-label">WagaRolkiProd [kg]</label>
-        <input type="number" step="0.01" class="form-control"  name="WagaRolkiProd" id="id_WagaRolkiProd" value="{{ rols.WagaRolkiProd }}" onchange="zakladkaFunc()">
+        <input style="border-color: #FF0000;" onkeyup="addSeparator('id_WagaRolkiProd')" type="text" class="form-control"  name="WagaRolkiProd" id="id_WagaRolkiProd" value="{{ rols.WagaRolkiProd | readable_integer}}" onchange="wynikFunc()">
       </div>
           <div class="col-auto ">
             <label class="form-label" for="walce">Walce</label>
-            <input type="number"  name="Walce" id="id_Walce" class="form-control" value="{{ rols.Walce }}" />
+            <input style="border-color: #FF0000;" onkeyup="addSeparator('id_Walce')" type="text"  name="Walce" id="id_Walce" class="form-control" value="{{ rols.Walce | readable_integer }}" />
         </div>
           <div class="col-auto ">
             <label class="form-label" for="slimak">Ślimak</label>
-            <input type="number"  name="Slimak" id="id_Slimak" class="form-control" value="{{ rols.Slimak }}"/>
+            <input style="border-color: #FF0000;" onkeyup="addSeparator('id_Slimak')"  type="text"  name="Slimak" id="id_Slimak" class="form-control" value="{{ rols.Slimak | readable_integer }}"/>
         </div>
     </div>
 
     <div class="row g-2 mb-3">
         <div class="col_auto">
             <label for="grubosc" class="form-label">Wynikowa grubość [mikrony]</label>
-            <input type="number" class="form-control" name="Wynikowa" id="id_Wynikowa" value="{{ rols.Wynikowa }}" readonly>
+            <input style="border-color: #CCCCCC;" type="text" class="form-control" name="Wynikowa" id="id_Wynikowa" value="{{ rols.Wynikowa | readable_integer  }}" readonly>
         </div>
          <div class="col_auto">
             <label for="wynik" class="form-label">GrubośćWynik %</label>
-            <input type="number"  class="form-control" name="Wynik" id="id_Wynik"  value="{{ rols.Wynik }}" readonly>
+            <input style="border-color: #CCCCCC;" type="text"  class="form-control" name="Wynik" id="id_Wynik"  value="{{ rols.Wynik | readable_integer }}" readonly>
         </div>
     </div>
 
     <div class="row g-2 mb-3">
         <div class="col_auto">
             <label for="mieszanka" class="form-label">Mieszanka</label>
-            <input type="text" class="form-control" name="Mieszanka" id="id_Mieszanka" value="{{ rols.Mieszanka }}" maxlength="40">
+            <input   style="border-color: #00BFFF;" type="text" class="form-control" name="Mieszanka" id="id_Mieszanka" value="{{ rols.Mieszanka | default_if_none:''  }}" maxlength="40">
         </div>
          <div class="col_auto">
             <label for="uwagi" class="form-label">Uwagi</label>
-            <input type="text" class="form-control" name="Uwagi" id="id_Uwagi" value="{{ rols.Uwagi }}"  maxlength="40">
+            <input  style="border-color: #00BFFF;" type="text" class="form-control" name="Uwagi" id="id_Uwagi" value="{{ rols.Uwagi | default_if_none:''  }}"  maxlength="40">
         </div>
     </div>
 
+   <div class="col text-center">
+        <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'Home.views.index' %}'">Anuluj</button>
+      <button type="submit" class="btn btn-secondary fw-bold">Zapisz</button>
+    </div>
 
-    <button type="submit" class="btn btn-primary fw-bold " >Dodaj</button>
 </form>
      </div>
     </div>
@@ -113,33 +130,58 @@
 </html>
 <script type="text/javascript">
     var rodzaj = document.getElementById("id_NrWytl");
-        for(i=0; i<rodzaj.options.length; i++){
-            if(rodzaj.options[i].value == {{ rols.NrWytl }}){
-                rodzaj.selectedIndex = i;
-            }
-        }
+  var selectedValue = "{{ rols.NrWytl }}";  // Assuming form is a valid context variable in your template
+
+  for (var i = 0; i < rodzaj.options.length; i++) {
+    if (rodzaj.options[i].value == selectedValue) {
+      rodzaj.selectedIndex = i;
+      break;
+    }
+  }
 </script>
+
  <script type="text/javascript">
 
-        //Dolne odchylenie*WagaRolkiProd/WagaRolkiZlec
-          function zakladkaFunc() {
-            var input = document.getElementById('id_DolneOdch');
-            var input2 = document.getElementById('id_WagaRolkiProd');
-            var input3 = document.getElementById('id_WagaRolkiZlec');
-            if (input.value && input2.value && input3.value) {
-                var zakaldka = document.getElementById('id_Wynikowa');
-                zakaldka.value = (Number(input.value) * Number(input2.value))/Number(input3.value);
-            }
-            wagafolizlecFunc();
-          }
-            //Wynikowa grubość/Dolne odchylenie
-          function wagafolizlecFunc() {
-            var input = document.getElementById('id_Wynikowa');
-            var input2 = document.getElementById('id_DolneOdch');
+        function wynikFunc() {
+  var input = document.getElementById('id_DolneOdch');
+  var input2 = document.getElementById('id_WagaRolkiProd');
+  var input3 = document.getElementById('id_WagaRolkiZlec');
+  if (input.value.trim() && input2.value.trim() && input3.value.trim()) {
+    var zakaldka = document.getElementById('id_Wynikowa');
+    var value1 = input.value.replace(/ /g, '');
+    var value2 = input2.value.replace(/ /g, '');
+    var value3 = input3.value.replace(/ /g, '');
+    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && /^\d*\.?\d+$/.test(value3)) {
+      var result = (parseFloat(value1) * parseFloat(value2)) / parseFloat(value3);
+      if (!isNaN(result)) {
+        zakaldka.value = result.toFixed(2);
+        wynikowaFunc();
+        addSeparator('id_Wynikowa');
+      }
+    } else {
+      zakaldka.value = "";
+    }
+  }
+}
 
-            if (input.value && input2.value) {
-                var waga = document.getElementById('id_Wynik');
-                waga.value = Number(input.value)/Number(input2.value)*100;
-            }
-          }
+function wynikowaFunc() {
+  var input = document.getElementById('id_Wynikowa');
+  var input2 = document.getElementById('id_DolneOdch');
+
+  if (input.value.trim() && input2.value.trim()) {
+    var waga = document.getElementById('id_Wynik');
+    var value1 = input.value.replace(/ /g, '');
+    var value2 = input2.value.replace(/ /g, '');
+    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2)) {
+      var result = parseFloat(value1) / parseFloat(value2) * 100;
+      if (!isNaN(result)) {
+        waga.value = result.toFixed(2);
+        addSeparator('id_Wynik');
+      }
+    } else {
+      waga.value = '';
+    }
+  }
+}
 </script>
+ <script src={% static "js/sep.js" %}></script>

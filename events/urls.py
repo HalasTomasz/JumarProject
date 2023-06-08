@@ -2,7 +2,6 @@ from django.urls import path
 from . import views
 from .views import ProductionOrdersPlanningView, updateForm,copyForm, foliaPlanning, foliaForm, \
     upateRolForm, UserUpdateView, procFolia, procPrac, procReal, RealPlan
-
 urlpatterns = [
     path('', views.home, name='Home.views.index'),
     path('login', views.loginFunc, name='Login.views.index'),
@@ -12,6 +11,7 @@ urlpatterns = [
     path('planProc', ProductionOrdersPlanningView.as_view(), name='PlanProc.views.index'),
     path("editForm/<int:pk>", updateForm.as_view(), name="editForm"),
     path("copyForm/<int:pk>", copyForm.as_view(), name="copyForm"),
+
 
     path('planFolia', foliaPlanning.as_view(), name="PlanFolia.views.index"), #3  # 3
     path('formFolia/<str:date>/<int:pk>', foliaForm.as_view(), name="formFolia.views.index"),
@@ -32,3 +32,4 @@ urlpatterns = [
     path('doc4', procReal.as_view() ,  name='procReal.views.index'),
     path('update_status', views.update_status, name='update_status'),
 ]
+

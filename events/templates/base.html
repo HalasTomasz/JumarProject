@@ -16,111 +16,107 @@
   <br/>
 
    {% block content %}
-   
+
    {% endblock %}
 
   <br/>
-    <div class="container">
+ <div class="container-lg overflow-hidden align-content-center">
   <div class="row mt-3">
-    <div class="col-md-4">
-      <div class="card">
+    <div class="col-md-1"></div>
+    <div class="col-md-3">
+      <div class="card mb-4">
         <div class="card-body">
-          <h2 class="card-title">Dokument 1</h2>
-            <p class="card-text">Zlecenia produkcyjne planowane</p>
-            <button class="btn btn-primary " >
-                <a class="text-white" href="{%  url "PlanProc.views.index" %}" >
-                 Zlecenia Planowane </a>
-            </button>
+          <h2 class="card-title">Formularz 1</h2>
+          <p class="card-text" style="font-size: 16px;  ">Zlecenia produkcyjne</p>
+              {% if user_kierownik or admin %}
+            <a class="btn btn-primary text-white w-100" href="{% url 'Form.views.index' %}">Enter</a>
+          {% else %}
+            <span class="btn btn-primary text-white w-100 disabled">Enter</span>
+          {% endif %}
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card">
+    <div class="col-md-3">
+      <div class="card mb-4">
         <div class="card-body">
-          <h2 class="card-title">Dokument 2</h2>
-            <p class="card-text">Zlecenia produkcyjne w realizacji</p>
-            <button  class="btn btn-primary">
-                <a class="text-white"  href="{%  url "PlanFolia.views.index" %}" >
-                Zlecenia w Realizacji </a>
-                </button>
+          <h2 class="card-title">Zlecenie 1</h2>
+          <p class="card-text" style="font-size: 16px;  ">Zlecenia produkcyjne planowane</p>
+           <a class="btn btn-primary text-white w-100" href="{% url 'PlanProc.views.index' %}">Enter</a>
         </div>
       </div>
     </div>
-      <div class="col-md-4">
-      <div class="card">
+    <div class="col-md-3">
+      <div class="card mb-4">
         <div class="card-body">
-          <h2 class="card-title">Dokument 6</h2>
-            <p class="card-text">Wydajność na Zmianach</p>
-            <button class="btn btn-primary">
-                <a class="text-white"  href="{%  url "procPrac.views.index" %}" >  Wydajność </a></button>
+          <h2 class="card-title">Raport 1</h2>
+          <p class="card-text" style="font-size: 16px;  ">Zlecenia w realizacji po wytłaczarkach</p>
+          <a class="btn btn-primary text-white w-100" href="{% url 'Realizacja.views.index' %}">Enter</a>
         </div>
       </div>
     </div>
+    <div class="col-md-1"></div>
   </div>
-        {% if user_kierownik %}
-  <div class="row mt-2">
-    <div class="col-md-4">
-      <div class="card">
+
+  <div class="row mt-3">
+    <div class="col-md-1"></div>
+    <div class="col-md-3">
+      <div class="card mb-4">
         <div class="card-body">
-          <h2 class="card-title">Planowanie Formula</h2>
-            <p class="card-text"> Planowanie produkcji formula</p>
-            <button class="btn btn-primary">
-                    <a class="text-white"
-                       href="{%  url "Form.views.index" %}">Planowanie Formula </a>
-            </button>
+          <h2 class="card-title">Formularz 2</h2>
+          <p class="card-text" style="font-size: 16px;  ">Użytkownicy</p>
+           {% if admin %}
+            <a class="btn btn-primary text-white w-100" href="{% url 'Pracownicy.views.index' %}">Enter</a>
+          {% else %}
+            <span class="btn btn-primary disabled w-100">Enter</span>
+          {% endif %}
+          </button>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card">
+    <div class="col-md-3">
+      <div class="card mb-4">
         <div class="card-body">
-          <h2 class="card-title">Dokument 5</h2>
-           <p class="card-text">Zlecenia produkcyjne w realizacji
-            <button class="btn btn-primary">
-                <a class="text-white"
-                       href="{%  url 'Realizacja.views.index' %}"> Zlecenia produkcyjne w realizacji </a>
-            </button>
+          <h2 class="card-title">Zlecenie 2</h2>
+          <p class="card-text" style="font-size: 16px;  ">Zlecenia produkcyjne w realizacji</p>
+           <a class="btn btn-primary text-white w-100" href="{% url 'PlanFolia.views.index' %}">Enter</a>
         </div>
       </div>
     </div>
+    <div class="col-md-3">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="card-title">Raport 2</h2>
+          <p class="card-text" style="font-size: 16px;  ">Zlecenia zrealizowane po wytłaczarkach</p>
+           <a class="btn btn-primary text-white w-100" href="{% url 'procReal.views.index' %}">Enter</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-1"></div>
   </div>
-        {% endif %}
-            {% if admin %}
-        <div class="row mt-3 mb-4">
-    <div class="col-md-4">
-      <div class="card">
+
+  <div class="row mt-3">
+    <div class="col-md-1"></div>
+    <div class="col-md-3"></div>
+    <div class="col-md-3">
+      <div class="card mb-4">
         <div class="card-body">
-          <h2 class="card-title">Dokument 4</h2>
-          <p class="card-text"> Zlecenia produkcyjne zrealizowane lub anulowane<p>
-            <button class="btn btn-primary">
-                <a class="text-white" href="{%  url "procReal.views.index" %}"> Zlecenia Zakonczone </a> </button>
+          <h2 class="card-title">Zlecenie 3</h2>
+          <p class="card-text" style="font-size: 16px;  ">Zlecenie produkcyjne zrealizowane lub anulowane</p>
+           <a class="btn btn-primary text-white w-100" href="{% url 'procFolia.views.index' %}">Enter</a>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card">
+    <div class="col-md-3">
+      <div class="card mb-4">
         <div class="card-body">
-          <h2 class="card-title">Dokument 3</h2>
-            <p class="card-text"> Zlecenia Zrealizowane po wytłaczarkach </p>
-            <button class="btn btn-primary">
-                <a class="text-white" href="{%  url "procFolia.views.index" %}"> Zlecenia Zrealizowane Rolki </a>
-            </button>
+          <h2 class="card-title">Raport 3</h2>
+          <p class="card-text" style="font-size: 16px;  ">Wydajność na zmianach</p>
+          <a class="btn btn-primary text-white w-100" href="{% url 'procPrac.views.index' %}">Enter</a>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-body">
-          <h2 class="card-title">Pracownicy</h2>
-          <p class="card-text">Wszyscy pracownicy<p>
-            <button class="btn btn-primary">
-                <a class="text-white" href="{%  url "Pracownicy.views.index" %}">Pracownicy </a>
-            </button>
-        </div>
-      </div>
-    </div>
+    <div class="col-md-1"></div>
   </div>
-    {% endif %}
 </div>
 
   </body>

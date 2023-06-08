@@ -67,6 +67,9 @@
             <td>Maximum date:</td>
             <td><input type="text" id="max" name="max"></td>
         </tr>
+        <tr>
+            <button id="reset-filter" class="btn btn-secondary">Reset Daty</button>
+        </tr>
     </tbody></table>
                     <table id="example" class="table table-striped table-bordered display nowrap" style="width:100%">
                         <thead class="table-dark">
@@ -110,21 +113,21 @@
                                 <td>{{ post.NrZp  }}</td>
                                 <td>{{ post.Data }}</td>
                                 <td> {{ post.Artykul }}</td>
-                                 <td>{{ post.IloscZlec }}</td>
-                                <td> {{ post.SzerWorka }} </td>
-                                <td> {{ post.SzerRekawa }} </td>
-                                <td> {{ post.Zakladka}} </td>
-                                <td> {{ post.DlugWorka}} </td>
-                                <td>{{ post.GrubWorka }}</td>
-                                <td>{{ post.DolneOdch }}</td>
-                                <td>{{ post.WagaFoliZlec}}</td>
-                                <td>{{ post.DlugFoliPlan }}</td>
-                                <td>{{ post.DlugFoilPlan_Korekta }}</td>
-                                <td>{{ post.IloscRolekZlec }}</td>
-                                <td>{{ post.DlugRolkiPlan }}</td>
-                                 <td>{{ post.DlugRolkiZlec_Korekta }}</td>
-                                <td>{{ post.DlugFoliZlec_Korekta }}</td>
-                                <td>{{ post.WagaRolkiZlec }}</td>
+                                 <td>{{ post.IloscZlec  | readable_integer}}</td>
+                                <td> {{ post.SzerWorka | readable_integer }} </td>
+                                <td> {{ post.SzerRekawa | readable_integer }} </td>
+                                <td> {{ post.Zakladka | readable_integer}} </td>
+                                <td> {{ post.DlugWorka | readable_integer}} </td>
+                                <td>{{ post.GrubWorka | readable_integer }}</td>
+                                <td>{{ post.DolneOdch | readable_integer }}</td>
+                                <td>{{ post.WagaFoliZlec | readable_integer}}</td>
+                                <td>{{ post.DlugFoliPlan | readable_integer  }}</td>
+                                <td>{{ post.DlugFoilPlan_Korekta | readable_integer }}</td>
+                                <td>{{ post.IloscRolekZlec | readable_integer  }}</td>
+                                <td>{{ post.DlugRolkiPlan| readable_integer  }}</td>
+                                 <td>{{ post.DlugRolkiZlec_Korekta | readable_integer }}</td>
+                                <td>{{ post.DlugFoliZlec_Korekta | readable_integer }}</td>
+                                <td>{{ post.WagaRolkiZlec | readable_integer  }}</td>
                                 <td>{{ folia_dict|get_item:post.Rodzaj }}</td>
                                  <td>{{ nrwyt_dict|get_item:post.NrWyt }}</td>
                                 <td>{%  divide  post.Research.dlugProd post.DlugFoliZlec_Korekta %} %</td>

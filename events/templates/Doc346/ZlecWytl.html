@@ -39,6 +39,9 @@
             <td>Maximum date:</td>
             <td><input type="text" id="max" name="max"></td>
         </tr>
+        <tr>
+            <button id="reset-filter" class="btn btn-secondary">Reset Daty</button>
+        </tr>
     </tbody></table>
                     <table id="example" class="table table-striped table-bordered display nowrap" style="width:100%">
                         <thead class="table-dark">
@@ -80,18 +83,18 @@
                                 <td> {{ post.Rolka }} </td>
                                 <td> {{ post.zamowienie.Artykul }} </td>
                                 <td> {{ folia_dict|get_item:post.zamowienie.Rodzaj }} </td>
-                                <td> {{ post.zamowienie.SzerWorka }} </td>
-                                <td>{{ post.zamowienie.SzerRekawa }}</td>
-                                <td>{{ post.zamowienie.Zakladka }}</td>
-                                <td>{{ post.zamowienie.GrubWorka }}</td>
-                                <td>{{ post.zamowienie.DolneOdch }}</td>
-                                <td>{{ post.DlugRolkiProd }}</td>
-                                <td>{{ post.WagaRolkiProd }}</td>
-                                <td>{{ post.Wynikowa }}</td>
-                                <td>{{ post.Wynik }}</td>
-                                <td>{{ post.Slimak }}</td>
-                                <td>{{ post.Walce }}</td>
-                                <td>{{ post.Rolka }}</td>
+                                <td> {{ post.zamowienie.SzerWorka | readable_integer }} </td>
+                                <td>{{ post.zamowienie.SzerRekawa | readable_integer }}</td>
+                                <td>{{ post.zamowienie.Zakladka  | readable_integer }}</td>
+                                <td>{{ post.zamowienie.GrubWorka | readable_integer  }}</td>
+                                <td>{{ post.zamowienie.DolneOdch | readable_integer  }}</td>
+                                <td>{{ post.DlugRolkiProd | readable_integer }}</td>
+                                <td>{{ post.WagaRolkiProd | readable_integer  }}</td>
+                                <td>{{ post.Wynikowa | readable_integer }}</td>
+                                <td>{{ post.Wynik | readable_integer }}</td>
+                                <td>{{ post.Slimak | readable_integer }}</td>
+                                <td>{{ post.Walce | readable_integer }}</td>
+                                <td>{{ post.Rolka  }}</td>
                                 <td>{{ post.Uwagi }}</td>
                                  <td>{{ post.Mieszanka }}</td>
                             </tr>

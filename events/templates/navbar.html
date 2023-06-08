@@ -5,11 +5,26 @@
   <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
     <a class="navbar-brand" href="{% url 'Home.views.index' %}">Strona główna</a>
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <li class="nav-item active">
+        <a class="nav-link" href="{% url 'Form.views.index' %}">F1 </a>
+      </li>
       <li class="nav-item active">
         <a class="nav-link" href={% url "PlanProc.views.index" %} >Planowanie </a>
       </li>
         <li class="nav-item active">
         <a class="nav-link" href={% url "PlanFolia.views.index" %}>Realizacja </a>
+      </li>
+        <li class="nav-item active">
+        <a class="nav-link" href="{% url 'Logout.views.index' %}">Z3 </a>
+      </li>
+        <li class="nav-item active">
+        <a class="nav-link" href="{% url 'Logout.views.index' %}">R1 </a>
+      </li>
+        <li class="nav-item active">
+        <a class="nav-link" href="{% url 'Logout.views.index' %}">R2 </a>
+      </li>
+        <li class="nav-item active">
+        <a class="nav-link" href="{% url 'Logout.views.index' %}">R3 </a>
       </li>
         <li class="nav-item active">
         <a class="nav-link" href="{% url 'Logout.views.index' %}">Wyloguj </a>

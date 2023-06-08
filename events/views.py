@@ -1,3 +1,5 @@
+from urllib.parse import urlencode, unquote
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -7,28 +9,21 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, CreateView, UpdateView
+import numpy as np
+import re
 from rest_framework.generics import ListAPIView
 
 from .models import Zamowienie, Rolki
 from .serializer import ZamSerializer, RolSerializer, RolkiSumSerializer
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from datetime import date, datetime
 from .forms import AddForm, AddRolkiForm, AddUser
 from django.http import JsonResponse, HttpResponse
 from django.template.defaulttags import register
 from .decorators import unathenticted_user,allowed_user
 from django.contrib.auth import authenticate,login,logout, get_user
+from django import template
 
-@register.filter
-def get_item(dictionary, key):
-  return dictionary.get(key)
-
-@register.simple_tag
-def divide(a, b):
-    if b == 0:
-        return 0
-    tmp = a / b * 100
-    return round(tmp, 2)
 
 status_dict = {
     0:"Planowane",
@@ -48,6 +43,28 @@ folia_dict = {
  1:"LDPE",
  2:"MDPE",
 }
+
+@register.filter
+def readable_integer(value):
+    readable = str(value).split(".")[0][::-1]
+    readable = [readable[i:i+3][::-1] for i in range(0, len(readable), 3)]
+    if len(str(value).split(".")) == 1:
+        end = ""
+    else:
+        end = "." + str(value).split(".")[1]
+    return " ".join(readable[::-1]) + end
+
+@register.filter
+def get_item(dictionary, key):
+  return dictionary.get(key)
+
+@register.simple_tag
+def divide(a, b):
+    if b == 0:
+        return 0
+    tmp = a / b * 100
+    return round(tmp, 2)
+
 
 @login_required(login_url='/login')
 @allowed_user(allowed_groups=['admin'])
@@ -117,16 +134,25 @@ def addProduct(request):
         if nr_zp_id == None:
             nr_zp_id = 0
         nr_zp = str(date.today()) + "/" + str(nr_zp_id)
-
         tempdict = request.POST.copy()
         tempdict['NrZp'] = nr_zp
-        request.POST = tempdict  # this is the added line
+        request.POST = tempdict
+
+        numeric_fields = ['IloscZlec', 'SzerWorka', 'SzerRekawa', 'Zakladka', "DlugWorka", "GrubWorka", "DolneOdch", "DlugFoilPlan_Korekta", "WagaFoliZlec", "DlugFoliPlan", "IloscRolekZlec", "DlugRolkiZlec_Korekta", "DlugRolkiPlan", "DlugFoliZlec_Korekta","WagaRolkiZlec"]
+        for field in numeric_fields:
+            value = request.POST.get(field, '')
+            # value = re.sub(r'[^\d.]', '', value)
+            value = re.sub(r'\s', '', value)
+            request.POST[field] = value
+
         form = AddForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('PlanProc.views.index')
         else:
-            messages.error(request, 'DANE NIE POPRAWNIE WYPELNIONE')
+            invalid_fields = form.errors.keys()
+            error_message = 'Dane w tych polach niepoprawne: ' + ', '.join(invalid_fields)
+            messages.error(request, error_message)
     else:
         form = AddForm()
     context = {'form': form}
@@ -148,16 +174,15 @@ class ProductionOrdersPlanningView(LoginRequiredMixin, ListView):
         return context
 
 
-class copyForm(LoginRequiredMixin,UserPassesTestMixin, CreateView):
+class copyForm(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Zamowienie
     serializer_class = ZamSerializer
     form_class = AddForm
     template_name = "Doc1/copyForm.html"
     success_url = reverse_lazy('PlanProc.views.index')
 
-
     def test_func(self):
-        if self.request.user.groups.filter(name='admin').exists() & self.request.user.groups.filter(name='kierownik').exists() :
+        if self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='kierownik').exists():
             return True
         else:
             return False
@@ -169,15 +194,50 @@ class copyForm(LoginRequiredMixin,UserPassesTestMixin, CreateView):
         context['data'] = serializer.data
         return context
 
+    def post(self, request, *args, **kwargs):
+        # Create a mutable copy of request.POST
+        mutable_post = request.POST.copy()
+
+        # Modify the mutable_post data before form validation
+        numeric_fields = ['IloscZlec', 'SzerWorka', 'SzerRekawa', 'Zakladka', "DlugWorka", "GrubWorka", "DolneOdch",
+                          "DlugFoilPlan_Korekta", "WagaFoliZlec", "DlugFoliPlan", "IloscRolekZlec",
+                          "DlugRolkiZlec_Korekta", "DlugRolkiPlan", "DlugFoliZlec_Korekta", "WagaRolkiZlec"]
+
+        for field in numeric_fields:
+            value = mutable_post.get(field, '')
+            value = re.sub(r'\s', '', value)
+            mutable_post[field] = value
+
+        # Replace request.POST with the modified mutable_post
+        request.POST = mutable_post
+        return super().post(request, *args, **kwargs)
+
     def form_valid(self, form):
         # Modify the data before it is saved
         nr_zp_id = Zamowienie.objects.all().values_list('id', flat=True).order_by('-id').first()
         nr_zp = str(date.today()) + "/" + str(nr_zp_id)
         form.instance.pk = None
         form.instance.NrZp = nr_zp
+
         return super().form_valid(form)
 
-class updateForm(LoginRequiredMixin,UserPassesTestMixin, UpdateView):
+    def form_invalid(self, form):
+        invalid_fields = form.errors.keys()
+        error_message = 'Dane w tych polach niepoprawne: ' + ', '.join(invalid_fields)
+        messages.error(self.request, error_message)
+
+        context = self.get_context_data(form=form)
+        form_data = form.cleaned_data  # Get the cleaned form data
+        # form_data['Data] = form_data['Data'].strftime('%Y-%m-%d'')
+        data_value = form_data['Data'].strftime('%Y-%m-%d')
+
+        form_data['Data'] = data_value
+        context['form'] = form_data
+
+        return self.render_to_response(context)
+
+
+class updateForm(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Zamowienie
     serializer_class = ZamSerializer
     form_class = AddForm
@@ -185,7 +245,7 @@ class updateForm(LoginRequiredMixin,UserPassesTestMixin, UpdateView):
     success_url = reverse_lazy('PlanProc.views.index')
 
     def test_func(self):
-        if self.request.user.groups.filter(name='admin').exists() | self.request.user.groups.filter(name='kierownik').exists() :
+        if self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(name='kierownik').exists():
             return True
         else:
             return False
@@ -200,6 +260,38 @@ class updateForm(LoginRequiredMixin,UserPassesTestMixin, UpdateView):
         context['data'] = serializer.data
         return context
 
+    def post(self, request, *args, **kwargs):
+        # Create a mutable copy of request.POST
+        mutable_post = request.POST.copy()
+
+        # Modify the mutable_post data before form validation
+        numeric_fields = ['IloscZlec', 'SzerWorka', 'SzerRekawa', 'Zakladka', "DlugWorka", "GrubWorka", "DolneOdch",
+                          "DlugFoilPlan_Korekta", "WagaFoliZlec", "DlugFoliPlan", "IloscRolekZlec",
+                          "DlugRolkiZlec_Korekta", "DlugRolkiPlan", "DlugFoliZlec_Korekta", "WagaRolkiZlec"]
+        for field in numeric_fields:
+            value = mutable_post.get(field, '')
+            value = re.sub(r'\s', '', value)
+            mutable_post[field] = value
+
+        # Replace request.POST with the modified mutable_post
+        request.POST = mutable_post
+
+        return super().post(request, *args, **kwargs)
+
+    def form_invalid(self, form):
+
+        invalid_fields = form.errors.keys()
+        error_message = 'Dane w tych polach niepoprawne: ' + ', '.join(invalid_fields)
+        messages.error(self.request, error_message)
+        context = self.get_context_data(form=form)
+        form_data = form.cleaned_data  # Get the cleaned form data
+        #form_data['Data] = form_data['Data'].strftime('%Y-%m-%d'')
+        data_value = form_data['Data'].strftime('%Y-%m-%d')
+        form_data['Data'] = data_value
+        context['data'] = form_data
+
+        return self.render_to_response(context)
+
 class foliaPlanning(LoginRequiredMixin, ListView):
     model = Zamowienie
     template_name = "Doc2/procFolia.html"
@@ -211,7 +303,8 @@ class foliaPlanning(LoginRequiredMixin, ListView):
         # for data_dict in serializer.data:
         #     print()
         #     data_dict['NrWytl'] = nrwyt_dict[data_dict['NrWytl']]
-
+        if self.request.GET.get('selected_id'):
+            context['selected_id'] = unquote(self.request.GET.get('selected_id'))
         context['serialized_data'] = serializer.data
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
@@ -224,7 +317,12 @@ class foliaForm(LoginRequiredMixin, CreateView):
     template_name = "Doc2/foliaForm.html"
     form_class = AddRolkiForm
     serializer_class = RolSerializer
-    success_url = reverse_lazy('PlanFolia.views.index')
+
+    def get_success_url(self):
+        selected_id = self.kwargs['date'] + "/" + str(self.kwargs['pk'])
+        params = {'selected_id': selected_id}
+        url = reverse('PlanFolia.views.index') + '?' + urlencode(params)
+        return url
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -234,6 +332,7 @@ class foliaForm(LoginRequiredMixin, CreateView):
         user = get_user(request=self.request)
         context['data'] = serializer.data
         context['user'] = user.username
+
         max_rolka = Rolki.objects.filter(NrZp=NrZp).aggregate(Max('Rolka'))['Rolka__max']
 
         if max_rolka is None:
@@ -248,8 +347,38 @@ class foliaForm(LoginRequiredMixin, CreateView):
 
         return context
 
-    def form_valid(self, form):
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        # Create a mutable copy of request.POST
+        mutable_post = request.POST.copy()
+
+        # Modify the mutable_post data before form validation
+        numeric_fields = ['DlugRolkiProd', 'WagaRolkiProd', 'Slimak', 'Walce', "Wynikowa", "Wynik"
+                         ]
+        for field in numeric_fields:
+            value = mutable_post.get(field, '')
+            value = re.sub(r'\s', '', value)
+            mutable_post[field] = value
+
+        # Replace request.POST with the modified mutable_post
+        request.POST = mutable_post
+
+        return super().post(request, *args, **kwargs)
+
+    def form_invalid(self, form):
+
+        invalid_fields = form.errors.keys()
+        error_message = 'Dane w tych polach niepoprawne: ' + ', '.join(invalid_fields)
+        messages.error(self.request, error_message)
+        context = self.get_context_data(form=form)
+        form_data = form.cleaned_data  # Get the cleaned form data
+        # form_data['Data] = form_data['Data'].strftime('%Y-%m-%d'')
+        if 'Data' in form_data:
+            data_value = form_data['Data'].strftime('%Y-%m-%d')
+            form_data['Data'] = data_value
+
+        context['update_form'] = form_data
+
+        return self.render_to_response(context)
 
 class upateRolForm(LoginRequiredMixin, UpdateView):
     model = Rolki
@@ -265,6 +394,7 @@ class upateRolForm(LoginRequiredMixin, UpdateView):
         rolka = self.kwargs.get('rolka')
         nrzp = str(date) + "/" + str(pk)
         obj = Rolki.objects.get(NrZp=nrzp, Rolka=rolka)
+
         return obj
 
     def get_context_data(self, **kwargs):
@@ -277,15 +407,49 @@ class upateRolForm(LoginRequiredMixin, UpdateView):
         data = Zamowienie.objects.get(NrZp=nrzp)
         dataSem = ZamSerializer(data)
         context['data'] = dataSem.data
+        context['folia_dict'] = folia_dict
         return context
+
+    def post(self, request, *args, **kwargs):
+        # Create a mutable copy of request.POST
+        mutable_post = request.POST.copy()
+
+        # Modify the mutable_post data before form validation
+        numeric_fields = ['DlugRolkiProd', 'WagaRolkiProd', 'Slimak', 'Walce', 'Wynikowa', "Wynik"
+                         ]
+        for field in numeric_fields:
+            value = mutable_post.get(field, '')
+            value = re.sub(r'\s', '', value)
+            mutable_post[field] = value
+
+        # Replace request.POST with the modified mutable_post
+        request.POST = mutable_post
+
+        return super().post(request, *args, **kwargs)
+
+    def form_invalid(self, form):
+        invalid_fields = form.errors.keys()
+        error_message = 'Dane w tych polach niepoprawne: ' + ', '.join(invalid_fields)
+        messages.error(self.request, error_message)
+        context = self.get_context_data(form=form)
+        form_data = form.cleaned_data  # Get the cleaned form data
+        # form_data['Data] = form_data['Data'].strftime('%Y-%m-%d'')
+        data_value = form_data['Data'].strftime('%Y-%m-%d')
+        form_data['Data'] = data_value
+        context['rols'] = form_data
+
+
+
+        return self.render_to_response(context)
 
 @login_required(login_url='/login')
 def get_data(request, date, pk):
     NrZp = date +'/'+str(pk)
     data = Rolki.objects.filter(NrZp=NrZp)
     data_list = []
+
     for item in data:
-        print(item.UserName)
+
         data_list.append({'id': item.NrZp, 'data': item.Data,
                           'zmiana': item.Zmiana,
                           "rolka": item.Rolka,
@@ -313,12 +477,12 @@ def get_dataCal(request, date, pk):
     if not dataRol:
         return JsonResponse({'calc': [0,0,0,0,0,0]})
 
-    waga_sum = dataRol.aggregate(Sum('WagaRolkiProd'))['WagaRolkiProd__sum']
-    waga_end = dataOrder.WagaFoliZlec - waga_sum
-    dlugProd = dataRol.aggregate(Sum('DlugRolkiProd'))['DlugRolkiProd__sum']
-    dlugEnd = dataOrder.IloscRolekZlec * dataOrder.DlugRolkiZlec_Korekta - dlugProd
-    sumRol = dataRol.aggregate(Count('Rolka'))['Rolka__count']
-    finishRol = dataOrder.IloscRolekZlec - sumRol
+    waga_sum = float(np.round(dataRol.aggregate(Sum('WagaRolkiProd'))['WagaRolkiProd__sum'],2))
+    waga_end = float(np.round(dataOrder.WagaFoliZlec - waga_sum,2))
+    dlugProd = float(np.round(dataRol.aggregate(Sum('DlugRolkiProd'))['DlugRolkiProd__sum'],2))
+    dlugEnd = float(np.round(dataOrder.IloscRolekZlec * dataOrder.DlugRolkiZlec_Korekta - dlugProd,2))
+    sumRol = float(np.round(dataRol.aggregate(Count('Rolka'))['Rolka__count'],2))
+    finishRol = float(np.round(dataOrder.IloscRolekZlec - sumRol,2))
 
     return JsonResponse({'calc': [waga_sum, waga_end, dlugProd, dlugEnd , sumRol, finishRol]})
 
@@ -333,7 +497,7 @@ def update_status(request):
         return HttpResponse(status=200)
 
 
-### EMPLOER SECTION
+### EMP SECTION
 @login_required(login_url='/login')
 @allowed_user(allowed_groups=['admin'])
 def employer_list(request):
@@ -422,7 +586,7 @@ class procPrac(LoginRequiredMixin, ListView):
         )
 
         context['serialized_data'] = queary
-        print(context)
+
         return context
 
 class procReal(LoginRequiredMixin,UserPassesTestMixin, ListView):
@@ -478,12 +642,12 @@ def realCaluclator(NrZp):
                 'sumRol':0,
                 'finishRol':0}
 
-    waga_sum = dataRol.aggregate(Sum('WagaRolkiProd'))['WagaRolkiProd__sum']
-    waga_end = dataOrder.WagaFoliZlec - waga_sum
-    dlugProd = dataRol.aggregate(Sum('DlugRolkiProd'))['DlugRolkiProd__sum']
-    dlugEnd = dataOrder.IloscRolekZlec * dataOrder.DlugRolkiZlec_Korekta - dlugProd
-    sumRol = dataRol.aggregate(Count('Rolka'))['Rolka__count']
-    finishRol = dataOrder.IloscRolekZlec - sumRol
+    waga_sum = float(np.round(dataRol.aggregate(Sum('WagaRolkiProd'))['WagaRolkiProd__sum'],2))
+    waga_end = float(np.round(dataOrder.WagaFoliZlec - waga_sum,2))
+    dlugProd = float(np.round(dataRol.aggregate(Sum('DlugRolkiProd'))['DlugRolkiProd__sum'],2))
+    dlugEnd = float(np.round(dataOrder.IloscRolekZlec * dataOrder.DlugRolkiZlec_Korekta - dlugProd,2))
+    sumRol = float(np.round(dataRol.aggregate(Count('Rolka'))['Rolka__count'],2))
+    finishRol = float(np.round(dataOrder.IloscRolekZlec - sumRol,2))
 
     return {'wagaSum': waga_sum,
             'wagaEnd': waga_end,
