@@ -41,7 +41,11 @@
         <div class="card-body">
           <h2 class="card-title">Zlecenie 1</h2>
           <p class="card-text" style="font-size: 16px;  ">Zlecenia produkcyjne planowane</p>
-           <a class="btn btn-primary text-white w-100" href="{% url 'PlanProc.views.index' %}">Enter</a>
+             {% if user_kierownik or admin %}
+                 <a class="btn btn-primary text-white w-100" href="{% url 'PlanProc.views.index' %}">Enter</a>
+            {% else %}
+                <span class="btn btn-primary text-white w-100 disabled">Enter</span>
+            {% endif %}
         </div>
       </div>
     </div>
@@ -50,7 +54,7 @@
         <div class="card-body">
           <h2 class="card-title">Raport 1</h2>
           <p class="card-text" style="font-size: 16px;  ">Zlecenia w realizacji po wytłaczarkach</p>
-          <a class="btn btn-primary text-white w-100" href="{% url 'Realizacja.views.index' %}">Enter</a>
+            <a class="btn btn-primary text-white w-100" href="{% url 'PlanFolia.views.index' %}">Enter</a>
         </div>
       </div>
     </div>
@@ -69,7 +73,6 @@
           {% else %}
             <span class="btn btn-primary disabled w-100">Enter</span>
           {% endif %}
-          </button>
         </div>
       </div>
     </div>
@@ -78,7 +81,11 @@
         <div class="card-body">
           <h2 class="card-title">Zlecenie 2</h2>
           <p class="card-text" style="font-size: 16px;  ">Zlecenia produkcyjne w realizacji</p>
-           <a class="btn btn-primary text-white w-100" href="{% url 'PlanFolia.views.index' %}">Enter</a>
+             {% if user_kierownik or admin %}
+                 <a class="btn btn-primary text-white w-100" href="{% url 'Realizacja.views.index' %}">Enter</a>
+             {% else %}
+                <span class="btn btn-primary disabled w-100">Enter</span>
+            {% endif %}
         </div>
       </div>
     </div>
@@ -87,7 +94,7 @@
         <div class="card-body">
           <h2 class="card-title">Raport 2</h2>
           <p class="card-text" style="font-size: 16px;  ">Zlecenia zrealizowane po wytłaczarkach</p>
-           <a class="btn btn-primary text-white w-100" href="{% url 'procReal.views.index' %}">Enter</a>
+           <a class="btn btn-primary text-white w-100" href="{% url 'procFolia.views.index' %}">Enter</a>
         </div>
       </div>
     </div>
@@ -102,7 +109,11 @@
         <div class="card-body">
           <h2 class="card-title">Zlecenie 3</h2>
           <p class="card-text" style="font-size: 16px;  ">Zlecenie produkcyjne zrealizowane lub anulowane</p>
-           <a class="btn btn-primary text-white w-100" href="{% url 'procFolia.views.index' %}">Enter</a>
+             {% if user_kierownik or admin %}
+                 <a class="btn btn-primary text-white w-100" href="{% url 'procReal.views.index' %}">Enter</a>
+             {% else %}
+                 <span class="btn btn-primary disabled w-100">Enter</span>
+            {% endif %}
         </div>
       </div>
     </div>

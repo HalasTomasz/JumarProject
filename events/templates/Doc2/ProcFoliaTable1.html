@@ -1,4 +1,8 @@
+{% load static %}
 {% block table %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src={% static "js/Table1ProcFolia/readDataTableForm.js "%}></script>
+
     <div class=" w-100 overflow-hiden ">
     <div class="row">
         <div class="col-12">
@@ -26,21 +30,29 @@
                 <tbody>
                     {% for post in serialized_data %}
 	<tr id="special">
+
+        {% if selected_id == post.NrZp %}
+        <script>
+            getData('{{ post.NrZp }}');
+            getSmallTableData('{{ post.NrZp }}');
+        </script>
+        {% endif %}
 		<td rowspan="3"  class="counter-cell"> {{ forloop.counter }}</td>
-		<td rowspan="3" data-id="{{ post.NrZp }}" {% if selected_id == post.NrZp %} class="selected-cell"{% endif %}>{{ post.NrZp }}</td>
+		<td rowspan="3" data-id="{{ post.NrZp }}" {% if selected_id == post.NrZp %} class="selected-cell"  {% endif %}>{{ post.NrZp }}</td>
+
 		<td rowspan="3">{{ nrwyt_dict|get_item:post.NrWyt }}</td>
 		<td colspan="3" rowspan="3">{{ post.Artykul }}</td>
 		<td rowspan="3">{{ post.SzerWorka | readable_integer }}</td>
 		<td rowspan="3">{{ post.Zakladka | readable_integer }}</td>
 		<td rowspan="3">{{ post.GrubWorka | readable_integer }}</td>
 		<td rowspan="3">{{ post.DolneOdch | readable_integer }}</td>
-		<td rowspan="3">{{ post.DlugFoliZlec_Korekta | readable_integer  }}</td>
+		<td rowspan="3">{{ post.DlugRolkiZlec_Korekta | readable_integer  }}</td>
 		<td rowspan="3">{{ post.WagaRolkiZlec | readable_integer }}</td>
 		<td rowspan="3">{{ post.IloscRolekZlec | readable_integer }}</td>
-		<td rowspan="3">{{ post.Kod }}</td>
+		<td rowspan="3">{{ post.Kod | default_if_none:'' }}</td>
 		<td rowspan="3">{{ folia_dict|get_item:post.Rodzaj }}</td>
-		<td rowspan="3">{{ post.MMK}} </td>
-		<td rowspan="3"> {{ post.Barwnik}}</td>
+		<td rowspan="3">{{ post.MMK | default_if_none:''}} </td>
+		<td rowspan="3"> {{ post.Barwnik | default_if_none:''}}</td>
 	</tr><tr>
 	</tr>
 	<tr>

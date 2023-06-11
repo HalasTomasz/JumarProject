@@ -88,11 +88,11 @@
       </div>
           <div class="col-auto ">
             <label class="form-label" for="walce">Walce</label>
-            <input style="border-color: #FF0000;" onkeyup="addSeparator('id_Walce')" type="text"  name="Walce" id="id_Walce" class="form-control" value="{{ rols.Walce | readable_integer }}" />
+            <input style="border-color: #00BFFF;" onkeyup="addSeparator('id_Walce')" type="text"  name="Walce" id="id_Walce" class="form-control" value="{{ rols.Walce | readable_integer }}" />
         </div>
           <div class="col-auto ">
             <label class="form-label" for="slimak">Ślimak</label>
-            <input style="border-color: #FF0000;" onkeyup="addSeparator('id_Slimak')"  type="text"  name="Slimak" id="id_Slimak" class="form-control" value="{{ rols.Slimak | readable_integer }}"/>
+            <input style="border-color: #00BFFF;" onkeyup="addSeparator('id_Slimak')"  type="text"  name="Slimak" id="id_Slimak" class="form-control" value="{{ rols.Slimak | readable_integer }}"/>
         </div>
     </div>
 
@@ -128,60 +128,6 @@
     </div>
 </body>
 </html>
-<script type="text/javascript">
-    var rodzaj = document.getElementById("id_NrWytl");
-  var selectedValue = "{{ rols.NrWytl }}";  // Assuming form is a valid context variable in your template
-
-  for (var i = 0; i < rodzaj.options.length; i++) {
-    if (rodzaj.options[i].value == selectedValue) {
-      rodzaj.selectedIndex = i;
-      break;
-    }
-  }
-</script>
-
- <script type="text/javascript">
-
-        function wynikFunc() {
-  var input = document.getElementById('id_DolneOdch');
-  var input2 = document.getElementById('id_WagaRolkiProd');
-  var input3 = document.getElementById('id_WagaRolkiZlec');
-  if (input.value.trim() && input2.value.trim() && input3.value.trim()) {
-    var zakaldka = document.getElementById('id_Wynikowa');
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-    var value3 = input3.value.replace(/ /g, '');
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && /^\d*\.?\d+$/.test(value3)) {
-      var result = (parseFloat(value1) * parseFloat(value2)) / parseFloat(value3);
-      if (!isNaN(result)) {
-        zakaldka.value = result.toFixed(2);
-        wynikowaFunc();
-        addSeparator('id_Wynikowa');
-      }
-    } else {
-      zakaldka.value = "";
-    }
-  }
-}
-
-function wynikowaFunc() {
-  var input = document.getElementById('id_Wynikowa');
-  var input2 = document.getElementById('id_DolneOdch');
-
-  if (input.value.trim() && input2.value.trim()) {
-    var waga = document.getElementById('id_Wynik');
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2)) {
-      var result = parseFloat(value1) / parseFloat(value2) * 100;
-      if (!isNaN(result)) {
-        waga.value = result.toFixed(2);
-        addSeparator('id_Wynik');
-      }
-    } else {
-      waga.value = '';
-    }
-  }
-}
-</script>
+ <script src={% static "js/Doc2F/edit.js" %}></script>
+ <script src={% static "js/Doc2F/selectedE.js" %}></script>
  <script src={% static "js/sep.js" %}></script>

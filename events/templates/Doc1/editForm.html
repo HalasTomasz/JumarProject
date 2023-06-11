@@ -108,7 +108,7 @@
         </div>
            <div class="col-auto ">
             <label class="form-label" for="dlugfoliplan_korekta">DługFoilPlan Korekta [%]</label>
-            <input style="border-color: #FF0000;" type="text"  value="{{ data.DlugFoilPlan_Korekta  }}"  onkeyup="addSeparator('id_DlugFoilPlan_Korekta')"  name="DlugFoilPlan_Korekta" id="id_DlugFoilPlan_Korekta" class="form-control" onchange="dlugfoliplanFunc()" />
+            <input style="border-color: #FF0000;" type="text"  value="{{ data.DlugFoilPlan_Korekta | readable_integer  }}"  onkeyup="addSeparator('id_DlugFoilPlan_Korekta')"  name="DlugFoilPlan_Korekta" id="id_DlugFoilPlan_Korekta" class="form-control" onchange="dlugfoliplanFunc()" />
         </div>
     </div>
 
@@ -161,7 +161,7 @@
       </div>
     <div class="col-auto">
         <label for="mmk" class="form-label">MMK</label>
-        <input style="border-color: #00BFFF;"  value="{{ data.MMK | default_if_none:''}}" type="text" class="form-control" maxlength="20" name="MMK" id="id_MMK" ">
+        <input style="border-color: #00BFFF;"  value="{{ data.MMK | default_if_none:''}}" type="text" class="form-control" maxlength="20" name="MMK" id="id_MMK" >
       </div>
         <div class="col-auto">
         <label for="barwnik" class="form-label">Barwnik</label>
@@ -169,7 +169,7 @@
       </div>
     </div>
     <div class="col text-center">
-        <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'PlanProc.views.index' %}'">Anuluj</button>
+        <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'Home.views.index' %}'">Anuluj</button>
       <button type="submit" class="btn btn-secondary fw-bold">Zapisz</button>
     </div>
 </form>
@@ -180,174 +180,6 @@
 
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
    <script src={% static "js/sep.js" %}></script>
-    <script type="text/javascript">
-
-        var dict = {
-          "0": 0.96,
-          "1": 0.935,
-            "2":0.94,
-        };
-
-      function zakladkaFunc() {
-  var input = document.getElementById('id_SzerRekawa');
-  var input2 = document.getElementById('id_SzerWorka');
-  var zakladka = document.getElementById('id_Zakladka');
-
-  if (input.value.trim() && input2.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2)) {
-      var result = (parseFloat(value1) - parseFloat(value2)) / 2;
-      zakladka.value = result;
-      addSeparator('id_Zakladka');
-    } else {
-      zakladka.value = '';
-    }
-  }
-}
-
-function wagafolizlecFunc() {
-  var input = document.getElementById('id_SzerRekawa');
-  var input2 = document.getElementById('id_DolneOdch');
-  var input3 = document.getElementById('id_DlugFoliPlan');
-  var input4 = document.getElementById('id_Rodzaj');
-  var waga = document.getElementById('id_WagaFoliZlec');
-
-  if (input.value.trim() && input2.value.trim() && input3.value.trim() && input4.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-    var value3 = input3.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && /^\d*\.?\d+$/.test(value3)) {
-      var gest = parseFloat(dict[input4.value]);
-
-      if (!isNaN(gest)) {
-        var result = (parseFloat(value1) / 1000 * parseFloat(value2) / 1000 * parseFloat(value3) * 1.9 * gest).toFixed(2);
-        waga.value = result;
-        addSeparator('id_WagaFoliZlec');
-        wagarolkizlecFunc();
-      } else {
-        waga.value = '';
-      }
-    } else {
-      waga.value = '';
-    }
-  }
-}
-
-function dlugfoliplanFunc() {
-  var input = document.getElementById('id_IloscZlec');
-  var input2 = document.getElementById('id_DlugWorka');
-  var input3 = document.getElementById('id_DlugFoilPlan_Korekta');
-  var dlug = document.getElementById('id_DlugFoliPlan');
-
-  if (input.value.trim() && input2.value.trim() && input3.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-    var value3 = input3.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && /^\d*\.?\d+$/.test(value3)) {
-      var result = (parseFloat(value1) * parseFloat(value2) * parseFloat(value3) / 1000).toFixed(2);
-      dlug.value = result;
-      addSeparator('id_DlugFoliPlan');
-      wagafolizlecFunc();
-      dlugrolkiplanFunc();
-    } else {
-      dlug.value = '';
-      wagafolizlecFunc();
-    }
-  }
-}
-
-function dlugrolkiplanFunc() {
-  var input = document.getElementById('id_DlugFoliPlan');
-  var input2 = document.getElementById('id_IloscRolekZlec');
-  var dlug = document.getElementById('id_DlugRolkiPlan');
-
-  if (input.value.trim() && input2.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && parseFloat(value2) !== 0) {
-      var result = (parseFloat(value1) / parseFloat(value2)).toFixed(2);
-      dlug.value = result;
-      addSeparator('id_DlugRolkiPlan');
-    } else {
-      dlug.value = '';
-    }
-  }
-}
-
-function wagarolkizlecFunc() {
-  var input = document.getElementById('id_WagaFoliZlec');
-  var input2 = document.getElementById('id_IloscRolekZlec');
-  var waga = document.getElementById('id_WagaRolkiZlec');
-
-  if (input.value.trim() && input2.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && parseFloat(value2) !== 0) {
-      var result = (parseFloat(value1) / parseFloat(value2)).toFixed(2);
-      waga.value = result;
-      addSeparator('id_WagaRolkiZlec');
-    } else {
-      waga.value = '';
-    }
-  }
-}
-
-function dlugfolizlecFunc() {
-  var input = document.getElementById('id_DlugRolkiZlec_Korekta');
-  var input2 = document.getElementById('id_IloscRolekZlec');
-  var dlug = document.getElementById('id_DlugFoliZlec_Korekta');
-
-  if (input.value.trim() && input2.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2)) {
-      var result = (parseFloat(value1) * parseFloat(value2)).toFixed(2);
-      dlug.value = result;
-      addSeparator('id_DlugFoliZlec_Korekta');
-    } else {
-      dlug.value = '';
-    }
-  }
-}
-
-
-    </script>
-<script type="text/javascript">
-    var rodzaj = document.getElementById("id_NrWyt");
-  var selectedValue = "{{ data.NrWyt }}";  // Assuming form is a valid context variable in your template
-
-  for (var i = 0; i < rodzaj.options.length; i++) {
-    if (rodzaj.options[i].value == selectedValue) {
-      rodzaj.selectedIndex = i;
-      break;
-    }
-  }
-
-  var rodzaj2 = document.getElementById("id_Status");
-  var selectedValue2 = "{{ data.Status }}";  // Assuming form is a valid context variable in your template
-
-  for (var i = 0; i < rodzaj2.options.length; i++) {
-    if (rodzaj2.options[i].value == selectedValue2) {
-      rodzaj2.selectedIndex = i;
-      break;
-    }
-  }
-    var rodzaj3 = document.getElementById("id_Rodzaj");
-  var selectedValue3 = "{{ data.Rodzaj }}";  // Assuming form is a valid context variable in your template
-
-  for (var i = 0; i < rodzaj3.options.length; i++) {
-    if (rodzaj3.options[i].value == selectedValue3) {
-      rodzaj3.selectedIndex = i;
-      break;
-    }
-  }
-</script>
-
+    <script src={%  static "js/Doc1F/edit.js" %}></script>
+    <script src={%  static "js/Doc1F/selectedE.js" %}></script>
 </html>

@@ -34,7 +34,7 @@
     <label class="text-secondary"  style="font-size: 18px;">Pola automatycznie</label>
     </div>
        <div class="mb-2">
-        <label class="text-warning"  style="font-size: 18px;">Podana ZMIANA nie będzie edytowalna!</label>
+        <label class="text-warning"  style="font-size: 18px;">Uwaga: wartości w polu „Zmiana” nie będzie można edytować po zatwierdzeniu formularza.</label>
        </div>
     <div class="mb-3">
         <label for="nr_zp" class="form-label fw-bold">NrZp</label>
@@ -90,30 +90,30 @@
     <div class="row g-3 mb-3">
       <div class="col-auto">
         <label for="dlugrolkiprod" class="form-label">DługRolkiProd [mb]</label>
-        <input style="border-color: #FF0000;"  type="text"  onkeyup="addSeparator('id_DługRolkiProd')" name="DlugRolkiProd" id="id_DługRolkiProd" class="form-control" value="{{ update_form.DlugRolkiProd|default_if_none:'' }}" >
+        <input style="border-color: #FF0000;"  type="text"  onkeyup="addSeparator('id_DługRolkiProd')" name="DlugRolkiProd" id="id_DługRolkiProd" class="form-control" value="{{ update_form.DlugRolkiProd|readable_integer|default_if_none:'' }}" >
       </div>
         <div class="col-auto">
         <label for="wagarolkiprod" class="form-label">WagaRolkiProd [kg]</label>
-        <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_WagaRolkiProd')" class="form-control"  name="WagaRolkiProd" id="id_WagaRolkiProd" onchange="wynikFunc()" value="{{ update_form.WagaRolkiProd|default_if_none:'' }}">
+        <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_WagaRolkiProd')" class="form-control"  name="WagaRolkiProd" id="id_WagaRolkiProd" onchange="wynikFunc()" value="{{ update_form.WagaRolkiProd|readable_integer|default_if_none:'' }}">
       </div>
           <div class="col-auto ">
             <label class="form-label" for="walce">Walce</label>
-            <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_Walce')"  name="Walce" id="id_Walce" class="form-control" value="{{ update_form.Walce|default_if_none:'' }}" />
+            <input style="border-color: #00BFFF;" type="text"  onkeyup="addSeparator('id_Walce')"  name="Walce" id="id_Walce" class="form-control" value="{{ update_form.Walce|readable_integer|default_if_none:'' }}" />
         </div>
           <div class="col-auto ">
             <label class="form-label" for="slimak">Ślimak</label>
-            <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_Slimak')" name="Slimak" id="id_Slimak" class="form-control" value="{{ update_form.Slimak|default_if_none:'' }}"/>
+            <input style="border-color: #00BFFF;" type="text"  onkeyup="addSeparator('id_Slimak')" name="Slimak" id="id_Slimak" class="form-control" value="{{ update_form.Slimak|readable_integer|default_if_none:'' }}"/>
         </div>
     </div>
 
     <div class="row g-2 mb-3">
         <div class="col_auto">
             <label for="grubosc" class="form-label">Wynikowa grubość [mikrony]</label>
-            <input style="border-color: #CCCCCC;" type="text" class="form-control" name="Wynikowa" id="id_Wynikowa" readonly value="{{ update_form.Wynikowa|default_if_none:'' }}" >
+            <input style="border-color: #CCCCCC;" type="text" class="form-control" name="Wynikowa" id="id_Wynikowa" readonly value="{{ update_form.Wynikowa|readable_integer|default_if_none:'' }}" >
         </div>
          <div class="col_auto">
             <label for="wynik" class="form-label">GrubośćWynik %</label>
-            <input style="border-color: #CCCCCC;" type="text"  class="form-control" name="Wynik" id="id_Wynik" readonly value="{{ update_form.Wynik|default_if_none:'' }}">
+            <input style="border-color: #CCCCCC;" type="text"  class="form-control" name="Wynik" id="id_Wynik" readonly value="{{ update_form.Wynik|readable_integer|default_if_none:'' }}">
         </div>
     </div>
 
@@ -138,57 +138,7 @@
 </body>
 </html>
  <script src={% static "js/sep.js" %}></script>
- <script type="text/javascript">
-  function wynikFunc() {
-  var input = document.getElementById('id_DolneOdch');
-  var input2 = document.getElementById('id_WagaRolkiProd');
-  var input3 = document.getElementById('id_WagaRolkiZlec');
-  if (input.value.trim() && input2.value.trim() && input3.value.trim()) {
-    var zakaldka = document.getElementById('id_Wynikowa');
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-    var value3 = input3.value.replace(/ /g, '');
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && /^\d*\.?\d+$/.test(value3)) {
-      var result = (parseFloat(value1) * parseFloat(value2)) / parseFloat(value3);
-      if (!isNaN(result)) {
-        zakaldka.value = result.toFixed(2);
-        wynikowaFunc();
-        addSeparator('id_Wynikowa');
-      }
-    } else {
-      zakaldka.value = "";
-    }
-  }
-}
+ <script src={% static "js/Doc2F/form.js" %}></script>
+ <script src={% static "js/Doc2F/selected.js" %}></script>
 
-function wynikowaFunc() {
-  var input = document.getElementById('id_Wynikowa');
-  var input2 = document.getElementById('id_DolneOdch');
-
-  if (input.value.trim() && input2.value.trim()) {
-    var waga = document.getElementById('id_Wynik');
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2)) {
-      var result = parseFloat(value1) / parseFloat(value2) * 100;
-      if (!isNaN(result)) {
-        waga.value = result.toFixed(2);
-        addSeparator('id_Wynik');
-      }
-    } else {
-      waga.value = '';
-    }
-  }
-}
-</script>
-<script type="text/javascript">
-    var rodzaj = document.getElementById("id_NrWytl");
-  var selectedValue = "{{ update_form.NrWytl }}";  // Assuming form is a valid context variable in your template
-
-  for (var i = 0; i < rodzaj.options.length; i++) {
-    if (rodzaj.options[i].value == selectedValue) {
-      rodzaj.selectedIndex = i;
-      break;
-    }
-  }
 </script>

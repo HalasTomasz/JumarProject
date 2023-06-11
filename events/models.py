@@ -1,4 +1,9 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User, Group
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User, Group
+from django.dispatch import receiver
 
 class Zamowienie(models.Model):
 
@@ -42,10 +47,19 @@ class Rolki(models.Model):
     Rodzaj = models.IntegerField()
     DlugRolkiProd = models.FloatField()
     WagaRolkiProd = models.FloatField()
-    Walce = models.FloatField()
-    Slimak = models.FloatField()
+    Walce = models.FloatField(null=True)
+    Slimak = models.FloatField(null=True)
     Wynikowa = models.FloatField()
     Wynik = models.FloatField()
     Mieszanka = models.CharField(max_length=40, blank=True, null=True, default='')
     Uwagi = models.CharField(max_length=40, blank=True, null=True, default='')
     UserName = models.CharField(max_length=40)
+
+@receiver(post_save, sender=User)
+def assign_admin_group(sender, instance, created, **kwargs):
+    if created and instance.is_superuser:
+        admin_group = Group.objects.get(name='admin')
+        instance.groups.add(admin_group)
+
+
+post_save.connect(assign_admin_group, sender=User)

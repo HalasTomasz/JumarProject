@@ -75,15 +75,15 @@
     <div class="row g-3 mb-3">
         <div class="col-auto ">
             <label class="form-label" for="szerworka">SzerWorka [mm]</label>
-            <input value="{{ form.SzerWorka.value|default_if_none:'' }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_SzerWorka')"  name="SzerWorka" id="id_SzerWorka" class="form-control" onchange="zakladkaFunc()" />
+            <input value="{{ form.SzerWorka.value|default_if_none:''| readable_integer }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_SzerWorka')"  name="SzerWorka" id="id_SzerWorka" class="form-control" onchange="zakladkaFunc()" />
         </div>
         <div class="col-auto ">
             <label class="form-label" for="szerrekawa">SzerRękawa [mm]</label>
-            <input value="{{ form.SzerRekawa.value|default_if_none:'' }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_SzerRekawa')" name="SzerRekawa" id="id_SzerRekawa" class="form-control"  onchange="zakladkaFunc(), wagafolizlecFunc()" />
+            <input value="{{ form.SzerRekawa.value|default_if_none:''| readable_integer }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_SzerRekawa')" name="SzerRekawa" id="id_SzerRekawa" class="form-control"  onchange="zakladkaFunc(), wagafolizlecFunc()" />
         </div>
         <div class=" col-auto ">
             <label class="form-label" for="zaklada">Zakładka [mm]</label>
-            <input value="{{ form.Zakladka.value|default_if_none:'' }}"  style="border-color: #CCCCCC;" class="form-control" name="Zakladka" id="id_Zakladka" type="text"   aria-label="Disabled input example"  readonly>
+            <input value="{{ form.Zakladka.value|default_if_none:''| readable_integer }}"  style="border-color: #CCCCCC;" class="form-control" name="Zakladka" id="id_Zakladka" type="text"   aria-label="Disabled input example"  readonly>
          </div>
 
     </div>
@@ -91,30 +91,30 @@
        <div class="row g-4 mb-3">
         <div class="col-auto ">
             <label class="form-label" for="dlugworka">DługWorka [mm]</label>
-            <input value="{{ form.DlugWorka.value|default_if_none:'' }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DlugWorka')" name="DlugWorka" id="id_DlugWorka" class="form-control" onchange="dlugfoliplanFunc()" />
+            <input value="{{ form.DlugWorka.value|default_if_none:''| readable_integer }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DlugWorka')" name="DlugWorka" id="id_DlugWorka" class="form-control" onchange="dlugfoliplanFunc()" />
         </div>
         <div class="col-auto ">
             <label class="form-label" for="grubworka">GrubWorka [mikr]</label>
-            <input value="{{ form.GrubWorka.value|default_if_none:'' }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_GrubWorka')" name="GrubWorka"  id="id_GrubWorka" class="form-control"/>
+            <input value="{{ form.GrubWorka.value|default_if_none:''| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_GrubWorka')" name="GrubWorka"  id="id_GrubWorka" class="form-control"/>
         </div>
            <div class="col-auto ">
             <label class="form-label" for="dolneodch">DolneOdch [mikr]</label>
-            <input value="{{ form.DolneOdch.value|default_if_none:'' }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DolneOdch')" name="DolneOdch" id="id_DolneOdch" class="form-control" onchange="wagafolizlecFunc()"/>
+            <input value="{{ form.DolneOdch.value|default_if_none:''| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DolneOdch')" name="DolneOdch" id="id_DolneOdch" class="form-control" onchange="wagafolizlecFunc()"/>
         </div>
            <div class="col-auto ">
             <label class="form-label" for="dlugfoliplan_korekta">DługFoilPlan Korekta [%]</label>
-            <input value="{{ form.DlugFoilPlan_Korekta.value|default_if_none:'' }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DlugFoilPlan_Korekta')"  name="DlugFoilPlan_Korekta" id="id_DlugFoilPlan_Korekta" class="form-control" onchange="dlugfoliplanFunc()" value="1"/>
+            <input value="{{ form.DlugFoilPlan_Korekta.value|default_if_none:''| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DlugFoilPlan_Korekta')"  name="DlugFoilPlan_Korekta" id="id_DlugFoilPlan_Korekta" class="form-control" onchange="dlugfoliplanFunc()" value="1"/>
         </div>
     </div>
 
     <div class="row g-2 mb-3">
         <div class="col-auto ">
             <label class="form-label" for="wagafolizlec">WagaFoilZlec [kg]</label>
-            <input value="{{ form.WagaFoliZlec.value|default_if_none:'' }}" style="border-color: #CCCCCC;" type="text" name="WagaFoliZlec" id="id_WagaFoliZlec" class="form-control" value="0" aria-label="Disabled input example"  readonly onchange="wagarolkizlecFunc()"/>
+            <input value="{{ form.WagaFoliZlec.value|default_if_none:''| readable_integer }}" style="border-color: #CCCCCC;" type="text" name="WagaFoliZlec" id="id_WagaFoliZlec" class="form-control" value="0" aria-label="Disabled input example"  readonly onchange="wagarolkizlecFunc()"/>
         </div>
         <div class="col-auto ">
             <label class="form-label" for="dlugfoliplan">DługFoilPlan [mb]</label>
-            <input value="{{ form.DlugFoliPlan.value|default_if_none:'' }}" style="border-color: #CCCCCC;" type="text" name="DlugFoliPlan" id="id_DlugFoliPlan" class="form-control" value="0" aria-label="Disabled input example"  readonly onchange="dlugrolkiplanFunc()" />
+            <input value="{{ form.DlugFoliPlan.value|default_if_none:''| readable_integer }}" style="border-color: #CCCCCC;" type="text" name="DlugFoliPlan" id="id_DlugFoliPlan" class="form-control" value="0" aria-label="Disabled input example"  readonly onchange="dlugrolkiplanFunc()" />
         </div>
     </div>
 
@@ -122,26 +122,26 @@
     <div class="row g-2 mb-3">
         <div class="col-auto ">
             <label class="form-label" for="iloscrolekzlec">IlośćRolekZlec [szt]</label>
-            <input value="{{ form.IloscRolekZlec.value|default_if_none:'' }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_IloscRolekZlec')" name="IloscRolekZlec" id="id_IloscRolekZlec" class="form-control" onchange="dlugrolkiplanFunc(); wagarolkizlecFunc();dlugfolizlecFunc()" />
+            <input value="{{ form.IloscRolekZlec.value|default_if_none:''| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_IloscRolekZlec')" name="IloscRolekZlec" id="id_IloscRolekZlec" class="form-control" onchange="dlugrolkiplanFunc(); wagarolkizlecFunc();dlugfolizlecFunc()" />
         </div>
         <div class="col-auto ">
             <label class="form-label" for="dlugrolkizlec_korekta">DługRolkiZlec korekta [mb]</label>
-            <input value="{{ form.DlugRolkiZlec_Korekta.value|default_if_none:'' }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DlugRolkiZlec_Korekta')" name="DlugRolkiZlec_Korekta" id="id_DlugRolkiZlec_Korekta" class="form-control" onchange="dlugfolizlecFunc()" />
+            <input value="{{ form.DlugRolkiZlec_Korekta.value|default_if_none:''| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DlugRolkiZlec_Korekta')" name="DlugRolkiZlec_Korekta" id="id_DlugRolkiZlec_Korekta" class="form-control" onchange="dlugfolizlecFunc()" />
         </div>
     </div>
 
     <div class="row g-3 mb-3">
         <div class="col-auto">
             <label class="form-label" for="dlugrolkiplan">DługRolkiPlan [mb]</label>
-            <input value="{{ form.DlugRolkiPlan.value|default_if_none:'' }}" style="border-color: #CCCCCC;" type="text"  onkeyup="addSeparator('id_DlugRolkiPlan')" name="DlugRolkiPlan"  id="id_DlugRolkiPlan" class="form-control" value="0" aria-label="Disabled input example" readonly/>
+            <input value="{{ form.DlugRolkiPlan.value|default_if_none:''| readable_integer }}" style="border-color: #CCCCCC;" type="text"  onkeyup="addSeparator('id_DlugRolkiPlan')" name="DlugRolkiPlan"  id="id_DlugRolkiPlan" class="form-control" value="0" aria-label="Disabled input example" readonly/>
         </div>
         <div class="col-auto">
             <label class="form-label" for="dlugfolizlec_korekta">DługFoilZlec korekta [mb]</label>
-            <input value="{{ form.DlugFoliZlec_Korekta.value|default_if_none:'' }}" style="border-color: #CCCCCC;" type="text"  onkeyup="addSeparator('id_DlugFoliZlec_Korekta')" name="DlugFoliZlec_Korekta" id="id_DlugFoliZlec_Korekta" class="form-control" value="0" aria-label="Disabled input example"  readonly />
+            <input value="{{ form.DlugFoliZlec_Korekta.value|default_if_none:''| readable_integer }}" style="border-color: #CCCCCC;" type="text"  onkeyup="addSeparator('id_DlugFoliZlec_Korekta')" name="DlugFoliZlec_Korekta" id="id_DlugFoliZlec_Korekta" class="form-control" value="0" aria-label="Disabled input example"  readonly />
         </div>
         <div class="col-auto">
             <label class="form-label" for="wagarolkizlec">WagaRolkiZlec [kg]</label>
-            <input value="{{ form.WagaRolkiZlec.value|default_if_none:'' }}" style="border-color: #CCCCCC;" type="text" name="WagaRolkiZlec" id="id_WagaRolkiZlec" class="form-control" value="0" aria-label="Disabled input example"  readonly />
+            <input value="{{ form.WagaRolkiZlec.value|default_if_none:''| readable_integer }}" style="border-color: #CCCCCC;" type="text" name="WagaRolkiZlec" id="id_WagaRolkiZlec" class="form-control" value="0" aria-label="Disabled input example"  readonly />
         </div>
     </div>
 
@@ -164,8 +164,10 @@
       </div>
     </div>
     <div class="col text-center">
-        <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'PlanProc.views.index' %}'">Anuluj</button>
-        <button type="submit" class="btn btn-secondary fw-bold">Dodaj</button>
+        <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'Home.views.index' %}'">Anuluj</button>
+       <button type="submit" name="redirect_another" class="btn btn-secondary fw-bold">Dodaj</button>
+        <button type="submit" name="redirect_index" class="btn btn-secondary fw-bold">Dodaj kolejny</button>
+
     </div>
 </form>
      </div>
@@ -174,186 +176,6 @@
 
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
    <script src={% static "js/sep.js" %}></script>
-    <script type="text/javascript">
-
-        var dict = {
-          "0": 0.96,
-          "1": 0.935,
-            "2":0.94,
-        };
-       function zakladkaFunc() {
-  var input = document.getElementById('id_SzerRekawa');
-  var input2 = document.getElementById('id_SzerWorka');
-  var zakladka = document.getElementById('id_Zakladka');
-
-  if (input.value.trim() && input2.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2)) {
-      var result = (parseFloat(value1) - parseFloat(value2)) / 2;
-      zakladka.value = result;
-      addSeparator('id_Zakladka');
-    } else {
-      zakladka.value = '';
-    }
-  }
-}
-
-function wagafolizlecFunc() {
-  var input = document.getElementById('id_SzerRekawa');
-  var input2 = document.getElementById('id_DolneOdch');
-  var input3 = document.getElementById('id_DlugFoliPlan');
-  var input4 = document.getElementById('id_Rodzaj');
-  var waga = document.getElementById('id_WagaFoliZlec');
-
-  if (input.value.trim() && input2.value.trim() && input3.value.trim() && input4.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-    var value3 = input3.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && /^\d*\.?\d+$/.test(value3)) {
-      var gest = parseFloat(dict[input4.value]);
-
-      if (!isNaN(gest)) {
-        var result = (parseFloat(value1) / 1000 * parseFloat(value2) / 1000 * parseFloat(value3) * 1.9 * gest).toFixed(2);
-        waga.value = result;
-        addSeparator('id_WagaFoliZlec');
-        wagarolkizlecFunc();
-      } else {
-        waga.value = '';
-      }
-    } else {
-      waga.value = '';
-    }
-  }
-}
-
-function dlugfoliplanFunc() {
-  var input = document.getElementById('id_IloscZlec');
-  var input2 = document.getElementById('id_DlugWorka');
-  var input3 = document.getElementById('id_DlugFoilPlan_Korekta');
-  var dlug = document.getElementById('id_DlugFoliPlan');
-
-  if (input.value.trim() && input2.value.trim() && input3.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-    var value3 = input3.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && /^\d*\.?\d+$/.test(value3)) {
-      var result = (parseFloat(value1) * parseFloat(value2) * parseFloat(value3) / 1000).toFixed(2);
-      dlug.value = result;
-      addSeparator('id_DlugFoliPlan');
-      wagafolizlecFunc();
-      dlugrolkiplanFunc();
-    } else {
-      dlug.value = '';
-      wagafolizlecFunc();
-    }
-  }
-}
-
-function dlugrolkiplanFunc() {
-  var input = document.getElementById('id_DlugFoliPlan');
-  var input2 = document.getElementById('id_IloscRolekZlec');
-  var dlug = document.getElementById('id_DlugRolkiPlan');
-
-  if (input.value.trim() && input2.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && parseFloat(value2) !== 0) {
-      var result = (parseFloat(value1) / parseFloat(value2)).toFixed(2);
-      dlug.value = result;
-      addSeparator('id_DlugRolkiPlan');
-    } else {
-      dlug.value = '';
-    }
-  }
-}
-
-function wagarolkizlecFunc() {
-  var input = document.getElementById('id_WagaFoliZlec');
-  var input2 = document.getElementById('id_IloscRolekZlec');
-  var waga = document.getElementById('id_WagaRolkiZlec');
-
-  if (input.value.trim() && input2.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2) && parseFloat(value2) !== 0) {
-      var result = (parseFloat(value1) / parseFloat(value2)).toFixed(2);
-      waga.value = result;
-      addSeparator('id_WagaRolkiZlec');
-    } else {
-      waga.value = '';
-    }
-  }
-}
-
-function dlugfolizlecFunc() {
-  var input = document.getElementById('id_DlugRolkiZlec_Korekta');
-  var input2 = document.getElementById('id_IloscRolekZlec');
-  var dlug = document.getElementById('id_DlugFoliZlec_Korekta');
-
-  if (input.value.trim() && input2.value.trim()) {
-    var value1 = input.value.replace(/ /g, '');
-    var value2 = input2.value.replace(/ /g, '');
-
-    if (/^\d*\.?\d+$/.test(value1) && /^\d*\.?\d+$/.test(value2)) {
-      var result = (parseFloat(value1) * parseFloat(value2)).toFixed(2);
-      dlug.value = result;
-      addSeparator('id_DlugFoliZlec_Korekta');
-    } else {
-      dlug.value = '';
-    }
-  }
-}
-
-
-
-          var isFirstLoad = localStorage.getItem('isFirstLoad');
-
-        if (!isFirstLoad) {
-         zakladkaFunc();
-         wagafolizlecFunc();
-         dlugfoliplanFunc();
-         dlugrolkiplanFunc();
-         wagarolkizlecFunc();
-         dlugfolizlecFunc();
-         localStorage.setItem('isFirstLoad', 'true');
-        }
-
-    </script>
-
-<script type="text/javascript">
-    var rodzaj = document.getElementById("id_NrWyt");
-  var selectedValue = "{{ form.NrWyt.value }}";  // Assuming form is a valid context variable in your template
-
-  for (var i = 0; i < rodzaj.options.length; i++) {
-    if (rodzaj.options[i].value == selectedValue) {
-      rodzaj.selectedIndex = i;
-      break;
-    }
-  }
-
-  var rodzaj2 = document.getElementById("id_Status");
-  var selectedValue2 = "{{ form.Status.value }}";  // Assuming form is a valid context variable in your template
-
-  for (var i = 0; i < rodzaj2.options.length; i++) {
-    if (rodzaj2.options[i].value == selectedValue2) {
-      rodzaj2.selectedIndex = i;
-      break;
-    }
-  }
-    var rodzaj3 = document.getElementById("id_Rodzaj");
-  var selectedValue3 = "{{ form.Rodzaj.value }}";  // Assuming form is a valid context variable in your template
-
-  for (var i = 0; i < rodzaj3.options.length; i++) {
-    if (rodzaj3.options[i].value == selectedValue3) {
-      rodzaj3.selectedIndex = i;
-      break;
-    }
-  }
-</script>
+    <script src={%  static "js/Doc1F/form.js" %}></script>
+    <script src={%  static "js/Doc1F/selected.js" %}></script>
 </html>

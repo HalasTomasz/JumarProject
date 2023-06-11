@@ -31,11 +31,11 @@
                 <div class="data_table">
                     <table border="0" cellspacing="5" cellpadding="5">
         <tbody><tr>
-            <td>Minimum date:</td>
+            <td>Od daty:</td>
             <td><input type="text" id="min" name="min"></td>
         </tr>
         <tr>
-            <td>Maximum date:</td>
+            <td>Do daty:</td>
             <td><input type="text" id="max" name="max"></td>
         </tr>
         <tr>
@@ -50,8 +50,8 @@
                                 <th>Zmiana</th>
                                 <th>Data produkcji</th>
                                 <th>Rodzaj folii</th>
-                                <th>Waga Produkcja</th>
-                                <th>Długość Produkcja</th>
+                                <th>Długość Produkcja [mb]</th>
+                                <th>Waga Produkcja [kg]</th>
                                 <th>Operator</th>
                             </tr>
                         </thead>
@@ -63,8 +63,8 @@
                                 <td> {{ post.Zmiana }}</td>
                                  <td>{{ post.Data}}</td>
                                 <td> {{ folia_dict|get_item:post.Rodzaj }} </td>
-                                <td>{{ post.DlugRolkiProd__sum }}</td>
-                                 <td>{{ post.WagaRolkiProd__sum }}</td>
+                                <td>{{ post.DlugRolkiProd__sum | readable_integer }}</td>
+                                 <td>{{ post.WagaRolkiProd__sum | readable_integer }}</td>
                                  <td>{{ post.UserName }}</td>
                             </tr>
                         {% endfor %}
@@ -81,6 +81,7 @@
 
     <script src={% static "js/bootstrap.bundle.min.js" %}></script>
     <script src={% static "js/jquery-3.6.0.min.js" %}></script>
+     <script src={% static "js/sep.js" %}></script>
     <script src={% static "js/datatables.min.js" %}></script>
     <script src={% static "js/pdfmake.min.js" %}></script>
     <script src={% static "js/vfs_fonts.js" %}></script>

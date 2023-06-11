@@ -25,13 +25,49 @@ $.fn.dataTable.ext.search.push(
 $(document).ready(function(){
 
     minDate = new DateTime($('#min'), {
-        format: 'MMMM Do YYYY'
+       format: 'DD-MM-YYYY',
     });
     maxDate = new DateTime($('#max'), {
-        format: 'MMMM Do YYYY'
+        format: 'DD-MM-YYYY',
     });
 
     var table = $('#example').DataTable({
+
+
+           language: {
+              search: "Wyszukaj:",
+              "buttons": {
+                  "copy": "Skopiuj",
+                  "excel": "Excel",
+                  "print": "Wydrukuj",
+              },
+              datetime: {
+                  previous: 'Wstecz',
+                  next: 'Dalej',
+                  months: ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'],
+                  weekdays: ['Nd', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'],
+                  amPm: ['am', 'pm'],
+                  hours: 'Godzina',
+                  minutes: 'Minuta',
+                  seconds: 'Sekunda',
+                  unknown: '-'
+              },
+              lengthMenu: "Pokaż _MENU_ wpisów",
+               info: "Wyświetl _START_ do _END_ z _TOTAL_ rekordów",
+              zeroRecords: "Nie znaleziono pasujących rekordów",
+                  sEmptyTable: "Brak dostępnych danych w tabeli",
+                infoFiltered: "(przefiltrowane z _MAX_ wszystkich rekordów)",
+              oPaginate: {
+              sFirst: "Pierwsza",
+              sLast: "Ostatnia",
+              sNext: "Następna",
+              sPrevious: "Poprzednia"
+                },
+                minimumDate: "Minimalna data",
+                maximumDate: "Maksymalna data",
+          },
+
+
         buttons:['copy', 'excel', 'print'],
       scrollX: true,
         

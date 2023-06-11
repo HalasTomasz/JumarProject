@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$" libraries="{bootstrap, buttons.dataTables, buttons.html5, buttons.print, dataTables.buttons, dataTables.dateTime, dataTables.responsive, dataTables.scroller, jquery-3.6.0, jquery.dataTables, jszip, moment.js, pdfmake, responsive.dataTables, scroller.dataTables}" />
+    <file url="file://$PROJECT_DIR$" libraries="{bootstrap, bootstrap-datepicker, buttons.dataTables, buttons.html5, buttons.print, dataTables.buttons, dataTables.dateTime, dataTables.responsive, dataTables.scroller, daterangepicker, jquery-3.6.0, jquery.dataTables, jszip, moment.js, pdfmake, responsive.dataTables, scroller.dataTables}" />
   </component>
 </project>

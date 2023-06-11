@@ -11,18 +11,18 @@
         <th >Nr</th>
 		<th >NR ZP</th>
 		<th colspan="4">Artykuł</th>
-		<th>IlośćZlec<br>/szt/</th>
-		<th>SzerWorka<br>/mm/</th>
-		<th>SzerRękawa<br>/mm/</th>
-		<th>Zakładka<br>/mm/</th>
-		<th>DługWorka<br>/mm/</th>
-		<th>GrubWorka<br>/mikron/</th>
-		<th>WagaFoilZlec<br>/kg/</th>
-		<th>DługFoliPlan<br>/mb/</th>
-		<th>IlośćRolekZlec<br>/szt/</th>
-		<th colspan="2">DługRolki<br>/mb/</th>
-		<th>DługFoliZlec<br>korekta<br>/mb/</th>
-		<th>WagaRolkiZlec<br>/kg/</th>
+		<th>IlośćZlec<br>[szt]</th>
+		<th>SzerWorka<br>[mm]</th>
+		<th>SzerRękawa<br>[mm]</th>
+		<th>Zakładka<br>[mm]</th>
+		<th>DługWorka<br>[mm]</th>
+		<th>GrubWorka<br>[mikr]</th>
+		<th>WagaFoilZlec<br>[kg]</th>
+		<th>DługFoliPlan<br>[mb]</th>
+		<th>IlośćRolekZlec<br>[szt]</th>
+		<th colspan="2">DługRolki<br>[mb]</th>
+		<th>DługFoliZlec<br>korekta<br>[mb]</th>
+		<th>WagaRolkiZlec<br>[kg]</th>
 		<th>Rodzaj folii</th>
 		<th>NrWytl</th>
 		<th>Uwagi</th>
@@ -76,12 +76,12 @@
 	<tr>
 		<th>MMK</th>
 		<td colspan="3">{{ post.MMK | default_if_none:"" }}</td>
-		<th rowspan="2">DolneOdch | readable_integer<br>/mikr/</th>
-		<td rowspan="2"> {{ post.DolneOdch}} </td>
+		<th rowspan="2">DolneOdch <br>[mikr]</th>
+		<td rowspan="2"> {{ post.DolneOdch | readable_integer}} </td>
 		<th rowspan="2">DługFoilPlan<br>korekta</th>
-		<td rowspan="2"> {{ post.DlugFoilPlan_Korekta }} </td>
-		<th rowspan="2">DługRolkiZlec<br>korekta<br>/mb/</th>
-		<td rowspan="2">{{ post.DlugFoliZlec_Korekta}}</td>
+		<td rowspan="2"> {{ post.DlugFoilPlan_Korekta | readable_integer }} </td>
+		<th rowspan="2">DługRolkiZlec<br>korekta<br>[mb]</th>
+		<td rowspan="2">{{ post.DlugRolkiZlec_Korekta | readable_integer}}</td>
 	</tr>
 	<tr>
 		<th>Data zlecenia</th>

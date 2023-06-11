@@ -54,6 +54,15 @@ def readable_integer(value):
         end = "." + str(value).split(".")[1]
     return " ".join(readable[::-1]) + end
 
+def read_int(value):
+    readable = str(value).split(".")[0][::-1]
+    readable = [readable[i:i+3][::-1] for i in range(0, len(readable), 3)]
+    if len(str(value).split(".")) == 1:
+        end = ""
+    else:
+        end = "." + str(value).split(".")[1]
+    return " ".join(readable[::-1]) + end
+
 @register.filter
 def get_item(dictionary, key):
   return dictionary.get(key)
@@ -62,14 +71,18 @@ def get_item(dictionary, key):
 def divide(a, b):
     if b == 0:
         return 0
-    tmp = a / b * 100
+    if isinstance(a, str):
+        a = re.sub(r'\s', '', a)
+    if isinstance(b, str):
+        b = re.sub(r'\s', '', b)
+
+    tmp = float(a) / float(b) * 100
     return round(tmp, 2)
 
 
 @login_required(login_url='/login')
 @allowed_user(allowed_groups=['admin'])
 def register(request):
-
     form = AddUser()
     if request.method == "POST":
         form = AddUser(request.POST)
@@ -79,9 +92,10 @@ def register(request):
             group.user_set.add(user)
             return redirect("Pracownicy.views.index")
         else:
-            messages.info(request, "Błedne dane")
-    context= {"form": form}
+            messages.info(request, "Błędne dane")
+    context = {"form": form}
     return render(request, "register.html", context)
+
 
 @unathenticted_user
 def loginFunc(request):
@@ -148,7 +162,10 @@ def addProduct(request):
         form = AddForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('PlanProc.views.index')
+            if 'redirect_another' in request.POST:
+                return redirect('Form.views.index')
+            else:
+                return redirect('PlanProc.views.index')
         else:
             invalid_fields = form.errors.keys()
             error_message = 'Dane w tych polach niepoprawne: ' + ', '.join(invalid_fields)
@@ -159,10 +176,17 @@ def addProduct(request):
     return render(request, 'Doc1/form.html', context)
 
 
-class ProductionOrdersPlanningView(LoginRequiredMixin, ListView):
+class ProductionOrdersPlanningView(LoginRequiredMixin,UserPassesTestMixin, ListView):
     model = Zamowienie
     template_name = "Doc1/procPlanTable.html"
     queryset = Zamowienie.objects.filter(Status=0)
+
+    def test_func(self):
+        if self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(
+                name='kierownik').exists():
+            return True
+        else:
+            return False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -384,7 +408,13 @@ class upateRolForm(LoginRequiredMixin, UpdateView):
     model = Rolki
     form_class = AddRolkiForm
     template_name = "Doc2/editForm.html"
-    success_url = reverse_lazy('PlanFolia.views.index')
+
+
+    def get_success_url(self):
+        selected_id = self.kwargs['date'] + "/" + str(self.kwargs['pk'])
+        params = {'selected_id': selected_id}
+        url = reverse('PlanFolia.views.index') + '?' + urlencode(params)
+        return url
 
 
     def get_object(self, queryset=None):
@@ -484,7 +514,8 @@ def get_dataCal(request, date, pk):
     sumRol = float(np.round(dataRol.aggregate(Count('Rolka'))['Rolka__count'],2))
     finishRol = float(np.round(dataOrder.IloscRolekZlec - sumRol,2))
 
-    return JsonResponse({'calc': [waga_sum, waga_end, dlugProd, dlugEnd , sumRol, finishRol]})
+    return JsonResponse({'calc': [read_int(waga_sum), read_int(waga_end), read_int(dlugProd), read_int(dlugEnd) ,
+                                  read_int(sumRol), read_int(finishRol)]})
 
 @csrf_exempt
 def update_status(request):
@@ -541,17 +572,11 @@ class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 #### DATA VALIDATION SECTOR
-class procFolia(LoginRequiredMixin,UserPassesTestMixin, ListView ):
+class procFolia(LoginRequiredMixin, ListView ):
 
     model = Rolki
     template_name = "Doc346/ZlecWytl.html"
     serializer_class = RolSerializer
-
-    def test_func(self):
-        if self.request.user.groups.filter(name='admin').exists():
-            return True
-        else:
-            return False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -595,8 +620,10 @@ class procReal(LoginRequiredMixin,UserPassesTestMixin, ListView):
     serializer_class = ZamSerializer
     queryset = Zamowienie.objects.filter(Status__gt=1)
 
+
     def test_func(self):
-        if self.request.user.groups.filter(name='admin').exists():
+        if self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(
+                name='kierownik').exists():
             return True
         else:
             return False
@@ -608,29 +635,39 @@ class procReal(LoginRequiredMixin,UserPassesTestMixin, ListView):
         context['folia_dict'] = folia_dict
         serialized_data = self.serializer_class(context['object_list'], many=True)
         for data in serialized_data.data:
-            data["Research"] = realCaluclator(data['NrZp'])
+            data["Research"] = realCaluclator(data['NrZp'], data['DlugFoliZlec_Korekta'])
         context['serialized_data'] = serialized_data.data
         return context
 
 ### REALIZACJA
 
-class RealPlan(LoginRequiredMixin, ListView):
+class RealPlan(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Zamowienie
     template_name = "Doc5/ProductionTable.html"
     queryset = Zamowienie.objects.filter(Status=1)
+
+    def test_func(self):
+        if self.request.user.groups.filter(name='admin').exists() or self.request.user.groups.filter(
+                name='kierownik').exists():
+            return True
+        else:
+            return False
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         serializer = ZamSerializer(context['object_list'], many=True)
         context['serialized_data'] = serializer.data
         for data in serializer.data:
-            data["Research"] = realCaluclator(data['NrZp'])
+            print(data)
+            data["Research"] = realCaluclator(data['NrZp'], data['DlugFoliZlec_Korekta'])
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
         context['folia_dict'] = folia_dict
+
         return context
 
-def realCaluclator(NrZp):
+def realCaluclator(NrZp, Dlugosc):
     dataRol = Rolki.objects.filter(NrZp=NrZp)
     dataOrder = Zamowienie.objects.get(NrZp=NrZp)
 
@@ -640,7 +677,8 @@ def realCaluclator(NrZp):
                 'dlugProd':0,
                 'dlugEnd':0,
                 'sumRol':0,
-                'finishRol':0}
+                'finishRol':0,
+                'progres':0}
 
     waga_sum = float(np.round(dataRol.aggregate(Sum('WagaRolkiProd'))['WagaRolkiProd__sum'],2))
     waga_end = float(np.round(dataOrder.WagaFoliZlec - waga_sum,2))
@@ -648,12 +686,14 @@ def realCaluclator(NrZp):
     dlugEnd = float(np.round(dataOrder.IloscRolekZlec * dataOrder.DlugRolkiZlec_Korekta - dlugProd,2))
     sumRol = float(np.round(dataRol.aggregate(Count('Rolka'))['Rolka__count'],2))
     finishRol = float(np.round(dataOrder.IloscRolekZlec - sumRol,2))
+    progres = float(np.round(Dlugosc / dlugProd,2))
 
     return {'wagaSum': waga_sum,
             'wagaEnd': waga_end,
-            'dlugProd': dlugProd,
+            'dlugProd':dlugProd,
             'dlugEnd':dlugEnd,
             'sumRol': sumRol,
-            'finishRol': finishRol}
+            'finishRol': finishRol,
+            'progres':progres}
 
 

@@ -24,65 +24,90 @@ $.fn.dataTable.ext.search.push(
 $(document).ready(function(){
 
     minDate = new DateTime($('#min'), {
-        format: 'MMMM Do YYYY'
+        format: 'DD-MM-YYYY',
     });
+
     maxDate = new DateTime($('#max'), {
-        format: 'MMMM Do YYYY'
+        format: 'DD-MM-YYYY',
     });
 
     var table = $('#example').DataTable({
-        
+
+        language: {
+              search: "Wyszukaj:",
+              "buttons": {
+                  "copy": "Skopiuj",
+                  "excel": "Excel",
+                  "print": "Wydrukuj",
+              },
+              datetime: {
+                  previous: 'Wstecz',
+                  next: 'Dalej',
+                  months: ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'],
+                  weekdays: ['Nd', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'],
+                  amPm: ['am', 'pm'],
+                  hours: 'Godzina',
+                  minutes: 'Minuta',
+                  seconds: 'Sekunda',
+                  unknown: '-',
+
+              },
+              lengthMenu: "Pokaż _MENU_ wpisów",
+               info: "Wyświetl _START_ do _END_ z _TOTAL_ rekordów",
+              zeroRecords: "Nie znaleziono pasujących rekordów",
+                  sEmptyTable: "Brak dostępnych danych w tabeli",
+                infoFiltered: "(przefiltrowane z _MAX_ wszystkich rekordów)",
+              oPaginate: {
+              sFirst: "Pierwsza",
+              sLast: "Ostatnia",
+              sNext: "Następna",
+              sPrevious: "Poprzednia"
+                },
+          },
+
+
+
         buttons:['copy',  'excel', 'print'],
         footerCallback: function (row, data, start, end, display) {
         var api = this.api();
 
         // Remove the formatting to get integer data for summation
-        var intVal = function (i) {
-          return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
+
+            var intVal = function (i) {
+          if (typeof i === 'string') {
+            return i.replace(/[\s,]/g, '') * 1; // Remove spaces and commas
+          } else if (typeof i === 'number') {
+            return i;
+          } else {
+            return 0;
+          }
         };
 
-        // Total over all pages
-        total = api
-          .column(4)
-          .data()
-          .reduce(function (a, b) {
-            return intVal(a) + intVal(b);
-          }, 0);
-
-        total2 = api
-          .column(5)
-          .data()
-          .reduce(function (a, b) {
-            return intVal(a) + intVal(b);
-          }, 0);
-
-        // Total over this page
         pageTotal = api
           .column(13, { page: 'current' })
           .data()
           .reduce(function (a, b) {
-            return intVal(a) + intVal(b);
+            return intVal(a.toString().replace(/\s/g, '')) + intVal(b.toString().replace(/\s/g, ''));
           }, 0);
 
         pageTotal2 = api
           .column(14, { page: 'current' })
           .data()
           .reduce(function (a, b) {
-            return intVal(a) + intVal(b);
+            return intVal(a.toString().replace(/\s/g, '')) + intVal(b.toString().replace(/\s/g, ''));
           }, 0);
 
-        // Update footer
-        // $(api.column(15).footer()).html('$' + pageTotal);
-        // $(api.column(16).footer()).html('$' + pageTotal2);
 
-        // Update total data
-        $('#total-data').html('DługRolkaProd:  ' + pageTotal + '   |   WagaRolkaProd:  ' + pageTotal2);
+
+        $('#total-data').html('DługRolkiZlec korekta:  ' + addSeparatorVal(pageTotal) + '   |   WagaRolkiZlec:  ' + addSeparatorVal(pageTotal2));
       },
+
       scrollX: true,
-        
+
     });
-    
-    
+
+
+
     table.buttons().container()
     .appendTo('#example_wrapper .col-md-6:eq(0)');
 

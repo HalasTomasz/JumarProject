@@ -1,40 +1,49 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+<style>
+body {
+  padding-top: 70px; /* Add some padding to the body to avoid content being covered by the navbar */
+}
+
+.navbar.fixed-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* Set a higher z-index to ensure the navbar appears above other elements */
+}
+
+.content-container {
+  margin-top: 70px; /* Add a margin-top to the content container to make space for the fixed navbar */
+}
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <div class="collapse navbar-collapse">
     <a class="navbar-brand" href="{% url 'Home.views.index' %}">Strona główna</a>
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-        <li class="nav-item active">
-        <a class="nav-link" href="{% url 'Form.views.index' %}">F1 </a>
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'Form.views.index' %}">F1</a>
       </li>
       <li class="nav-item active">
-        <a class="nav-link" href={% url "PlanProc.views.index" %} >Planowanie </a>
+        <a class="nav-link" href="{% url 'PlanProc.views.index' %}">Z1</a>
       </li>
-        <li class="nav-item active">
-        <a class="nav-link" href={% url "PlanFolia.views.index" %}>Realizacja </a>
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'PlanFolia.views.index' %}">R1</a>
       </li>
-        <li class="nav-item active">
-        <a class="nav-link" href="{% url 'Logout.views.index' %}">Z3 </a>
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'Realizacja.views.index' %}">Z2</a>
       </li>
-        <li class="nav-item active">
-        <a class="nav-link" href="{% url 'Logout.views.index' %}">R1 </a>
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'procReal.views.index' %}">R2</a>
       </li>
-        <li class="nav-item active">
-        <a class="nav-link" href="{% url 'Logout.views.index' %}">R2 </a>
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'procFolia.views.index' %}">Z3</a>
       </li>
-        <li class="nav-item active">
-        <a class="nav-link" href="{% url 'Logout.views.index' %}">R3 </a>
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'procPrac.views.index' %}">R3</a>
       </li>
-        <li class="nav-item active">
-        <a class="nav-link" href="{% url 'Logout.views.index' %}">Wyloguj </a>
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'Logout.views.index' %}">Wyloguj</a>
       </li>
-{#      <li class="nav-item">#}
-{#        <a class="nav-link" href="#">Link</a>#}
-{#      </li>#}
-{#      <li class="nav-item">#}
-{#        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>#}
-{#      </li>#}
     </ul>
   </div>
 </nav>

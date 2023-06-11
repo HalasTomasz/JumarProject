@@ -60,11 +60,11 @@
                 <div class="data_table">
                     <table border="0" cellspacing="5" cellpadding="5">
         <tbody><tr>
-            <td>Minimum date:</td>
+            <td>Od daty:</td>
             <td><input type="text" id="min" name="min"></td>
         </tr>
         <tr>
-            <td>Maximum date:</td>
+            <td>Do daty:</td>
             <td><input type="text" id="max" name="max"></td>
         </tr>
         <tr>
@@ -130,13 +130,15 @@
                                 <td>{{ post.WagaRolkiZlec | readable_integer  }}</td>
                                 <td>{{ folia_dict|get_item:post.Rodzaj }}</td>
                                  <td>{{ nrwyt_dict|get_item:post.NrWyt }}</td>
-                                <td>{%  divide  post.Research.dlugProd post.DlugFoliZlec_Korekta %} %</td>
+                                <td style="background-color: #CCCCCC;" class="{% if post.Research.progres > 100 %}text-danger{% endif %}">
+                                        {{ post.Research.progres }} %
+                                    </td>
                                 <td>{{  status_dict|get_item:post.Status }}</td>
-                                <td>{{ post.Uwagi }}</td>
-                                 <td>{{ post.Kod }}</td>
-                                 <td>{{ post.MMK }}</td>
-                                 <td>{{ post.Barwnik }}</td>
-                                 <td> <button onclick="showPopup('{{ post.NrZp }}')">Change Status</button> </td>
+                                <td>{{ post.Uwagi | default_if_none:'' }}</td>
+                                 <td>{{ post.Kod | default_if_none:''  }}</td>
+                                 <td>{{ post.MMK | default_if_none:'' }}</td>
+                                 <td>{{ post.Barwnik | default_if_none:'' }}</td>
+                                 <td> <button onclick="showPopup('{{ post.NrZp }}')">Zmień Status</button> </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -152,8 +154,8 @@
               <option value="3">Anulowane</option>
             </select>
             <br><br>
-            <button onclick="updateStatus()">Save</button>
-            <button onclick="hidePopup()">Cancel</button>
+            <button onclick="updateStatus()">Zapisz</button>
+            <button onclick="hidePopup()">Anuluj</button>
         </div>
     </div>
 

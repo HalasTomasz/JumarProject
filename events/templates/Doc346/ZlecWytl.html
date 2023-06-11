@@ -32,11 +32,11 @@
                 <div class="data_table">
                     <table border="0" cellspacing="5" cellpadding="5">
         <tbody><tr>
-            <td>Minimum date:</td>
+            <td>Od daty:</td>
             <td><input type="text" id="min" name="min"></td>
         </tr>
         <tr>
-            <td>Maximum date:</td>
+            <td>Do daty:</td>
             <td><input type="text" id="max" name="max"></td>
         </tr>
         <tr>
@@ -55,16 +55,16 @@
                                 <th>Artykuł</th>
                                 <th>Rodzaj folii</th>
 
-                                <th>SzerWorka</th>
-                                <th>SzerRękawa</th>
-                                <th>Zakładka</th>
-                                <th>GrubWorka</th>
-                                <th>DolneOdch</th>
+                                <th>SzerWorka [mm]</th>
+                                <th>SzerRękawa [mm]</th>
+                                <th>Zakładka [mm]</th>
+                                <th>GrubWorka [mikr]</th>
+                                <th>DolneOdch [mikr]</th>
 
-                                <th>DługRolkaProd</th>
-                                <th>WagaRolkaProd</th>
-                                <th>Wynikowa grubość</th>
-                                <th>GrubośćWynik</th>
+                                <th>DługRolkZLec Korekta [mb]</th>
+                                <th>WagaRolki ZLec [kg]</th>
+                                <th>Wynikowa grubość [mikrony]</th>
+                                <th>GrubośćWynik doZakl % </th>
                                 <th>Ślimak</th>
                                 <th>Walce</th>
                                 <th>Operator</th>
@@ -91,12 +91,12 @@
                                 <td>{{ post.DlugRolkiProd | readable_integer }}</td>
                                 <td>{{ post.WagaRolkiProd | readable_integer  }}</td>
                                 <td>{{ post.Wynikowa | readable_integer }}</td>
-                                <td>{{ post.Wynik | readable_integer }}</td>
+                                <td style="color: {% if post.Wynik > 100 %}red{% endif %}">{{ post.Wynik | readable_integer }}</td>
                                 <td>{{ post.Slimak | readable_integer }}</td>
                                 <td>{{ post.Walce | readable_integer }}</td>
-                                <td>{{ post.Rolka  }}</td>
-                                <td>{{ post.Uwagi }}</td>
-                                 <td>{{ post.Mieszanka }}</td>
+                                <td>{{ post.UserName  }}</td>
+                                <td>{{ post.Uwagi | default_if_none:'' }}</td>
+                                 <td>{{ post.Mieszanka | default_if_none:''}}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -111,6 +111,7 @@
 
 
     <script src={% static "js/bootstrap.bundle.min.js" %}></script>
+     <script src={% static "js/sep.js" %}></script>
     <script src={% static "js/jquery-3.6.0.min.js" %}></script>
     <script src={% static "js/datatables.min.js" %}></script>
     <script src={% static "js/pdfmake.min.js" %}></script>
@@ -118,6 +119,7 @@
     <script src={% static "js/custom.js"  %}></script>
     <script src={% static "js/dataTables.dateTime.min.js" %}></script>
     <script src={% static "js/moment.min.js"  %}></script>
+
 </body>
 
 </html>
