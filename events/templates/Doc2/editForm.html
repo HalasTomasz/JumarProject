@@ -88,11 +88,11 @@
       </div>
           <div class="col-auto ">
             <label class="form-label" for="walce">Walce</label>
-            <input style="border-color: #00BFFF;" onkeyup="addSeparator('id_Walce')" type="text"  name="Walce" id="id_Walce" class="form-control" value="{{ rols.Walce | readable_integer }}" />
+            <input style="border-color: #00BFFF;" onkeyup="addSeparator('id_Walce')" type="text"  name="Walce" id="id_Walce" class="form-control" value="{{ rols.Walce | default_if_none:'' | readable_integer }}" />
         </div>
           <div class="col-auto ">
             <label class="form-label" for="slimak">Ślimak</label>
-            <input style="border-color: #00BFFF;" onkeyup="addSeparator('id_Slimak')"  type="text"  name="Slimak" id="id_Slimak" class="form-control" value="{{ rols.Slimak | readable_integer }}"/>
+            <input style="border-color: #00BFFF;" onkeyup="addSeparator('id_Slimak')"  type="text"  name="Slimak" id="id_Slimak" class="form-control" value="{{ rols.Slimak | default_if_none:'' | readable_integer }}"/>
         </div>
     </div>
 

@@ -90,19 +90,19 @@
     <div class="row g-3 mb-3">
       <div class="col-auto">
         <label for="dlugrolkiprod" class="form-label">DługRolkiProd [mb]</label>
-        <input style="border-color: #FF0000;"  type="text"  onkeyup="addSeparator('id_DługRolkiProd')" name="DlugRolkiProd" id="id_DługRolkiProd" class="form-control" value="{{ update_form.DlugRolkiProd|readable_integer|default_if_none:'' }}" >
+        <input style="border-color: #FF0000;"  type="text"  onkeyup="addSeparator('id_DługRolkiProd')" name="DlugRolkiProd" id="id_DługRolkiProd" class="form-control" value="{{ update_form.DlugRolkiProd | default_if_none:''|readable_integer }}" >
       </div>
         <div class="col-auto">
         <label for="wagarolkiprod" class="form-label">WagaRolkiProd [kg]</label>
-        <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_WagaRolkiProd')" class="form-control"  name="WagaRolkiProd" id="id_WagaRolkiProd" onchange="wynikFunc()" value="{{ update_form.WagaRolkiProd|readable_integer|default_if_none:'' }}">
+        <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_WagaRolkiProd')" class="form-control"  name="WagaRolkiProd" id="id_WagaRolkiProd" onchange="wynikFunc()" value="{{ update_form.WagaRolkiProd | default_if_none:''|readable_integer }}">
       </div>
           <div class="col-auto ">
             <label class="form-label" for="walce">Walce</label>
-            <input style="border-color: #00BFFF;" type="text"  onkeyup="addSeparator('id_Walce')"  name="Walce" id="id_Walce" class="form-control" value="{{ update_form.Walce|readable_integer|default_if_none:'' }}" />
+            <input style="border-color: #00BFFF;" type="text"  onkeyup="addSeparator('id_Walce')"  name="Walce" id="id_Walce" class="form-control" value="{{ update_form.Walce|default_if_none:'' |readable_integer }}" />
         </div>
           <div class="col-auto ">
             <label class="form-label" for="slimak">Ślimak</label>
-            <input style="border-color: #00BFFF;" type="text"  onkeyup="addSeparator('id_Slimak')" name="Slimak" id="id_Slimak" class="form-control" value="{{ update_form.Slimak|readable_integer|default_if_none:'' }}"/>
+            <input style="border-color: #00BFFF;" type="text"  onkeyup="addSeparator('id_Slimak')" name="Slimak" id="id_Slimak" class="form-control" value="{{ update_form.Slimak|default_if_none:'' | readable_integer }}"/>
         </div>
     </div>
 

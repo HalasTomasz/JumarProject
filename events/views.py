@@ -384,11 +384,13 @@ class foliaForm(LoginRequiredMixin, CreateView):
         for field in numeric_fields:
             value = mutable_post.get(field, '')
             value = re.sub(r'\s', '', value)
+
+
             mutable_post[field] = value
 
         # Replace request.POST with the modified mutable_post
         request.POST = mutable_post
-
+        print(mutable_post)
         return super().post(request, *args, **kwargs)
 
     def form_invalid(self, form):
@@ -454,6 +456,7 @@ class upateRolForm(LoginRequiredMixin, UpdateView):
             value = mutable_post.get(field, '')
             value = re.sub(r'\s', '', value)
             mutable_post[field] = value
+
 
         # Replace request.POST with the modified mutable_post
         request.POST = mutable_post
