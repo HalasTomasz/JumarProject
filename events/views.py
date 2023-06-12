@@ -87,15 +87,18 @@ def register(request):
     if request.method == "POST":
         form = AddUser(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password1'])
+            user.save()
+
             group = form.cleaned_data['group']
             group.user_set.add(user)
+
             return redirect("Pracownicy.views.index")
         else:
-            messages.info(request, "Błędne dane")
+            messages.error(request, "Bledne dane")
     context = {"form": form}
     return render(request, "register.html", context)
-
 
 @unathenticted_user
 def loginFunc(request):

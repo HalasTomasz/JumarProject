@@ -43,7 +43,7 @@
       </div>
         <div class="col-auto">
             <label class="form-label" for="ilosczlec">IlośćZlec [szt]</label>
-            <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_IloscZlec')" value="{{ form.IloscZlec.value|default_if_none:'' }}"  name="IloscZlec" id="id_IloscZlec" class="form-control" onchange="dlugfoliplanFunc()" />
+            <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_IloscZlec')" value="{{ form.IloscZlec.value|default_if_none:'' }}"  name="IloscZlec" id="id_IloscZlec" class="form-control" onchange="dlugfoliplanFunc(), deleteFiled()" />
         </div>
             <div class="col-auto">
                 <label class="form-label" for="rodzaj">Rodzaj folii</label>
@@ -75,11 +75,11 @@
     <div class="row g-3 mb-3">
         <div class="col-auto ">
             <label class="form-label" for="szerworka">SzerWorka [mm]</label>
-            <input value="{{ form.SzerWorka.value|default_if_none:''| readable_integer }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_SzerWorka')"  name="SzerWorka" id="id_SzerWorka" class="form-control" onchange="zakladkaFunc()" />
+            <input value="{{ form.SzerWorka.value|default_if_none:''| readable_integer }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_SzerWorka')"  name="SzerWorka" id="id_SzerWorka" class="form-control" onchange="zakladkaFunc(), deleteFiled()" />
         </div>
         <div class="col-auto ">
             <label class="form-label" for="szerrekawa">SzerRękawa [mm]</label>
-            <input value="{{ form.SzerRekawa.value|default_if_none:''| readable_integer }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_SzerRekawa')" name="SzerRekawa" id="id_SzerRekawa" class="form-control"  onchange="zakladkaFunc(), wagafolizlecFunc()" />
+            <input value="{{ form.SzerRekawa.value|default_if_none:''| readable_integer }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_SzerRekawa')" name="SzerRekawa" id="id_SzerRekawa" class="form-control"  onchange="zakladkaFunc(), wagafolizlecFunc(), deleteFiled()" />
         </div>
         <div class=" col-auto ">
             <label class="form-label" for="zaklada">Zakładka [mm]</label>
@@ -91,19 +91,19 @@
        <div class="row g-4 mb-3">
         <div class="col-auto ">
             <label class="form-label" for="dlugworka">DługWorka [mm]</label>
-            <input value="{{ form.DlugWorka.value|default_if_none:''| readable_integer }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DlugWorka')" name="DlugWorka" id="id_DlugWorka" class="form-control" onchange="dlugfoliplanFunc()" />
+            <input value="{{ form.DlugWorka.value|default_if_none:''| readable_integer }}"  style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DlugWorka')" name="DlugWorka" id="id_DlugWorka" class="form-control" onchange="dlugfoliplanFunc(),deleteFiled()" />
         </div>
         <div class="col-auto ">
             <label class="form-label" for="grubworka">GrubWorka [mikr]</label>
-            <input value="{{ form.GrubWorka.value|default_if_none:''| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_GrubWorka')" name="GrubWorka"  id="id_GrubWorka" class="form-control"/>
+            <input value="{{ form.GrubWorka.value|default_if_none:''| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_GrubWorka')" name="GrubWorka"  id="id_GrubWorka" class="form-control" onchange="deleteFiled()"/>
         </div>
            <div class="col-auto ">
             <label class="form-label" for="dolneodch">DolneOdch [mikr]</label>
-            <input value="{{ form.DolneOdch.value|default_if_none:''| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DolneOdch')" name="DolneOdch" id="id_DolneOdch" class="form-control" onchange="wagafolizlecFunc()"/>
+            <input value="{{ form.DolneOdch.value|default_if_none:''| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DolneOdch')" name="DolneOdch" id="id_DolneOdch" class="form-control" onchange="wagafolizlecFunc(),deleteFiled()"/>
         </div>
            <div class="col-auto ">
             <label class="form-label" for="dlugfoliplan_korekta">DługFoilPlan Korekta [%]</label>
-            <input value="{{ form.DlugFoilPlan_Korekta.value|default_if_none:''| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DlugFoilPlan_Korekta')"  name="DlugFoilPlan_Korekta" id="id_DlugFoilPlan_Korekta" class="form-control" onchange="dlugfoliplanFunc()" value="1"/>
+            <input value="{{ form.DlugFoilPlan_Korekta.value|default_if_none:'1'| readable_integer }}" style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_DlugFoilPlan_Korekta')"  name="DlugFoilPlan_Korekta" id="id_DlugFoilPlan_Korekta" class="form-control" onchange="dlugfoliplanFunc(), deleteFiled()"/>
         </div>
     </div>
 
@@ -165,8 +165,8 @@
     </div>
     <div class="col text-center">
         <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'Home.views.index' %}'">Anuluj</button>
-       <button type="submit" name="redirect_another" class="btn btn-secondary fw-bold">Dodaj</button>
-        <button type="submit" name="redirect_index" class="btn btn-secondary fw-bold">Dodaj kolejny</button>
+       <button type="submit" name="redirect_another" class="btn btn-secondary fw-bold">Dodaj kolejny</button>
+        <button type="submit" name="redirect_index" class="btn btn-secondary fw-bold">Dodaj</button>
 
     </div>
 </form>
@@ -178,4 +178,5 @@
    <script src={% static "js/sep.js" %}></script>
     <script src={%  static "js/Doc1F/form.js" %}></script>
     <script src={%  static "js/Doc1F/selected.js" %}></script>
+    <script src={%  static "js/MakeEmpty.js" %}></script>
 </html>

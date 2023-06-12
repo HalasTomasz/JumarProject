@@ -19,16 +19,17 @@ class AddRolkiForm(forms.ModelForm):
 class AddUser(UserCreationForm):
     group = forms.ModelChoiceField(queryset=Group.objects.all(), empty_label="Select Group")
 
-    def clean_password1(self):
-        password1 = self.cleaned_data.get("password1")
-        if password1:
-            # Add your custom validation here
-            if not any(char in password1 for char in "!@#$%^&*"):
-                raise ValidationError(
-                    _("The password must contain at least one special symbol (!@#$%^&*)"),
-                    code='password_no_special_symbol',
-                )
-        return password1
+    def is_valid(self):
+        valid = super().is_valid()
+        if not valid:
+            return valid
+
+        password = self.cleaned_data.get('password1')
+        if not any(char in password for char in "!@#$%^&*()+"):
+            self.add_error('password1', "Brak znaku specjalnego")
+            valid = False
+
+        return valid
 
     class Meta:
         model = User
