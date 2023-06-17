@@ -97,9 +97,10 @@ $(document).ready(function(){
             return intVal(a.toString().replace(/\s/g, '')) + intVal(b.toString().replace(/\s/g, ''));
           }, 0);
 
+        pageTotal = round(pageTotal, 2)
+        pageTotal2    = round(pageTotal2, 2)
 
-
-        $('#total-data').html('DługRolkiZlec korekta:  ' + addSeparatorVal(pageTotal) + '   |   WagaRolkiZlec:  ' + addSeparatorVal(pageTotal2));
+        $('#total-data').html('DługRolkiProd:  ' + addSeparatorVal(pageTotal) + '   |   WagaRolkiProd:  ' + addSeparatorVal(pageTotal2));
       },
 
       scrollX: true,

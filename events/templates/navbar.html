@@ -10,7 +10,6 @@ body {
   right: 0;
   z-index: 1000; /* Set a higher z-index to ensure the navbar appears above other elements */
 }
-
 .content-container {
   margin-top: 70px; /* Add a margin-top to the content container to make space for the fixed navbar */
 }
@@ -20,30 +19,45 @@ body {
   <div class="collapse navbar-collapse">
     <a class="navbar-brand" href="{% url 'Home.views.index' %}">Strona główna</a>
     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-      <li class="nav-item active">
+      <li class="nav-item">
         <a class="nav-link" href="{% url 'Form.views.index' %}">F1</a>
       </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="{% url 'PlanProc.views.index' %}">Z1</a>
+      <li class="nav-item">
+        <a class="nav-link {% if request.path == '/planProc' %}active{% endif %}" href="{% url 'PlanProc.views.index' %}">Z1</a>
       </li>
-        <li class="nav-item active">
-            <a class="nav-link" href="{% url 'Realizacja.views.index' %}">Z2</a>
-        </li>
-        <li class="nav-item active">
-            <a class="nav-link" href="{% url 'procFolia.views.index' %}">Z3</a>
-        </li>
-        <li class="nav-item active">
-        <a class="nav-link" href="{% url 'PlanFolia.views.index' %}">R1</a>
+      <li class="nav-item">
+        <a class="nav-link {% if request.path == '/realizacja' %}active{% endif %}" href="{% url 'Realizacja.views.index' %}">Z2</a>
       </li>
-        <li class="nav-item active">
-        <a class="nav-link" href="{% url 'procReal.views.index' %}">R2</a>
+      <li class="nav-item">
+        <a class="nav-link {% if request.path == '/doc5' %}active{% endif %}" href="{% url 'procFolia.views.index' %}">Z3</a>
       </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="{% url 'procPrac.views.index' %}">R3</a>
+      <li class="nav-item">
+        <a class="nav-link {% if request.path == '/planFolia' %}active{% endif %}" href="{% url 'PlanFolia.views.index' %}">R1</a>
       </li>
-      <li class="nav-item active">
+      <li class="nav-item">
+        <a class="nav-link {% if request.path == '/doc4' %}active{% endif %}" href="{% url 'procReal.views.index' %}">R2</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if request.path == '/doc6' %}active{% endif %}" href="{% url 'procPrac.views.index' %}">R3</a>
+      </li>
+      <li class="nav-item ">
         <a class="nav-link" href="{% url 'Logout.views.index' %}">Wyloguj</a>
       </li>
+
+       {% if request.path == '/planProc' %}
+           <a class="navbar-brand" style="color: white; margin-left: 10px"> Zlecenia produkcyjne planowane </a>
+        {% elif request.path == '/realizacja' %}
+           <a class="navbar-brand" style="color: white; margin-left: 10px"> Zlecenia produkcyjne w realizacji </a>
+        {% elif request.path == '/doc5' %}
+          <a class="navbar-brand" style="color: white; margin-left: 10px"> Zlecenie produkcyjne zrealizowane lub anulowane </a>
+        {% elif request.path == '/planFolia' %}
+           <a class="navbar-brand" style="color: white; margin-left: 10px"> Zlecenia w realizacji po wytłaczarkach </a>
+        {% elif request.path == '/doc4' %}
+         <a class="navbar-brand" style="color: white; margin-left: 10px"> Zlecenia zrealizowane po wytłaczarkach  </a>
+        {% elif request.path == '/doc6' %}
+         <a class="navbar-brand" style="color: white; margin-left: 10px"> Wydajność na zmianach </a>
+        {% endif %}
+
     </ul>
   </div>
 </nav>

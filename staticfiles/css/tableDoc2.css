@@ -1,0 +1,26 @@
+.table {
+    border:none;
+    border-collapse: collapse;
+    padding-bottom: 10px;
+}
+
+.table td {
+
+    font-size: 1em;
+    padding: 5px !important;
+   font-family: 'Trebuchet MS', sans-serif;
+}
+
+.table td:first-child {
+    border-left: 2px solid #000;
+}
+
+.table td:last-child {
+    border-right: 2px solid #000;
+}
+
+.table th {
+  font-size: 0.8em;
+    color: black;
+
+}

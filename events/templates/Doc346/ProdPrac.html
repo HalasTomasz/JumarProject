@@ -39,7 +39,7 @@
             <td><input type="text" id="max" name="max"></td>
         </tr>
         <tr>
-            <button id="reset-filter" class="btn btn-secondary">Reset Daty</button>
+            <button id="reset-filter" class="btn btn-secondary">Wyczyść datę produkcji</button>
         </tr>
     </tbody></table>
                     <table id="example" class="table table-striped table-bordered display nowrap" style="width:100%">
@@ -61,7 +61,7 @@
                                 <td>{{ forloop.counter }}</td>
                                 <td>{{  nrwyt_dict|get_item:post.NrWytl }}</td>
                                 <td> {{ post.Zmiana }}</td>
-                                 <td>{{ post.Data}}</td>
+                                 <td>{{ post.Data |date:"d.m.Y"}}</td>
                                 <td> {{ folia_dict|get_item:post.Rodzaj }} </td>
                                 <td>{{ post.DlugRolkiProd__sum | readable_integer }}</td>
                                  <td>{{ post.WagaRolkiProd__sum | readable_integer }}</td>

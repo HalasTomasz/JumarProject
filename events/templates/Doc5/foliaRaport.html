@@ -43,6 +43,13 @@
    {% include 'navbar.html' %}
     <br>
         {% csrf_token %}
+
+   <div class="w-100 text-center mb-3">
+        <label for="filter-column">Wyszukaj:</label>
+        <input type="text" id="searchInput" onkeyup="searchTables()" placeholder="Search...">
+    </div>
+
+    <br>
     {% for post in serialized_data %}
        {% block table %}
 
@@ -63,5 +70,6 @@
         </div>
     </div>
 </body>
+<script src={% static "js/search.js" %}></script>
 <script src={% static "js/jquery-3.6.0.min.js" %}></script>
 <script src={%  static "js/popup.js" %}></script>

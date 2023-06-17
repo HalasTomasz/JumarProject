@@ -93,13 +93,14 @@ $(document).ready(function(){
             return intVal(a.toString().replace(/\s/g, '')) + intVal(b.toString().replace(/\s/g, ''));
           }, 0);
 
-
+         pageTotal = round(pageTotal, 2)
+        pageTotal2    = round(pageTotal2, 2)
         // Update footer
         // $(api.column(15).footer()).html('$' + pageTotal);
         // $(api.column(16).footer()).html('$' + pageTotal2);
 
         // Update total data
-            console.log(pageTotal)
+
         $('#total-data').html('DługRolkaProd:  ' + addSeparatorVal(pageTotal) + '   |   WagaRolkaProd:  ' + addSeparatorVal(pageTotal2));
       },
       scrollX: true,

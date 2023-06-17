@@ -32,6 +32,9 @@
         <label class="text-info"  style="font-size: 18px;">Pola nieobowiązkowe     </label> &nbsp <!-- Secondary color for optional fields -->
         <label class="text-secondary"  style="font-size: 18px;">Pola automatycznie</label>
     </div>
+    <div class="mb-2">
+        <label class="text-warning"  style="font-size: 18px;"> Nie używaj przecinków tylko kropek w przypadku liczb dziesiętnych.</label>
+    </div>
     <div class="mb-3">
         <label for="nr_zp" class="form-label fw-bold">NrZp</label>
         <input style="border-color: #FF0000;" type="text" name="NrZp"  value="{{ data.NrZp }}" class="form-control"  id="id_NrZp" readonly>
@@ -52,7 +55,7 @@
         </div>
             <div class="col-auto">
                 <label class="form-label" for="rodzaj">Rodzaj folii</label>
-                <select style="border-color: #FF0000;" class="form-select" name="Rodzaj" id="id_Rodzaj" aria-label="Default select example"  onchange="wagafolizlecFunc()">
+                <select style="border-color: #FF0000;" class="form-select" name="Rodzaj" id="id_Rodzaj" aria-label="Default select example"  onchange="wagafolizlecFunc(), deleteFiled()">
                   <option value="0">HDPE</option>
                   <option value="1">LDPE</option>
                   <option value="2">MDPE</option>

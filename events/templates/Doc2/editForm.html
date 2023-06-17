@@ -30,7 +30,6 @@
         <label for="nr_zp" class="form-label fw-bold">NrZp</label>
         <input type="text" name="NrZp"  value="{{ data.NrZp }}" class="form-control"  id="id_NrZp" readonly>
     </div>
-
     <div class="row g-3 mb-3">
         <div class="col-auto">
             <label  class="form-label " style="display: inline-block;">Artykul:</label>
@@ -53,7 +52,9 @@
                  <input type="text" class="form-control" name="WagaRolkiZlec"  style="display: inline-block; width: auto;" id="id_WagaRolkiZlec" value="{{ data.WagaRolkiZlec | readable_integer }}" readonly>
             </div>
     </div>
-
+    <div class="mb-2">
+        <label class="text-warning"  style="font-size: 18px;">Nie używaj przecinków tylko kropek w przypadku liczb dziesiętnych.</label>
+    </div>
     <div class="mb-3">
         <label for="data" class="form-label fw-bold">Data produkcji</label>
         <input style="border-color: #FF0000;" type="date" name="Data"  class="form-control"  id="id_Data" value="{{ rols.Data }}">
@@ -119,7 +120,7 @@
     </div>
 
    <div class="col text-center">
-        <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'Home.views.index' %}'">Anuluj</button>
+        <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'PlanFolia.views.index' %}'">Anuluj</button>
       <button type="submit" class="btn btn-secondary fw-bold">Zapisz</button>
     </div>
 

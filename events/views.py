@@ -590,13 +590,14 @@ class procFolia(LoginRequiredMixin, ListView ):
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
         context['folia_dict'] = folia_dict
-
         mapper = {}
         for id, data in enumerate(model.values()):
-            mapper[data["NrZp"]] =  data
+            print(id,data)
+            mapper[data["NrZp"]] = data
 
         for rolki in context['rolki_list']:
-            rolki.zamowienie = mapper[str(rolki.NrZp)]
+                rolki.zamowienie = mapper[str(rolki.NrZp)]
+
 
         return context
 

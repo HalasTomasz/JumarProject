@@ -1,7 +1,7 @@
 {% load static %}
 {% block table %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src={% static "js/Table1ProcFolia/readDataTableForm.js "%}></script>
+    <script src={% static "js/Table1ProcFolia/readDataTableForm.js"%}></script>
 
     <div class=" w-100 overflow-hiden ">
     <div class="row">
@@ -10,21 +10,21 @@
                 <table id="mainTable" class="table table-striped table-bordered small">
                 <thead>
 	<tr>
-		<td>Lp</td>
-		<td>Nr ZP</td>
-		<td>NrWytl</td>
-		<td colspan="3">Artykuł</td>
-		<td>SzerWorka<br>[mm]</td>
-		<td>Zakładka<br>[mm]</td>
-		<td>GrubWorka<br>[mikr]</td>
-		<td>Dolne odchylenie<br>[mikr]</td>
-		<td>DługRolkiZlec<br>korekta<br>[mb]</td>
-		<td>WagaRolkiZlec<br>[kg]</td>
-		<td>IlośćRolekZlec<br>[szt]</td>
-		<td>Kod</td>
-		<td>Rodzaj folii</td>
-		<td>MMK</td>
-		<td>Brawnik</td>
+		<td style="background-color: lightgrey">Lp</td>
+		<td style="background-color: lightgrey">Nr ZP</td>
+		<td style="background-color: lightgrey">NrWytl</td>
+		<td style="background-color: lightgrey" colspan="3">Artykuł</td>
+		<td style="background-color: lightgrey">SzerWorka<br>[mm]</td>
+		<td style="background-color: lightgrey">Zakładka<br>[mm]</td>
+		<td style="background-color: lightgrey">GrubWorka<br>[mikr]</td>
+		<td style="background-color: lightgrey">Dolne odchylenie<br>[mikr]</td>
+		<td style="background-color: lightgrey">DługRolkiZlec<br>korekta<br>[mb]</td>
+		<td style="background-color: lightgrey">WagaRolkiZlec<br>[kg]</td>
+		<td style="background-color: lightgrey">IlośćRolekZlec<br>[szt]</td>
+		<td style="background-color: lightgrey">Kod</td>
+		<td style="background-color: lightgrey">Rodzaj folii</td>
+		<td style="background-color: lightgrey">MMK</td>
+		<td style="background-color: lightgrey">Brawnik</td>
 	</tr>
                 </thead>
                 <tbody>
@@ -37,25 +37,23 @@
             getSmallTableData('{{ post.NrZp }}');
         </script>
         {% endif %}
-		<td rowspan="3"  class="counter-cell"> {{ forloop.counter }}</td>
-		<td rowspan="3" data-id="{{ post.NrZp }}" {% if selected_id == post.NrZp %} class="selected-cell"  {% endif %}>{{ post.NrZp }}</td>
+		<td class="counter-cell"> {{ forloop.counter }}</td>
+		<td data-id="{{ post.NrZp }}" {% if selected_id == post.NrZp %} class="selected-cell"  {% endif %}>{{ post.NrZp }}</td>
 
-		<td rowspan="3">{{ nrwyt_dict|get_item:post.NrWyt }}</td>
-		<td colspan="3" rowspan="3">{{ post.Artykul }}</td>
-		<td rowspan="3">{{ post.SzerWorka | readable_integer }}</td>
-		<td rowspan="3">{{ post.Zakladka | readable_integer }}</td>
-		<td rowspan="3">{{ post.GrubWorka | readable_integer }}</td>
-		<td rowspan="3">{{ post.DolneOdch | readable_integer }}</td>
-		<td rowspan="3">{{ post.DlugRolkiZlec_Korekta | readable_integer  }}</td>
-		<td rowspan="3">{{ post.WagaRolkiZlec | readable_integer }}</td>
-		<td rowspan="3">{{ post.IloscRolekZlec | readable_integer }}</td>
-		<td rowspan="3">{{ post.Kod | default_if_none:'' }}</td>
-		<td rowspan="3">{{ folia_dict|get_item:post.Rodzaj }}</td>
-		<td rowspan="3">{{ post.MMK | default_if_none:''}} </td>
-		<td rowspan="3"> {{ post.Barwnik | default_if_none:''}}</td>
-	</tr><tr>
-	</tr>
-	<tr>
+		<td >{{ nrwyt_dict|get_item:post.NrWyt }}</td>
+		<td colspan="3">{{ post.Artykul }}</td>
+		<td >{{ post.SzerWorka | readable_integer }}</td>
+		<td >{{ post.Zakladka | readable_integer }}</td>
+		<td >{{ post.GrubWorka | readable_integer }}</td>
+		<td>{{ post.DolneOdch | readable_integer }}</td>
+		<td >{{ post.DlugRolkiZlec_Korekta | readable_integer  }}</td>
+		<td >{{ post.WagaRolkiZlec | readable_integer }}</td>
+		<td >{{ post.IloscRolekZlec | readable_integer }}</td>
+		<td>{{ post.Kod | default_if_none:'' }}</td>
+		<td >{{ folia_dict|get_item:post.Rodzaj }}</td>
+		<td >{{ post.MMK | default_if_none:''}} </td>
+		<td> {{ post.Barwnik | default_if_none:''}}</td>
+
 	</tr>
                     {% endfor %}
                 </tbody>

@@ -55,7 +55,7 @@
      {% include 'navbar.html' %}
      <br>
      {% csrf_token %}
-     <h1 class="mb-2">Zlecenia zrealizowane po wytłaczarkach </h1>
+
     <!-- =======  Data-Table  = Start  ========================== -->
                 <div class="data_table">
                     <table border="0" cellspacing="5" cellpadding="5">
@@ -68,7 +68,7 @@
             <td><input type="text" id="max" name="max"></td>
         </tr>
         <tr>
-            <button id="reset-filter" class="btn btn-secondary">Reset Daty</button>
+            <button id="reset-filter" class="btn btn-secondary">Wyczyść datę produkcji</button>
         </tr>
     </tbody></table>
                     <table id="example" class="table table-striped table-bordered display nowrap" style="width:100%">
@@ -130,7 +130,7 @@
                                 <td>{{ post.WagaRolkiZlec | readable_integer  }}</td>
                                 <td>{{ folia_dict|get_item:post.Rodzaj }}</td>
                                  <td>{{ nrwyt_dict|get_item:post.NrWyt }}</td>
-                                <td style="background-color: #CCCCCC;" class="{% if post.Research.progres > 100 %}text-danger{% endif %}">
+                                <td  class="bg-info {% if post.Research.progres > 100 %}text-danger{% endif %}">
                                         {{ post.Research.progres }} %
                                     </td>
                                 <td>{{  status_dict|get_item:post.Status }}</td>

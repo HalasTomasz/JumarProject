@@ -1,0 +1,15 @@
+
+.table td {
+
+    font-size: 1em;
+    padding: 2px !important;
+   font-family: 'Trebuchet MS', sans-serif;
+}
+
+
+
+.table th {
+  font-size: 0.7em;
+    background-color: lightgrey;
+
+}

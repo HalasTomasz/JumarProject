@@ -22,20 +22,33 @@
       .data_table td {
         padding: 8px; /* Adjust the cell padding as needed */
       }
+
+      .hidden-row {
+          display: none;
+        }
     </style>
 
 </head>
 <body>
     {% include 'navbar.html' %}
     <br>
-    <label for="filter-column">Filtracja po Wytłaczarkach:</label>
-    <select id="filter-column">
-      <option value="">Wszystko</option>
-      <option value="w1">W1</option>
-      <option value="w2">W2</option>
-      <option value="w3">W3</option>
-      <!-- Add more options for other columns -->
-    </select>
+     <div class="w-100 text-center mb-3">
+         <div>
+                <label for="filter-column">Wyszukiwanie po wytłaczarkach:</label>
+                <select id="filter-column">
+                  <option value="">Wszystko</option>
+                  <option value="w1">W1</option>
+                  <option value="w2">W2</option>
+                  <option value="w3">W3</option>
+                  <!-- Add more options for other columns -->
+                </select>
+         </div>
+         <div>
+             <label for="filter-column">Wyszukaj:</label>
+             <input type="text" id="searchInput" onkeyup="searchDoc2()" placeholder="Search...">
+         </div>
+    </div>
+
     <br>
     {% include 'Doc2/ProcFoliaTable1.html' %}
 
@@ -59,6 +72,7 @@
 {#     {% endfor %}#}
 </body>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src={% static "js/search.js" %}></script>
 <script src={%  static "js/ProcFolia/readDataTable.js" %}></script>
 
 </html>
