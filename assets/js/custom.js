@@ -97,8 +97,8 @@ $(document).ready(function(){
             return intVal(a.toString().replace(/\s/g, '')) + intVal(b.toString().replace(/\s/g, ''));
           }, 0);
 
-        pageTotal = round(pageTotal, 2)
-        pageTotal2    = round(pageTotal2, 2)
+        pageTotal = pageTotal.toFixed(2);
+        pageTotal2  = pageTotal2.toFixed(2);
 
         $('#total-data').html('DługRolkiProd:  ' + addSeparatorVal(pageTotal) + '   |   WagaRolkiProd:  ' + addSeparatorVal(pageTotal2));
       },
