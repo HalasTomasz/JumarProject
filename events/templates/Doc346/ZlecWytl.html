@@ -91,7 +91,7 @@
                                 <td>{{ post.DlugRolkiProd | readable_integer }}</td>
                                 <td>{{ post.WagaRolkiProd | readable_integer  }}</td>
                                 <td>{{ post.Wynikowa | readable_integer }}</td>
-                                <td style="color: {% if post.Wynik > 100 %}red{% endif %}">{{ post.Wynik | readable_integer }}</td>
+                                <td  style="background-color: #cde8ff; color: {% if post.Wynik > 100 %}red{% endif %}">{{ post.Wynik | readable_integer }}</td>
                                 <td>{{ post.Slimak | default_if_none:'' | readable_integer }}</td>
                                 <td>{{ post.Walce | default_if_none:'' | readable_integer }}</td>
                                 <td>{{ post.UserName  }}</td>

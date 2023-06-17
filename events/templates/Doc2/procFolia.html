@@ -26,28 +26,36 @@
       .hidden-row {
           display: none;
         }
+      #data-table-color td:nth-child(13) {
+      background-color: #cde8ff;
+    }
     </style>
 
 </head>
 <body>
     {% include 'navbar.html' %}
     <br>
-     <div class="w-100 text-center mb-3">
-         <div>
-                <label for="filter-column">Wyszukiwanie po wytłaczarkach:</label>
-                <select id="filter-column">
-                  <option value="">Wszystko</option>
-                  <option value="w1">W1</option>
-                  <option value="w2">W2</option>
-                  <option value="w3">W3</option>
-                  <!-- Add more options for other columns -->
-                </select>
-         </div>
-         <div>
-             <label for="filter-column">Wyszukaj:</label>
-             <input type="text" id="searchInput" onkeyup="searchDoc2()" placeholder="Search...">
-         </div>
+<div class="d-flex justify-content-center align-items-center">
+  <div class="w-100 text-center">
+    <div class="d-inline-block mr-3">
+      <label for="filter-column">Wyszukiwanie po wytłaczarkach:</label>
+      <select id="filter-column" class="form-control">
+        <option value="">Wszystko</option>
+        <option value="w1">W1</option>
+        <option value="w2">W2</option>
+        <option value="w3">W3</option>
+        <!-- Add more options for other columns -->
+      </select>
     </div>
+    <div class="d-inline-block">
+      <label for="filter-column">Wyszukaj:</label>
+      <input type="text" id="searchInput" onkeyup="searchDoc2()" placeholder="Szukaj..." class="form-control">
+    </div>
+  </div>
+</div>
+
+
+
 
     <br>
     {% include 'Doc2/ProcFoliaTable1.html' %}

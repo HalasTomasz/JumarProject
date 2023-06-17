@@ -130,7 +130,7 @@
                                 <td>{{ post.WagaRolkiZlec | readable_integer  }}</td>
                                 <td>{{ folia_dict|get_item:post.Rodzaj }}</td>
                                  <td>{{ nrwyt_dict|get_item:post.NrWyt }}</td>
-                                <td  class="bg-info {% if post.Research.progres > 100 %}text-danger{% endif %}">
+                                <td  style="background-color: #cde8ff" class=" {% if post.Research.progres > 100 %}text-danger{% endif %}">
                                         {{ post.Research.progres }} %
                                     </td>
                                 <td>{{  status_dict|get_item:post.Status }}</td>

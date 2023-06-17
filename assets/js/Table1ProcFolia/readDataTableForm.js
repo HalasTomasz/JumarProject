@@ -1,6 +1,4 @@
-$(document).ready(function() {
-      // Call the getData function with the appropriate argument here if needed
-  });
+
 function getData(id) {
     $.ajax({
       url: 'get-data/' + id,
@@ -36,11 +34,13 @@ function getData(id) {
             counter++;
           });
         });
-        $('td:nth-child(13)').each(function() {
+
+        $('#data-table-color td:nth-child(13)').each(function() {
           var value = $(this).text();
           if (parseFloat(value.replace(',', '.')) > 100) {
             $(this).css('color', 'red');
           }
+
         });
       }
     });

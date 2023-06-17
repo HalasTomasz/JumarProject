@@ -9,13 +9,11 @@
             }
             $("td[data-id]").removeClass("selected-cell");
 
-            console.log("HIHI")
+
             // Get ID of clicked cell
             var id = $(this).data("id");
             // Set current cell as selected
-            console.log(selectedCell)
             selectedCell = $(this);
-            console.log(selectedCell)
             selectedCell.addClass("selected-cell");
 
             // Activate button below the table
@@ -69,11 +67,12 @@ $(document).ready(function() {
             counter++;
             });
           });
-            $('td:nth-child(13)').each(function() {
+            $('#data-table-color td:nth-child(13)').each(function() {
             var value = $(this).text();
             if (parseFloat(value.replace(',', '.')) > 100) {
               $(this).css('color', 'red');
             }
+          // $(this).css('background-color', '#cde8ff');
           });
         }
       });
@@ -116,12 +115,14 @@ $(document).ready(function() {
             counter++;
           });
         });
-        $('td:nth-child(13)').each(function() {
+        $('#data-table-color td:nth-child(13)').each(function() {
           var value = $(this).text();
           if (parseFloat(value.replace(',', '.')) > 100) {
             $(this).css('color', 'red');
           }
+         //  $(this).css('background-color', '#cde8ff');
         });
+
       }
     });
   }
@@ -168,6 +169,7 @@ $(document).ready(function(){
                 // Apply the red color to the cell
                 $(this).find("td:nth-child(13)").css("color", "red");
             }
+                //$(this).find("td:nth-child(13)").css('background-color', '#cde8ff');
         });
     });
 

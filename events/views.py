@@ -529,6 +529,8 @@ def update_status(request):
         id = request.POST.get('id')
         status = request.POST.get('status')
         zamowienie = get_object_or_404(Zamowienie, NrZp=id)
+        if status == '0' and Rolki.objects.filter(NrZp=id).count() > 1:
+            return HttpResponse('Nie można zmienic statusu',status=400)
         zamowienie.Status = status
         zamowienie.save()
         return HttpResponse(status=200)
