@@ -27,7 +27,7 @@ urlpatterns = [
     path('realizacja', RealPlan.as_view(), name='Realizacja.views.index'),
 
     ### Raport section
-    path('doc4',procFolia.as_view() , name='procFolia.views.index'),
+    path('doc4', procFolia.as_view() , name='procFolia.views.index'),
     path('doc6', procPrac.as_view(), name='procPrac.views.index'),
     path('doc5', procReal.as_view() ,  name='procReal.views.index'),
     path('update_status', views.update_status, name='update_status'),

@@ -29,13 +29,13 @@ body {
         <a class="nav-link {% if request.path == '/realizacja' %}active{% endif %}" href="{% url 'Realizacja.views.index' %}">Z2</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link {% if request.path == '/doc5' %}active{% endif %}" href="{% url 'procFolia.views.index' %}">Z3</a>
+        <a class="nav-link {% if request.path == '/doc5' %}active{% endif %}" href="{% url 'procReal.views.index' %}">Z3</a>
       </li>
       <li class="nav-item">
         <a class="nav-link {% if request.path == '/planFolia' %}active{% endif %}" href="{% url 'PlanFolia.views.index' %}">R1</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link {% if request.path == '/doc4' %}active{% endif %}" href="{% url 'procReal.views.index' %}">R2</a>
+        <a class="nav-link {% if request.path == '/doc4' %}active{% endif %}" href="{% url 'procFolia.views.index' %}">R2</a>
       </li>
       <li class="nav-item">
         <a class="nav-link {% if request.path == '/doc6' %}active{% endif %}" href="{% url 'procPrac.views.index' %}">R3</a>

@@ -616,7 +616,9 @@ class procPrac(LoginRequiredMixin, ListView):
         queary = Rolki.objects.values('Data', 'Zmiana', 'NrWytl', 'Rodzaj' ,'UserName').annotate(
             Sum('DlugRolkiProd'), Sum('WagaRolkiProd')
         )
-
+        for data in queary:
+            data['DlugRolkiProd__sum'] = np.round( data['DlugRolkiProd__sum'] ,2)
+            data['WagaRolkiProd__sum'] = np.round(data['WagaRolkiProd__sum'], 2)
         context['serialized_data'] = queary
 
         return context
