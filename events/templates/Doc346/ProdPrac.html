@@ -60,7 +60,7 @@
                                 <td>{{ forloop.counter }}</td>
                                 <td>{{  nrwyt_dict|get_item:post.NrWytl }}</td>
                                 <td> {{ post.Zmiana }}</td>
-                                 <td>{{ post.Data |date:"d.m.Y"}}</td>
+                                 <td>{{ post.Data | date:"Y-m-d" }}</td>
                                 <td> {{ folia_dict|get_item:post.Rodzaj }} </td>
                                 <td>{{ post.DlugRolkiProd__sum | readable_integer }}</td>
                                  <td>{{ post.WagaRolkiProd__sum | readable_integer }}</td>

@@ -30,28 +30,33 @@
         <label for="nr_zp" class="form-label fw-bold">NrZp</label>
         <input type="text" name="NrZp"  value="{{ data.NrZp }}" class="form-control"  id="id_NrZp" readonly>
     </div>
+
     <div class="row g-3 mb-3">
         <div class="col-auto">
             <label  class="form-label " style="display: inline-block;">Artykul:</label>
-            <input type="text"  class="form-control"   style="display: inline-block; width: auto;" readonly value="{{ data.Artykul }}">
+            <input style="border-color: #CCCCCC;" type="text"  class="form-control"   style="display: inline-block; width: auto;" readonly value="{{ data.Artykul }}">
         </div>
-            <div class="col-auto">
-                <label  class="form-label" style="display: inline-block;">Rodzaj:</label>
-                 <input type="text" name="Rodzaj"  style="display: inline-block; width: auto;"  value="{{ data.Rodzaj }}" class="form-control"  id="id_Rodzaj" readonly>
-            </div>
           <div class="col-auto">
+              <label  class="form-label" style="display: inline-block;">Dolne Odch [mkir]:</label>
+              <input style="border-color: #CCCCCC;" type="text" class="form-control" name="DolneOdch"  style="display: inline-block; width: auto;" id="id_DolneOdch" value="{{ data.DolneOdch }}" readonly>
+          </div>
+        <div class="col-auto">
+            <label  class="form-label" style="display: inline-block;"> DługRolkiZlec korekta [mb] :</label>
+            <input style="border-color: #CCCCCC;" type="text" name="DlugRolkiZlec_Korekta"  style="display: inline-block; width: auto;"  value="{{ data.DlugRolkiZlec_Korekta }}" class="form-control"  id="id_Rodzaj" readonly>
+        </div>
+        <div class="col-auto">
+                <label  class="form-label" style="display: inline-block;">WagaRolkiZlec [kg]:</label>
+                 <input style="border-color: #CCCCCC;" type="text" class="form-control" name="WagaRolkiZlec"  style="display: inline-block; width: auto;" id="id_WagaRolkiZlec" value="{{ data.WagaRolkiZlec }}" readonly>
+            </div>
+         <div class="col-auto">
                 <label  class="form-label" style="display: inline-block;">Operator:</label>
-                 <input type="text" class="form-control" name="UserName"  style="display: inline-block; width: auto;" id="id_UserName" value="{{ rols.UserName }}" readonly>
+                 <input style="border-color: #CCCCCC;" type="text" class="form-control" value="{{ user }}"  id="id_UserName"   name="UserName"  style="display: inline-block; width: auto;" readonly>
             </div>
-          <div class="col-auto">
-                <label  class="form-label" style="display: inline-block;">Dolne Odch:</label>
-                 <input type="text" class="form-control" name="DolneOdch"  style="display: inline-block; width: auto;" id="id_DolneOdch" value="{{ data.DolneOdch }}" readonly>
-            </div>
-          <div class="col-auto">
-                <label  class="form-label" style="display: inline-block;">WagaRolkiZlec:</label>
-                 <input type="text" class="form-control" name="WagaRolkiZlec"  style="display: inline-block; width: auto;" id="id_WagaRolkiZlec" value="{{ data.WagaRolkiZlec | readable_integer }}" readonly>
-            </div>
+        <div class="col-auto">
+            <input type="text" name="Rodzaj" style="display: inline-block; width: auto;" value="{{ data.Rodzaj }}" class="form-control" id="id_Rodzaj" readonly hidden>
+        </div>
     </div>
+
     <div class="mb-2">
         <label class="text-warning"  style="font-size: 18px;">Nie używaj przecinków tylko kropek w przypadku liczb dziesiętnych.</label>
     </div>

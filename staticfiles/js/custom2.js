@@ -102,7 +102,7 @@ $(document).ready(function(){
 
         // Update total data
 
-        $('#total-data').html('DługRolkaProd:  ' + addSeparatorVal(pageTotal) + '   |   WagaRolkaProd:  ' + addSeparatorVal(pageTotal2));
+        $('#total-data').html('Długość Produkcja:  ' + addSeparatorVal(pageTotal) + '   |   Waga Produkcja:  ' + addSeparatorVal(pageTotal2));
       },
       scrollX: true,
 
