@@ -184,6 +184,11 @@
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
    <script src={% static "js/sep.js" %}></script>
     <script src={%  static "js/Doc1F/edit.js" %}></script>
+   <script>
+        var selectedValue = {{ data.NrWyt }};
+        var selectedValue2 = {{ data.Status }};
+        var selectedValue3 = {{ data.Rodzaj }};
+    </script>
     <script src={%  static "js/Doc1F/selectedE.js" %}></script>
     <script src={%  static "js/MakeEmpty.js" %}></script>
 </html>

@@ -697,7 +697,7 @@ def realCaluclator(NrZp, Dlugosc):
     dlugEnd = float(np.round(dataOrder.IloscRolekZlec * dataOrder.DlugRolkiZlec_Korekta - dlugProd,2))
     sumRol = float(np.round(dataRol.aggregate(Count('Rolka'))['Rolka__count'],2))
     finishRol = float(np.round(dataOrder.IloscRolekZlec - sumRol,2))
-    progres = float(np.round(Dlugosc / dlugProd,2))
+    progres = float(np.round(dlugProd / Dlugosc * 100, 2))
 
     return {'wagaSum': waga_sum,
             'wagaEnd': waga_end,
