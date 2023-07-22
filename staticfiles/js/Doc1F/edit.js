@@ -1,7 +1,7 @@
     var dict = {
-          "0": 0.96,
-          "1": 0.935,
-            "2":0.94,
+          "0": 0.95,
+          "1": 0.95,
+          "2": 0.95,
         };
 
       function zakladkaFunc() {
@@ -28,6 +28,7 @@ function wagafolizlecFunc() {
   var input2 = document.getElementById('id_DolneOdch');
   var input3 = document.getElementById('id_DlugFoliPlan');
   var input4 = document.getElementById('id_Rodzaj');
+  var tasma = document.getElementById('id_Tasma');
   var waga = document.getElementById('id_WagaFoliZlec');
 
   if (input.value.trim() && input2.value.trim() && input3.value.trim() && input4.value.trim()) {
@@ -39,7 +40,12 @@ function wagafolizlecFunc() {
       var gest = parseFloat(dict[input4.value]);
 
       if (!isNaN(gest)) {
-        var result = (parseFloat(value1) / 1000 * parseFloat(value2) / 1000 * parseFloat(value3) * 1.9 * gest).toFixed(2);
+        var result = (parseFloat(value1) / 1000 * parseFloat(value2) / 1000 * parseFloat(value3) * 2 * gest).toFixed(2);
+
+        if(tasma.value === '1'){
+          result = (result/2).toFixed(2)
+        }
+
         waga.value = result;
         addSeparator('id_WagaFoliZlec');
         wagarolkizlecFunc();

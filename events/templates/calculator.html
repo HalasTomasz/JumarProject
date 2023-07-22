@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+</head>
+<body>
+<div class="container p-3">
+    <div class="contact-box  d-flex align-items-center justify-content-center">
+    <form method="POST">
+        {% csrf_token %}
+        <div class="flex-column">
+          <div class="row mb-3">
+       <div class="col-auto">
+           <label class="form-label" for="rodzajFolii">Rodzaj folii</label>
+       </div><div class="col-auto">
+        <select style="border-color: #FF0000;" name="Rodzaj" id="id_Rodzaj" class="form-select" onchange="calc_waga_1mb()">
+            <option value="0">HDPE</option>
+            <option value="1">LDPE</option>
+            <option value="2">MDPE</option>
+        </select>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+      <div class="col-auto">
+        <label for="tasma">Taśma</label>
+          </div><div class="col-auto">
+        <select style="border-color: #FF0000;" name="Tasma" id="id_Tasma" class="form-select" onchange="calc_waga_1mb()">
+            <option value="0">Nie</option>
+            <option value="1">Tak</option>
+        </select>
+        </div>
+      </div>
+
+  <div class="row mb-3">
+      <div class="col-auto">
+        <label  class="form-label" for="szerWorka">SzerWorka [mm]</label>
+          </div><div class="col-auto">
+        <input style="border-color: #FF0000;"  class="form-control" type="text" name="SzerWorka" id="id_SzerWorka" onkeyup="addSeparator('id_SzerWorka')">
+        </div>
+      </div>
+
+  <div class="row mb-3">
+      <div class="col-auto">
+        <label class="form-label" for="szerRekawa">SzerRękawa [mm]</label>
+          </div><div class="col-auto">
+        <input style="border-color: #FF0000;"  class="form-control" type="text" name="SzerRekawa" id="id_SzerRekawa" onkeyup="addSeparator('id_SzerRekawa')" onchange="calc_waga_1mb()">
+        </div>
+      </div>
+
+  <div class="row mb-3">
+      <div class="col-auto">
+        <label class="form-label"  for="grubWorka">GrubWorka [mikr]</label>
+          </div><div class="col-auto">
+        <input style="border-color: #FF0000;" class="form-control" type="text" name="GrubWorka" id="id_GrubWorka" onkeyup="addSeparator('id_GrubWorka')">
+        </div>
+      </div>
+
+  <div class="row mb-3">
+      <div class="col-auto">
+        <label  class="form-label" for="dolneOdch">DolneOdch [mikr]</label>
+          </div><div class="col-auto">
+        <input style="border-color: #FF0000;"  class="form-control" type="text" name="DolneOdch" id="id_DolneOdch" onkeyup="addSeparator('id_DolneOdch')" onchange="calc_waga_1mb()">
+        </div>
+      </div>
+
+  <div class="row mb-3">
+      <div class="col-auto">
+        <label class="form-label" for="dlugWorka">DługWorka [mm]</label>
+          </div><div class="col-auto">
+        <input style="border-color: #FF0000;" class="form-control" type="text" name="DlugWorka" id="id_DlugWorka" value="1 000" readonly>
+          </div>
+      </div>
+
+  <div class="row mb-3">
+      <div class="col-auto">
+        <label class="form-label" for="gestosc">Gęstość</label>
+          </div><div class="col-auto">
+        <input  class="form-control" type="text" name="gestosc" value="0.95" id="id_gestosc" readonly>
+        </div>
+      </div>
+
+  <div class="row mb-3">
+      <div class="col-auto">
+        <label class="form-label" for="waga1mb">Waga 1 mb [kg]</label>
+          </div><div class="col-auto">
+        <input class="form-control" type="text" name="waga1mb" id="id_waga1mb" readonly>
+          </div>
+      </div>
+
+  <div class="row mb-3">
+      <div class="col-auto">
+        <label class="form-label" for="wagaProdukcja">Waga produkcja [kg]</label>
+          </div><div class="col-auto">
+        <input class="form-control" type="text" name="wagaProdukcja" id="id_wagaProdukcja"  onkeyup="addSeparator('id_wagaProdukcja')" onchange="calc_ilosczlecenie()">
+        </div>
+      </div>
+
+  <div class="row mb-3">
+      <div class="col-auto">
+        <label class="form-label" for="iloscZlec">IlośćZlec [szt lub mb]</label>
+          </div><div class="col-auto">
+        <input style="border-color: #FF0000;" class="form-control"  type="text" name="IloscZlec" id="id_IloscZlec" readonly>
+          </div>
+      </div>
+        </div>
+        <div class="col text-center">
+        <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'Home.views.index' %}'">Powrót</button>
+       <button type="button" class="btn btn-secondary fw-bold" onclick="clearForm()">Wyczyść</button>
+            <button type="submit" name="redirect_index" class="btn btn-secondary fw-bold">Utwórz zlecenie</button>
+    </div>
+    </form>
+</div>
+      </div>
+</body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src={% static "js/sep.js" %}></script>
+    <script>
+    function clearForm() {
+            document.getElementById("id_Rodzaj").selectedIndex = 0;
+            document.getElementById("id_Tasma").selectedIndex = 0;
+            document.getElementById("id_SzerWorka").value = "";
+            document.getElementById("id_SzerRekawa").value = "";
+            document.getElementById("id_GrubWorka").value = "";
+            document.getElementById("id_DolneOdch").value = "";
+            document.getElementById("id_gestosc").value = "";
+            document.getElementById("id_waga1mb").value = "";
+            document.getElementById("id_wagaProdukcja").value = "";
+            document.getElementById("id_IloscZlec").value = "";
+        }
+    function calc_waga_1mb() {
+        var szerRekawa = parseFloat(document.getElementById("id_SzerRekawa").value.replace(/\s/g, ''));
+        var dolneOdch = parseFloat(document.getElementById("id_DolneOdch").value.replace(/\s/g, ''));
+        var dlugWorka = 1000; // Constant value
+        var gestosc = parseFloat(document.getElementById("id_gestosc").value.replace(/\s/g, ''));
+        var tasmaValue = parseInt(document.getElementById("id_Tasma").value);
+
+        if (isNaN(szerRekawa) || isNaN(dolneOdch) || isNaN(gestosc)) {
+            document.getElementById("id_waga1mb").value = ""; // Clear the field if any input is not a number
+        } else {
+            var waga1mb = 0;
+            if (tasmaValue === 0) {
+                waga1mb = (szerRekawa / 1000) * (dolneOdch / 1000) * (dlugWorka / 1000) * 2 * gestosc;
+            } else if (tasmaValue === 1) {
+                waga1mb = (szerRekawa / 1000) * (dolneOdch / 1000) * (dlugWorka / 1000) * gestosc;
+            }
+            document.getElementById("id_waga1mb").value = waga1mb.toFixed(5); // Display the result with 4 decimal places
+            calc_ilosczlecenie()
+        }
+    }
+
+     function calc_ilosczlecenie() {
+         var waga1mb = document.getElementById("id_waga1mb").value
+         var wagaProdukcja = document.getElementById("id_wagaProdukcja").value.replace(/\s/g, '');
+           if (isNaN(waga1mb) || isNaN(wagaProdukcja)) {
+            document.getElementById("id_IloscZlec").value = "";
+        } else {
+             document.getElementById("id_IloscZlec").value = (wagaProdukcja/waga1mb).toFixed(2);
+         }
+
+     }
+    </script>
+</html>

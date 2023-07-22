@@ -22,6 +22,9 @@ body {
       <li class="nav-item">
         <a class="nav-link" href="{% url 'Form.views.index' %}">F1</a>
       </li>
+        <li class="nav-item">
+        <a class="nav-link" href="{% url 'Calculator.views.index' %}">Kalk</a>
+      </li>
       <li class="nav-item">
         <a class="nav-link {% if request.path == '/planProc' %}active{% endif %}" href="{% url 'PlanProc.views.index' %}">Z1</a>
       </li>

@@ -25,6 +25,7 @@
 		<th>WagaRolkiZlec<br>[kg]</th>
 		<th>Rodzaj folii</th>
 		<th>NrWytl</th>
+        <th colspan="2">Dane</th>
 		<th>Uwagi</th>
 		<th colspan="4">Status</th>
 		<th>Funkcja</th>
@@ -40,7 +41,7 @@
 		<td rowspan="2">{{ post.DlugWorka | readable_integer }}</td>
 		<td rowspan="2">{{ post.GrubWorka | readable_integer }}</td>
 		<td rowspan="2">{{ post.WagaFoliZlec | readable_integer }} </td>
-		<td rowspan="2"> {{ post.DlugRolkiPlan | readable_integer }} </td>
+		<td rowspan="2"> {{ post.DlugFoliPlan | readable_integer }} </td>
 		<td rowspan="4"> {{ post.IloscRolekZlec | readable_integer }} </td>
 		<th rowspan="2">DługRolkiPlan<br>/mb/</th>
 		<td rowspan="2">{{ post.DlugRolkiPlan | readable_integer }}</td>
@@ -48,6 +49,8 @@
 		<td rowspan="4">{{ post.WagaRolkiZlec | readable_integer }}</td>
 		<td rowspan="4">{{ folia_dict | get_item:post.Rodzaj }}</td>
 		<td rowspan="4">{{ nrwyt_dict | get_item:post.NrWyt }}</td>
+        <th rowspan="2">Prioytet</th>
+        <td rowspan="2">{{ prioytet_dict | get_item:post.Priorytet }}</td>
 		<td rowspan="4">{{ post.Uwagi |default_if_none:"" }}</td>
 		<td colspan="4" rowspan="4"> {{ status_dict|get_item:post.Status }}</td>
 		<td rowspan="4">
@@ -82,6 +85,9 @@
 		<td rowspan="2"> {{ post.DlugFoilPlan_Korekta | readable_integer }} </td>
 		<th rowspan="2">DługRolkiZlec<br>korekta<br>[mb]</th>
 		<td rowspan="2">{{ post.DlugRolkiZlec_Korekta | readable_integer}}</td>
+		<th rowspan="2">Taśma</th>
+		<td rowspan="2">{{ tasma_dict|get_item:post.Tasma }}</td>
+
 	</tr>
 	<tr>
 		<th>Data zlecenia</th>
@@ -92,7 +98,7 @@
 		<td  colspan="3">{{ post.Barwnik | default_if_none:"" }}</td>
 
 	</tr>
-                    </table>
+       </table>
             </div>
         </div>
     </div>

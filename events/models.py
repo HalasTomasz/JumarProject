@@ -14,6 +14,8 @@ class Zamowienie(models.Model):
     NrWyt = models.IntegerField()
     Status = models.IntegerField()
     Rodzaj = models.IntegerField()
+    Priorytet = models.IntegerField()
+    Tasma = models.IntegerField()
     MMK = models.CharField(max_length=20, blank=True, null=True , default='')
     Barwnik = models.CharField(max_length=20, blank=True, null=True, default='' )
     Uwagi = models.CharField(max_length=40, blank=True, null=True , default='')
@@ -55,11 +57,11 @@ class Rolki(models.Model):
     Uwagi = models.CharField(max_length=40, blank=True, null=True, default='')
     UserName = models.CharField(max_length=40)
 
-@receiver(post_save, sender=User)
-def assign_admin_group(sender, instance, created, **kwargs):
-    if created and instance.is_superuser:
-        admin_group = Group.objects.get(name='admin')
-        instance.groups.add(admin_group)
-
-
-post_save.connect(assign_admin_group, sender=User)
+# @receiver(post_save, sender=User)
+# def assign_admin_group(sender, instance, created, **kwargs):
+#     if created and instance.is_superuser:
+#         admin_group = Group.objects.get(name='admin')
+#         instance.groups.add(admin_group)
+#
+#
+# post_save.connect(assign_admin_group, sender=User)

@@ -41,7 +41,7 @@
 		<td data-id="{{ post.NrZp }}" {% if selected_id == post.NrZp %} class="selected-cell"  {% endif %}>{{ post.NrZp }}</td>
 
 		<td >{{ nrwyt_dict|get_item:post.NrWyt }}</td>
-		<td colspan="3">{{ post.Artykul }}</td>
+		<td {% if 0 == post.Priorytet %} class="priority-cell"  {% endif %} colspan="3">{{ post.Artykul }}</td>
 		<td >{{ post.SzerWorka | readable_integer }}</td>
 		<td >{{ post.Zakladka | readable_integer }}</td>
 		<td >{{ post.GrubWorka | readable_integer }}</td>

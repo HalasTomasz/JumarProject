@@ -23,3 +23,21 @@
       break;
     }
   }
+
+   var rodzaj4 = document.getElementById("id_Priorytet");
+
+  for (var i = 0; i < rodzaj4.options.length; i++) {
+    if (rodzaj4.options[i].value == selectedValue4) {
+      rodzaj4.selectedIndex = i;
+      break;
+    }
+  }
+
+    var rodzaj5 = document.getElementById("id_Tasma");
+
+  for (var i = 0; i < rodzaj5.options.length; i++) {
+    if (rodzaj5.options[i].value == selectedValue5) {
+      rodzaj5.selectedIndex = i;
+      break;
+    }
+  }

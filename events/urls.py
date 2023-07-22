@@ -2,10 +2,12 @@ from django.urls import path
 from . import views
 from .views import ProductionOrdersPlanningView, updateForm,copyForm, foliaPlanning, foliaForm, \
     upateRolForm, UserUpdateView, procFolia, procPrac, procReal, RealPlan
+
 urlpatterns = [
     path('', views.home, name='Home.views.index'),
     path('login', views.loginFunc, name='Login.views.index'),
     path('logout', views.logoutUser, name='Logout.views.index'),
+    path('calculator', views.calculator, name='Calculator.views.index'),
 
     path("form", views.addProduct, name='Form.views.index'), #1
     path('planProc', ProductionOrdersPlanningView.as_view(), name='PlanProc.views.index'),

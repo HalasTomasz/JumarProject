@@ -11,18 +11,15 @@ from django.views.decorators.http import require_POST
 from django.views.generic import ListView, CreateView, UpdateView
 import numpy as np
 import re
-from rest_framework.generics import ListAPIView
-
 from .models import Zamowienie, Rolki
 from .serializer import ZamSerializer, RolSerializer, RolkiSumSerializer
 from django.urls import reverse_lazy, reverse
-from datetime import date, datetime
+from datetime import date
 from .forms import AddForm, AddRolkiForm, AddUser
 from django.http import JsonResponse, HttpResponse
 from django.template.defaulttags import register
 from .decorators import unathenticted_user,allowed_user
 from django.contrib.auth import authenticate,login,logout, get_user
-from django import template
 
 
 status_dict = {
@@ -42,6 +39,17 @@ folia_dict = {
  0:"HDPE",
  1:"LDPE",
  2:"MDPE",
+}
+
+prioytet_dict = {
+ 0:"Wysoki",
+ 1:"Średni",
+ 2:"Niski",
+}
+
+tasma_dict = {
+ 0:"Nie",
+ 1:"Tak",
 }
 
 @register.filter
@@ -124,6 +132,41 @@ def logoutUser(request):
     return redirect("Login.views.index")
 
 @login_required(login_url='/login')
+def calculator(request):
+    if request.method == 'POST':
+
+        selected_keys = ['Rodzaj', 'Tasma', 'SzerWorka', 'SzerRekawa', 'GrubWorka', 'DolneOdch', 'DlugWorka',
+                         'IloscZlec']
+
+        numeric_keys = ['SzerWorka', 'SzerRekawa', 'GrubWorka', 'DolneOdch', 'DlugWorka']
+        mutable_post = request.POST.copy()
+        my_dict = {}
+        for key in selected_keys:
+
+            if key == "IloscZlec":
+                value = mutable_post.get(key, '')
+                value = re.sub(r'\s', '', value)
+                value = value.split('.')[0]
+                my_dict[key] = value
+            elif key in numeric_keys:
+                value = mutable_post.get(key, '')
+                value = re.sub(r'\s', '', value)
+                my_dict[key] = value
+            elif key in ['Rodzaj', 'Tasma']:
+                my_dict[key] = mutable_post.get(key, '')
+        print(my_dict)
+        form = AddForm(my_dict)
+
+        if form.is_valid():
+            pass
+        request.session['form_data'] = form.cleaned_data
+
+        return redirect('Form.views.index')
+
+    context = {}
+    return render(request, "calculator.html", context)
+
+@login_required(login_url='/login')
 @allowed_user(allowed_groups=['admin','kierownik', 'pracownik'])
 def home(request):
         user = get_user(request)
@@ -174,12 +217,20 @@ def addProduct(request):
             error_message = 'Dane w tych polach niepoprawne: ' + ', '.join(invalid_fields)
             messages.error(request, error_message)
     else:
-        form = AddForm()
+        form_data = request.session['form_data']
+        if form_data is not None:
+            # Assuming you have a form named 'AddForm' that you want to populate with the data
+            form = AddForm(form_data)
+            print(form)
+            request.session['form_data'] = None
+        else:
+            form = AddForm()
+
     context = {'form': form}
     return render(request, 'Doc1/form.html', context)
 
 
-class ProductionOrdersPlanningView(LoginRequiredMixin,UserPassesTestMixin, ListView):
+class ProductionOrdersPlanningView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Zamowienie
     template_name = "Doc1/procPlanTable.html"
     queryset = Zamowienie.objects.filter(Status=0)
@@ -198,6 +249,9 @@ class ProductionOrdersPlanningView(LoginRequiredMixin,UserPassesTestMixin, ListV
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
         context['folia_dict'] = folia_dict
+        context['prioytet_dict'] = prioytet_dict
+        context['tasma_dict'] = tasma_dict
+
         return context
 
 
@@ -326,7 +380,8 @@ class foliaPlanning(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        serializer = ZamSerializer(context['object_list'], many=True)
+        sorted_data = sorted(context['object_list'], key=lambda x: x.Priorytet)
+        serializer = ZamSerializer(sorted_data, many=True)
         # for data_dict in serializer.data:
         #     print()
         #     data_dict['NrWytl'] = nrwyt_dict[data_dict['NrWytl']]
@@ -336,6 +391,7 @@ class foliaPlanning(LoginRequiredMixin, ListView):
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
         context['folia_dict'] = folia_dict
+        context['prioytet_dict'] = prioytet_dict
         return context
 
 class foliaForm(LoginRequiredMixin, CreateView):
