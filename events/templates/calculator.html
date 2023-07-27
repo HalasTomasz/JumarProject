@@ -8,7 +8,7 @@
 
 </head>
 <body>
-<div class="container p-3">
+<div class="container" style="padding-top: 70px;">
     <div class="contact-box  d-flex align-items-center justify-content-center">
     <form method="POST">
         {% csrf_token %}
@@ -127,7 +127,6 @@
             document.getElementById("id_SzerRekawa").value = "";
             document.getElementById("id_GrubWorka").value = "";
             document.getElementById("id_DolneOdch").value = "";
-            document.getElementById("id_gestosc").value = "";
             document.getElementById("id_waga1mb").value = "";
             document.getElementById("id_wagaProdukcja").value = "";
             document.getElementById("id_IloscZlec").value = "";
@@ -160,6 +159,7 @@
             document.getElementById("id_IloscZlec").value = "";
         } else {
              document.getElementById("id_IloscZlec").value = (wagaProdukcja/waga1mb).toFixed(2);
+             addSeparator("id_IloscZlec")
          }
 
      }

@@ -46,7 +46,7 @@
       </div>
         <div class="col-auto">
             <label class="form-label" for="ilosczlec">IlośćZlec [szt lub mb]</label>
-            <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_IloscZlec')" value="{{ form.IloscZlec.value|default_if_none:'' }}"  name="IloscZlec" id="id_IloscZlec" class="form-control" onchange="dlugfoliplanFunc(), deleteFiled()" />
+            <input style="border-color: #FF0000;" type="text"  onkeyup="addSeparator('id_IloscZlec')" value="{{ form.IloscZlec.value|default_if_none:''| readable_integer }}"  name="IloscZlec" id="id_IloscZlec" class="form-control" onchange="dlugfoliplanFunc(), deleteFiled()" />
         </div>
             <div class="col-auto">
                 <label class="form-label" for="rodzaj">Rodzaj folii</label>
@@ -102,7 +102,7 @@
         </div>
         <div class=" col-auto ">
             <label class="form-label" for="zaklada">Zakładka [mm]</label>
-            <input value="{{ form.Zakladka.value|default_if_none:''| readable_integer }}"  style="border-color: #CCCCCC;" class="form-control" name="Zakladka" id="id_Zakladka" type="text"   aria-label="Disabled input example"  readonly>
+            <input value="{{ form.Zakladka.value | default_if_none:'' | readable_integer }}"  style="border-color: #CCCCCC;" class="form-control" name="Zakladka" id="id_Zakladka" type="text"   aria-label="Disabled input example"  readonly>
          </div>
 
     </div>

@@ -154,7 +154,12 @@ def calculator(request):
                 my_dict[key] = value
             elif key in ['Rodzaj', 'Tasma']:
                 my_dict[key] = mutable_post.get(key, '')
-        print(my_dict)
+
+        my_dict['Zakladka'] =  str((int(my_dict['SzerRekawa']) - int(my_dict['SzerWorka'])) /2)
+        my_dict['DlugFoliPlan'] = str(round(int(my_dict['IloscZlec']) / 1000 * int(my_dict['DlugWorka']) * 1 ,2))
+        my_dict['WagaFoliZlec'] = str(round(int(my_dict['SzerRekawa']) / 1000 * int(my_dict['DolneOdch']) / 1000 * float(my_dict['DlugFoliPlan']) * 2 * 0.95, 2))
+
+
         form = AddForm(my_dict)
 
         if form.is_valid():
@@ -217,11 +222,10 @@ def addProduct(request):
             error_message = 'Dane w tych polach niepoprawne: ' + ', '.join(invalid_fields)
             messages.error(request, error_message)
     else:
-        form_data = request.session['form_data']
+        form_data = request.session.get('form_data')
         if form_data is not None:
             # Assuming you have a form named 'AddForm' that you want to populate with the data
             form = AddForm(form_data)
-            print(form)
             request.session['form_data'] = None
         else:
             form = AddForm()

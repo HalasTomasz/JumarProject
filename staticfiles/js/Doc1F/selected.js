@@ -38,7 +38,6 @@
     console.log(selectedValue5)
     console.log(rodzaj5.options[i].value)
     if (rodzaj5.options[i].value == selectedValue5) {
-      console.log("HERE")
         rodzaj5.selectedIndex = i;
       break;
     }
