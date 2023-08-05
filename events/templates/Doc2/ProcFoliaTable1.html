@@ -22,6 +22,7 @@
 		<td style="background-color: lightgrey">WagaRolkiZlec<br>[kg]</td>
 		<td style="background-color: lightgrey">IlośćRolekZlec<br>[szt]</td>
 		<td style="background-color: lightgrey">Kod</td>
+        <td style="background-color: lightgrey">Priorytet</td>
 		<td style="background-color: lightgrey">Rodzaj folii</td>
 		<td style="background-color: lightgrey">MMK</td>
 		<td style="background-color: lightgrey">Brawnik</td>
@@ -50,6 +51,7 @@
 		<td >{{ post.WagaRolkiZlec | readable_integer }}</td>
 		<td >{{ post.IloscRolekZlec | readable_integer }}</td>
 		<td>{{ post.Kod | default_if_none:'' }}</td>
+        <td>{{ prioytet_dict|get_item:post.Priorytet }}</td>
 		<td >{{ folia_dict|get_item:post.Rodzaj }}</td>
 		<td >{{ post.MMK | default_if_none:''}} </td>
 		<td> {{ post.Barwnik | default_if_none:''}}</td>

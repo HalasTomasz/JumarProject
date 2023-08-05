@@ -8,7 +8,15 @@
 
 </head>
 <body>
-<div class="container" style="padding-top: 70px;">
+<div class="container " style="padding-top: 70px;">
+    <div class="mb-3 d-flex align-items-center justify-content-center"">
+     <label class="text-danger"  style="font-size: 18px;">Pola obowiązkowe    </label>&nbsp <!-- Red color for mandatory fields -->
+    <label class="text-info"  style="font-size: 18px;">Pola nieobowiązkowe     </label> &nbsp <!-- Secondary color for optional fields -->
+    <label class="text-secondary"  style="font-size: 18px;">Pola automatycznie</label>
+    </div>
+    <div class="mb-2 d-flex align-items-center justify-content-center"">
+        <label class="text-warning"  style="font-size: 18px;"> Nie używaj przecinków tylko kropek w przypadku liczb dziesiętnych.</label>
+    </div>
     <div class="contact-box  d-flex align-items-center justify-content-center">
     <form method="POST">
         {% csrf_token %}
@@ -72,7 +80,7 @@
       <div class="col-auto">
         <label class="form-label" for="dlugWorka">DługWorka [mm]</label>
           </div><div class="col-auto">
-        <input style="border-color: #FF0000;" class="form-control" type="text" name="DlugWorka" id="id_DlugWorka" value="1 000" readonly>
+        <input style="border-color: #CCCCCC;" class="form-control" type="text" name="DlugWorka" id="id_DlugWorka" value="1 000" readonly>
           </div>
       </div>
 
@@ -88,7 +96,7 @@
       <div class="col-auto">
         <label class="form-label" for="waga1mb">Waga 1 mb [kg]</label>
           </div><div class="col-auto">
-        <input class="form-control" type="text" name="waga1mb" id="id_waga1mb" readonly>
+        <input style="border-color: #CCCCCC;" class="form-control" type="text" name="waga1mb" id="id_waga1mb" readonly>
           </div>
       </div>
 
@@ -96,7 +104,7 @@
       <div class="col-auto">
         <label class="form-label" for="wagaProdukcja">Waga produkcja [kg]</label>
           </div><div class="col-auto">
-        <input class="form-control" type="text" name="wagaProdukcja" id="id_wagaProdukcja"  onkeyup="addSeparator('id_wagaProdukcja')" onchange="calc_ilosczlecenie()">
+        <input style="border-color: #FF0000;" class="form-control" type="text" name="wagaProdukcja" id="id_wagaProdukcja"  onkeyup="addSeparator('id_wagaProdukcja')" onchange="calc_ilosczlecenie()">
         </div>
       </div>
 
@@ -104,7 +112,7 @@
       <div class="col-auto">
         <label class="form-label" for="iloscZlec">IlośćZlec [szt lub mb]</label>
           </div><div class="col-auto">
-        <input style="border-color: #FF0000;" class="form-control"  type="text" name="IloscZlec" id="id_IloscZlec" readonly>
+        <input style="border-color: #CCCCCC;" class="form-control"  type="text" name="IloscZlec" id="id_IloscZlec" readonly>
           </div>
       </div>
         </div>
