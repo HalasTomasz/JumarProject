@@ -140,10 +140,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     import mimetypes
 #     mimetypes.add_type("application/javascript", ".js", True)
 
-SESSION_COOKIE_AGE = 900
+SESSION_COOKIE_AGE = 5400
 
 # Set the idle time to 15 minutes (in seconds)
-SESSION_IDLE_TIMEOUT = 900
+SESSION_IDLE_TIMEOUT = 5400
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 SECURE_SSL_REDIRECT = False

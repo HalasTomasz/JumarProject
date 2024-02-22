@@ -15,7 +15,13 @@
     <link rel="stylesheet" href={% static "css/style.css" %}>
     <link rel="stylesheet" href={% static "css/dataTables.dateTime.min.css" %}>
 
-
+     <style>
+    tfoot input {
+        width: 100%;
+        padding: 1px;
+        box-sizing: border-box;
+    }
+    </style>
 
 
 
@@ -95,12 +101,39 @@
                                 <td>{{ post.Slimak | default_if_none:'' | readable_integer }}</td>
                                 <td>{{ post.Walce | default_if_none:'' | readable_integer }}</td>
                                 <td>{{ post.UserName  }}</td>
-                                <td>{{ post.Uwagi | default_if_none:'' }}</td>
+                                <td style="font-size: smaller;">{{ post.Uwagi | default_if_none:'' }}</td>
                                  <td>{{ post.Mieszanka | default_if_none:''}}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
+                        <tfoot>
+                        <tr>
+                                 <th>Nr</th>
+                                <th>NrWytl</th>
+                                <th>NrZP</th>
+                                <th>Zmiana</th>
+                                <th>Data produkcji</th>
+                                <th>NrRolki</th>
+                                <th>Artykuł</th>
+                                <th>Rodzaj folii</th>
 
+                                <th>SzerWorka [mm]</th>
+                                <th>SzerRękawa [mm]</th>
+                                <th>Zakładka [mm]</th>
+                                <th>GrubWorka [mikr]</th>
+                                <th>DolneOdch [mikr]</th>
+
+                                <th>DługRolkiProd [mb]</th>
+                                <th>WagaRolkiProd [kg]</th>
+                                <th>Wynikowa grubość [mikrony]</th>
+                                <th>GrubośćWynik doZakl % </th>
+                                <th>Ślimak</th>
+                                <th>Walce</th>
+                                <th>Operator</th>
+                                <th>Uwagi</th>
+                                <th>Mieszanka</th>
+                        </tr>
+                        </tfoot>
                     </table>
                     <div id="total-data"></div>
 </div>

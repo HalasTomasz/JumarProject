@@ -43,6 +43,9 @@ body {
       <li class="nav-item">
         <a class="nav-link {% if request.path == '/doc6' %}active{% endif %}" href="{% url 'procPrac.views.index' %}">R3</a>
       </li>
+        <li class="nav-item">
+        <a class="nav-link {% if request.path == '/doc7' %}active{% endif %}" href="{% url 'rapStatus.views.index' %}">R4</a>
+      </li>
       <li class="nav-item ">
         <a class="nav-link" href="{% url 'Logout.views.index' %}">Wyloguj</a>
       </li>
@@ -59,8 +62,11 @@ body {
          <a class="navbar-brand" style="color: white; margin-left: 10px"> Zlecenia zrealizowane po wytłaczarkach  </a>
         {% elif request.path == '/doc6' %}
          <a class="navbar-brand" style="color: white; margin-left: 10px"> Wydajność na zmianach </a>
+         {% elif request.path == '/doc7' %}
+            <a class="navbar-brand" style="color: white; margin-left: 10px"> Status Zamówien </a>
         {% endif %}
 
     </ul>
+      <span class="ml-auto display-7 font-weight-bold text-white">JumarPro</span>
   </div>
 </nav>

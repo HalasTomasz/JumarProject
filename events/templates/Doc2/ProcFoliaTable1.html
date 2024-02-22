@@ -21,15 +21,15 @@
 		<td style="background-color: lightgrey">DługRolkiZlec<br>korekta<br>[mb]</td>
 		<td style="background-color: lightgrey">WagaRolkiZlec<br>[kg]</td>
 		<td style="background-color: lightgrey">IlośćRolekZlec<br>[szt]</td>
-		<td style="background-color: lightgrey">Kod</td>
+		<td style="background-color: lightgrey">Długość do <br> zakończenia [mb]</td>
         <td style="background-color: lightgrey">Priorytet</td>
 		<td style="background-color: lightgrey">Rodzaj folii</td>
-		<td style="background-color: lightgrey">MMK</td>
-		<td style="background-color: lightgrey">Brawnik</td>
+		<td style="background-color: lightgrey">Uwagi</td>
 	</tr>
                 </thead>
                 <tbody>
-                    {% for post in serialized_data %}
+
+				{% for post, dlugprod, dlugend in serialized_data %}
 	<tr id="special">
 
         {% if selected_id == post.NrZp %}
@@ -38,11 +38,11 @@
             getSmallTableData('{{ post.NrZp }}');
         </script>
         {% endif %}
-		<td class="counter-cell"> {{ forloop.counter }}</td>
-		<td data-id="{{ post.NrZp }}" {% if selected_id == post.NrZp %} class="selected-cell"  {% endif %}>{{ post.NrZp }}</td>
+		<td class="counter-cell  {% if dlugprod > post.DlugFoliZlec_Korekta %} text-danger{% endif %}"> {{ forloop.counter }}</td>
+		<td class="counter-cell  {% if dlugprod > post.DlugFoliZlec_Korekta %} text-danger{% endif %}" data-id="{{ post.NrZp }}" {% if selected_id == post.NrZp %} class="selected-cell"  {% endif %}>{{ post.NrZp }}</td>
 
-		<td >{{ nrwyt_dict|get_item:post.NrWyt }}</td>
-		<td {% if 0 == post.Priorytet %} class="priority-cell"  {% endif %} colspan="3">{{ post.Artykul }}</td>
+		<td class=" {% if dlugprod > post.DlugFoliZlec_Korekta %} text-danger{% endif %}"> {{ nrwyt_dict|get_item:post.NrWyt }}</td>
+		<td {% if 0 == post.Priorytet %} class="priority-cell "  {% endif %} colspan="3">{{ post.Artykul }}</td>
 		<td >{{ post.SzerWorka | readable_integer }}</td>
 		<td >{{ post.Zakladka | readable_integer }}</td>
 		<td >{{ post.GrubWorka | readable_integer }}</td>
@@ -50,11 +50,10 @@
 		<td >{{ post.DlugRolkiZlec_Korekta | readable_integer  }}</td>
 		<td >{{ post.WagaRolkiZlec | readable_integer }}</td>
 		<td >{{ post.IloscRolekZlec | readable_integer }}</td>
-		<td>{{ post.Kod | default_if_none:'' }}</td>
+		<td>{{ dlugend | readable_integer}}</td>
         <td>{{ prioytet_dict|get_item:post.Priorytet }}</td>
 		<td >{{ folia_dict|get_item:post.Rodzaj }}</td>
-		<td >{{ post.MMK | default_if_none:''}} </td>
-		<td> {{ post.Barwnik | default_if_none:''}}</td>
+		<td style="font-size: smaller;"> {{ post.Uwagi | default_if_none:''}}</td>
 
 	</tr>
                     {% endfor %}

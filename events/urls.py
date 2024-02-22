@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from .views import ProductionOrdersPlanningView, updateForm,copyForm, foliaPlanning, foliaForm, \
-    upateRolForm, UserUpdateView, procFolia, procPrac, procReal, RealPlan
+    upateRolForm, UserUpdateView, procFolia, procPrac, procReal, RealPlan, rapStatus
 
 urlpatterns = [
     path('', views.home, name='Home.views.index'),
@@ -33,5 +33,7 @@ urlpatterns = [
     path('doc6', procPrac.as_view(), name='procPrac.views.index'),
     path('doc5', procReal.as_view() ,  name='procReal.views.index'),
     path('update_status', views.update_status, name='update_status'),
+
+    path('doc7', rapStatus.as_view() ,  name='rapStatus.views.index'),
 ]
 

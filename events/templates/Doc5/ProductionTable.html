@@ -34,7 +34,7 @@
 	<tr>
 		<td rowspan="2">{{ forloop.counter }}</td>
 		<td rowspan="2" style="width:auto">{{ post.NrZp}}</td>
-		<td colspan="4">{{ post.Artykul}}</td>
+		<td  {% if 0 == post.Priorytet %} class="priority-cell"  {% endif %} colspan="4">{{ post.Artykul}}</td>
 		<td rowspan="2">{{ nrwyt_dict|get_item:post.NrWyt}}</td>
 		<td rowspan="2">{{ folia_dict|get_item:post.Rodzaj}}</td>
 		<td rowspan="2">{{ post.IloscZlec | readable_integer}}</td>

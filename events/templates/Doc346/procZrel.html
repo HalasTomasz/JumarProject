@@ -78,36 +78,33 @@
                                 <th>NrZP</th>
                                 <th>Data produkcji</th>
                                 <th>Artykuł</th>
-                                <th>IlośćZlec</th>
-                                <th>SzerWorka</th>
-                                <th>SzerRękawa</th>
-                                <th>Zakładka</th>
-                                <th>DługWorka</th>
-                                <th>GrubWorka</th>
-                                <th>DolneOdch</th>
-
-                                <th>WagaFoilZlec</th>
-                                <th>DługFoilPlan</th>
-                                <th>DługFoilPlan korekta</th>
-                                <th>IlośćRolekZlec</th>
-                                <th>DługRolkiPlan</th>
-                                <th>DługRolkiZlec korekta</th>
-                                <th>DługFoilZlec korekta</th>
-                                <th>WagaRolkiZlec</th>
+                                <th>IlośćZlec [szt]</th>
+                                <th>SzerWorka [mm]</th>
+                                <th>SzerRękawa [mm]</th>
+                                <th>Zakładka [mm]</th>
+                                <th>DługWorka [mm]</th>
+                                <th>GrubWorka [mkir]</th>
+                                <th>DolneOdch [mkir]</th>
+                                <th>WagaFoilZlec [kg]</th>
+                                <th>DługFoilPlan [mb] </th>
+                                <th>DługFoilPlan korekta [mb]</th>
+                                <th>IlośćRolekZlec [szt]</th>
+                                <th>DługRolkiPlan [mb]</th>
+                                <th>DługRolkiZlec korekta [mb]</th>
+                                <th>DługFoilZlec korekta [mb]</th>
+                                <th>WagaRolkiZlec [kg]</th>
                                 <th>Rodzaj folii</th>
-
                                 <th>NrWytl</th>
+                                <th>Waga produkcja [kg]</th>
+                                <th>Długość produkcja [mb]</th>
                                 <th>Procent realizacji</th>
                                 <th>Status</th>
                                 <th>Uwagi</th>
-                                <th>Kod</th>
-                                <th>MMK</th>
-                                <th>Barwnik</th>
                                 <th>Edytuj</th>
                             </tr>
                         </thead>
                         <tbody>
-                        {% for post in serialized_data %}
+                        {% for waga, dlug, progres, post in serialized_data %}
                              <tr>
                                 <td>{{ forloop.counter }}</td>
                                 <td>{{ post.NrZp  }}</td>
@@ -130,14 +127,13 @@
                                 <td>{{ post.WagaRolkiZlec | readable_integer  }}</td>
                                 <td>{{ folia_dict|get_item:post.Rodzaj }}</td>
                                  <td>{{ nrwyt_dict|get_item:post.NrWyt }}</td>
-                                <td  style="background-color: #cde8ff" class=" {% if post.Research.progres > 100 %}text-danger{% endif %}">
-                                        {{ post.Research.progres }} %
-                                    </td>
+                                 <td>{{waga | readable_integer}}</td>
+                                 <td>{{dlug | readable_integer}}</td>
+                                <td  style="background-color: #cde8ff" class=" {% if progres > 100 %}text-danger{% endif %}">
+                                        {{ progres }} %
+                                </td>
                                 <td>{{  status_dict|get_item:post.Status }}</td>
-                                <td>{{ post.Uwagi | default_if_none:'' }}</td>
-                                 <td>{{ post.Kod | default_if_none:''  }}</td>
-                                 <td>{{ post.MMK | default_if_none:'' }}</td>
-                                 <td>{{ post.Barwnik | default_if_none:'' }}</td>
+                                <td style="font-size: smaller;">{{ post.Uwagi | default_if_none:'' }}</td>
                                  <td> <button onclick="showPopup('{{ post.NrZp }}')">Zmień Status</button> </td>
                             </tr>
                         {% endfor %}
@@ -155,6 +151,7 @@
             </select>
             <br><br>
             <button onclick="updateStatus()">Zapisz</button>
+            <button onclick="copyFormURL()">Kopiuj</button>
             <button onclick="hidePopup()">Anuluj</button>
         </div>
     </div>
@@ -174,6 +171,7 @@
     <script src={% static "js/custom3.js"  %}></script>
     <script src={% static "js/dataTables.dateTime.min.js" %}></script>
     <script src={% static "js/moment.min.js"  %}></script>
+    <script src={% static "js/popup.js"  %}></script>
 </body>
 
 </html>

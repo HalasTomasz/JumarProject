@@ -157,7 +157,11 @@ def calculator(request):
 
         my_dict['Zakladka'] =  str((int(my_dict['SzerRekawa']) - int(my_dict['SzerWorka'])) /2)
         my_dict['DlugFoliPlan'] = str(round(int(my_dict['IloscZlec']) / 1000 * int(my_dict['DlugWorka']) * 1 ,2))
-        my_dict['WagaFoliZlec'] = str(round(int(my_dict['SzerRekawa']) / 1000 * int(my_dict['DolneOdch']) / 1000 * float(my_dict['DlugFoliPlan']) * 2 * 0.95, 2))
+
+        if my_dict['Tasma'] == "1":
+            my_dict['WagaFoliZlec'] = str(round(int(my_dict['SzerRekawa']) / 1000 * int(my_dict['DolneOdch']) / 1000 * float(my_dict['DlugFoliPlan']) * 2 * 0.95 / 2, 2))
+        else:
+            my_dict['WagaFoliZlec'] = str(round(int(my_dict['SzerRekawa']) / 1000 * int(my_dict['DolneOdch']) / 1000 * float(my_dict['DlugFoliPlan']) * 2 * 0.95, 2))
 
 
         form = AddForm(my_dict)
@@ -391,11 +395,25 @@ class foliaPlanning(LoginRequiredMixin, ListView):
         #     data_dict['NrWytl'] = nrwyt_dict[data_dict['NrWytl']]
         if self.request.GET.get('selected_id'):
             context['selected_id'] = unquote(self.request.GET.get('selected_id'))
-        context['serialized_data'] = serializer.data
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
         context['folia_dict'] = folia_dict
         context['prioytet_dict'] = prioytet_dict
+        list_of_dlugProd = []
+        list_of_dlugEnd = []
+        for item in serializer.data:
+            dlugProd = 0
+            dlugEnd = 0
+            dataRol = Rolki.objects.filter(NrZp=item['NrZp'])
+            dataOrder = Zamowienie.objects.get(NrZp=item['NrZp'])
+            if dataOrder and dataRol:
+                dlugProd = float(np.round(dataRol.aggregate(Sum('DlugRolkiProd'))['DlugRolkiProd__sum'], 2))
+                dlugEnd = float(np.round(dataOrder.IloscRolekZlec * dataOrder.DlugRolkiZlec_Korekta - dlugProd, 2))
+            list_of_dlugProd.append(dlugProd)
+            list_of_dlugEnd.append(dlugEnd)
+
+        print(serializer.data)
+        context['serialized_data'] = zip(serializer.data, list_of_dlugProd, list_of_dlugEnd)
         return context
 
 class foliaForm(LoginRequiredMixin, CreateView):
@@ -450,7 +468,6 @@ class foliaForm(LoginRequiredMixin, CreateView):
 
         # Replace request.POST with the modified mutable_post
         request.POST = mutable_post
-        print(mutable_post)
         return super().post(request, *args, **kwargs)
 
     def form_invalid(self, form):
@@ -589,7 +606,7 @@ def update_status(request):
         id = request.POST.get('id')
         status = request.POST.get('status')
         zamowienie = get_object_or_404(Zamowienie, NrZp=id)
-        if status == '0' and Rolki.objects.filter(NrZp=id).count() > 1:
+        if status == '0' and Rolki.objects.filter(NrZp=id).count() >= 1:
             return HttpResponse('Nie można zmienic statusu',status=400)
         zamowienie.Status = status
         zamowienie.save()
@@ -654,9 +671,7 @@ class procFolia(LoginRequiredMixin, ListView ):
         context['folia_dict'] = folia_dict
         mapper = {}
         for id, data in enumerate(model.values()):
-            print(id,data)
             mapper[data["NrZp"]] = data
-
         for rolki in context['rolki_list']:
                 rolki.zamowienie = mapper[str(rolki.NrZp)]
 
@@ -685,6 +700,38 @@ class procPrac(LoginRequiredMixin, ListView):
 
         return context
 
+class rapStatus(LoginRequiredMixin, ListView):
+    model = Zamowienie
+    template_name = "Doc7/rapStatus.html"
+    serializer_class = ZamSerializer
+    queryset = Zamowienie.objects.filter().order_by('NrZp')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_dict'] = status_dict
+        context['nrwyt_dict'] = nrwyt_dict
+        context['folia_dict'] = folia_dict
+
+        # dataRol = Rolki.objects.values('NrZp').annotate(
+        #     total_waga=Sum('WagaRolkiProd'),
+        #     total_dlugosc=Sum('DlugRolkiProd')
+        # ).order_by('NrZp')
+        # print(dataRol)
+        # waga = [item['total_waga'] for item in dataRol]
+        # dlugosc = [item['total_dlugosc'] for item in dataRol]
+        waga = []
+        dlugosc = []
+        serialized_data = self.serializer_class(context['object_list'], many=True)
+        for data in serialized_data.data:
+            clalc_dict = realCaluclator(data['NrZp'], data['DlugFoliZlec_Korekta'])
+            waga.append(clalc_dict['wagaSum'])
+            dlugosc.append(clalc_dict['dlugProd'])
+
+        context['serialized_data'] = zip(waga, dlugosc, serialized_data.data)
+
+
+        return context
+
+
 class procReal(LoginRequiredMixin,UserPassesTestMixin, ListView):
     model = Zamowienie
     template_name = "Doc346/procZrel.html"
@@ -704,10 +751,17 @@ class procReal(LoginRequiredMixin,UserPassesTestMixin, ListView):
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict
         context['folia_dict'] = folia_dict
+        waga = []
+        dlugosc = []
+        postep = []
         serialized_data = self.serializer_class(context['object_list'], many=True)
         for data in serialized_data.data:
-            data["Research"] = realCaluclator(data['NrZp'], data['DlugFoliZlec_Korekta'])
-        context['serialized_data'] = serialized_data.data
+            clalc_dict = realCaluclator(data['NrZp'], data['DlugFoliZlec_Korekta'])
+            waga.append(clalc_dict['wagaSum'])
+            dlugosc.append(clalc_dict['dlugProd'])
+            postep.append(clalc_dict['progres'])
+        context['serialized_data'] = zip(waga, dlugosc, postep, serialized_data.data)
+
         return context
 
 ### REALIZACJA
@@ -730,7 +784,6 @@ class RealPlan(LoginRequiredMixin, UserPassesTestMixin, ListView):
         serializer = ZamSerializer(context['object_list'], many=True)
         context['serialized_data'] = serializer.data
         for data in serializer.data:
-            print(data)
             data["Research"] = realCaluclator(data['NrZp'], data['DlugFoliZlec_Korekta'])
         context['status_dict'] = status_dict
         context['nrwyt_dict'] = nrwyt_dict

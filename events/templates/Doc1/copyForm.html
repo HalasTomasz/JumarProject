@@ -172,20 +172,6 @@
         <label for="uwagi" class="form-label">Uwagi</label>
         <input  style="border-color: #00BFFF;" value="{{ data.Uwagi | default_if_none:''}}" type="text" class="form-control" name="Uwagi" id="id_Uwagi"  maxlength="40" >
     </div>
-    <div class="row g-3 mb-5">
-    <div class="col-auto">
-        <label for="kod" class="form-label">Kod</label>
-        <input style="border-color: #00BFFF;" value="{{ data.Kod | default_if_none:'' }}" type="text" class="form-control"  maxlength="20" name="Kod" id="id_Kod" >
-      </div>
-    <div class="col-auto">
-        <label for="mmk" class="form-label">MMK</label>
-        <input style="border-color: #00BFFF;"  value="{{ data.MMK | default_if_none:''}}" type="text" class="form-control" maxlength="20" name="MMK" id="id_MMK" >
-      </div>
-        <div class="col-auto">
-        <label for="barwnik" class="form-label">Barwnik</label>
-        <input style="border-color: #00BFFF;"  value="{{ data.Barwnik | default_if_none:''}}" type="text" class="form-control"  maxlength="20" name="Barwnik" id="id_Barwnik" >
-      </div>
-    </div>
     <div class="col text-center">
         <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'Home.views.index' %}'">Anuluj</button>
       <button type="submit" class="btn btn-secondary fw-bold">Skopiuj</button>

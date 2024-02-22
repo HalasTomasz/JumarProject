@@ -168,20 +168,7 @@
         <label for="uwagi" class="form-label">Uwagi</label>
         <input  style="border-color: #00BFFF;" type="text" class="form-control" name="Uwagi" id="id_Uwagi"  maxlength="40"  value="{{ form.Uwagi.value|default_if_none:'' }}">
     </div>
-    <div class="row g-3 mb-5">
-    <div class="col-auto">
-        <label for="kod" class="form-label">Kod</label>
-        <input style="border-color: #00BFFF;" type="text" class="form-control" name="Kod" id="id_Kod" maxlength="20" value="{{ form.Kod.value|default_if_none:'' }}">
-      </div>
-    <div class="col-auto">
-        <label for="mmk" class="form-label">MMK</label>
-        <input style="border-color: #00BFFF;" type="text" class="form-control" name="MMK" id="id_MMK" maxlength="20" value="{{ form.MMK.value|default_if_none:'' }}">
-      </div>
-        <div class="col-auto">
-        <label for="barwnik" class="form-label">Barwnik</label>
-        <input style="border-color: #00BFFF;"  type="text" class="form-control"  name="Barwnik" id="id_Barwnik" maxlength="20" value="{{ form.Barwnik.value | default_if_none:'' }}">
-      </div>
-    </div>
+
     <div class="col text-center">
         <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'Home.views.index' %}'">Anuluj</button>
        <button type="submit" name="redirect_another" class="btn btn-secondary fw-bold">Dodaj kolejny</button>
