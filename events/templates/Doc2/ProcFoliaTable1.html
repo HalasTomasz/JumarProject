@@ -38,22 +38,22 @@
             getSmallTableData('{{ post.NrZp }}');
         </script>
         {% endif %}
-		<td class="counter-cell  {% if dlugprod > post.DlugFoliZlec_Korekta %} text-danger{% endif %}"> {{ forloop.counter }}</td>
-		<td class="counter-cell  {% if dlugprod > post.DlugFoliZlec_Korekta %} text-danger{% endif %}" data-id="{{ post.NrZp }}" {% if selected_id == post.NrZp %} class="selected-cell"  {% endif %}>{{ post.NrZp }}</td>
+		<td class="counter-cell  {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}"> {{ forloop.counter }}</td>
+		<td class="counter-cell  {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}" data-id="{{ post.NrZp }}" {% if selected_id == post.NrZp %} class="selected-cell"  {% endif %}>{{ post.NrZp }}</td>
 
-		<td class=" {% if dlugprod > post.DlugFoliZlec_Korekta %} text-danger{% endif %}"> {{ nrwyt_dict|get_item:post.NrWyt }}</td>
-		<td {% if 0 == post.Priorytet %} class="priority-cell "  {% endif %} colspan="3">{{ post.Artykul }}</td>
-		<td >{{ post.SzerWorka | readable_integer }}</td>
-		<td >{{ post.Zakladka | readable_integer }}</td>
-		<td >{{ post.GrubWorka | readable_integer }}</td>
-		<td>{{ post.DolneOdch | readable_integer }}</td>
-		<td >{{ post.DlugRolkiZlec_Korekta | readable_integer  }}</td>
-		<td >{{ post.WagaRolkiZlec | readable_integer }}</td>
-		<td >{{ post.IloscRolekZlec | readable_integer }}</td>
-		<td>{{ dlugend | readable_integer}}</td>
-        <td>{{ prioytet_dict|get_item:post.Priorytet }}</td>
-		<td >{{ folia_dict|get_item:post.Rodzaj }}</td>
-		<td style="font-size: smaller;"> {{ post.Uwagi | default_if_none:''}}</td>
+		<td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}"> {{ nrwyt_dict|get_item:post.NrWyt }}</td>
+		<td class=" {% if 0 == post.Priorytet %} priority-cell {% endif %} {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}" colspan="3">{{ post.Artykul }}</td>
+		<td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}">{{ post.SzerWorka | readable_integer }}</td>
+		<td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}">{{ post.Zakladka | readable_integer }}</td>
+		<td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}">{{ post.GrubWorka | readable_integer }}</td>
+		<td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}">{{ post.DolneOdch | readable_integer }}</td>
+		<td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}">{{ post.DlugRolkiZlec_Korekta | readable_integer  }}</td>
+		<td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}">{{ post.WagaRolkiZlec | readable_integer }}</td>
+		<td  class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}">{{ post.IloscRolekZlec | readable_integer }}</td>
+		<td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}">{{ dlugend | readable_integer}}</td>
+        <td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}">{{ prioytet_dict|get_item:post.Priorytet }}</td>
+		<td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}">{{ folia_dict|get_item:post.Rodzaj }}</td>
+		<td class=" {% if dlugprod >= post.DlugFoliZlec_Korekta %} text-success {% endif %}" style="font-size: smaller;"> {{ post.Uwagi | default_if_none:''}}</td>
 
 	</tr>
                     {% endfor %}

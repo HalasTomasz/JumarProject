@@ -170,7 +170,7 @@
 
     <div class="mb-3">
         <label for="uwagi" class="form-label">Uwagi</label>
-        <input  style="border-color: #00BFFF;" value="{{ data.Uwagi | default_if_none:''}}" type="text" class="form-control" name="Uwagi" id="id_Uwagi"  maxlength="40" >
+        <input  style="border-color: #00BFFF;" value="{{ data.Uwagi | default_if_none:''}}" type="text" class="form-control" name="Uwagi" id="id_Uwagi"  maxlength="50" >
     </div>
     <div class="col text-center">
         <button type="button" class="btn btn-primary fw-bold" onclick="window.location.href='{% url 'Home.views.index' %}'">Anuluj</button>

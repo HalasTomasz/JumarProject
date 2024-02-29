@@ -142,6 +142,18 @@ $(document).ready(function(){
     // Redraw the table to remove the applied filtering
     table.draw();
   });
+  table.on('mouseenter', 'td', function () {
+    let rowIdx = table.cell(this).index().row;
+    table
+        .rows()
+        .nodes()
+        .each((el) => el.classList.remove('highlight'));
+
+    table
+        .row(rowIdx)
+        .nodes()
+        .each((el) => el.classList.add('highlight'));
+});
 
 
 });

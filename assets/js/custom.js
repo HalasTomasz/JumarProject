@@ -143,6 +143,20 @@ $(document).ready(function(){
     table.draw();
   });
 
+   table.on('mouseenter', 'td', function () {
+    let rowIdx = table.cell(this).index().row;
+    table
+        .rows()
+        .nodes()
+        .each((el) => el.classList.remove('highlight'));
+
+    table
+        .row(rowIdx)
+        .nodes()
+        .each((el) => el.classList.add('highlight'));
+});
+
+
 });
 
 // =============  Data Table - (End) ================= //
