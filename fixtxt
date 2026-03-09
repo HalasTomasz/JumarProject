@@ -1,0 +1,101 @@
+ 1. Any authenticated user can still do manager/admin work because the backend barely
+     enforces roles. The role map exists in events/services/permissions.py#L6, but outside
+     the user-management endpoints at events/api/views.py#L74, the order, production, and
+     report views starting at events/api/views.py#L128 only rely on global IsAuthenticated.
+     Before deploy, add real server-side permission classes/checks for order edits, status
+     changes, roll writes, and reports.
+
+  2. Your status-transition guard is bypassable. can_change_order_status() is only used in
+     the custom /status/ action at events/api/views.py#L156, but Status is still writable
+     through the normal serializer at events/api/serializers.py#L117. A client can PATCH /
+     api/orders/<id>/ and skip the business rule entirely.
+     
+  3. Order numbers and roll numbers are race-prone under concurrent requests. Both
+     generators read the current max and then increment in Python at events/services/
+     orders.py#L16 and events/services/orders.py#L33, and they’re used directly in create
+     paths at events/api/views.py#L138 and events/api/views.py#L212. In production that will
+     eventually produce duplicate-key 500s unless you add locking, retry-on-conflict, or a
+     DB-backed sequence.
+
+  4. The deployment entrypoints still default to the non-deployment settings. Both jumar/
+     wsgi.py#L14 and jumar/asgi.py#L12 fall back to jumar.settings, whose base config still
+     has wildcard hosts at jumar/settings.py#L25. If the process manager misses
+     DJANGO_SETTINGS_MODULE=jumar.settings_deployment, you lose the hardened config in
+     jumar/settings_deployment.py#L14.
+
+  5. Staticfiles config is stale right now. jumar/settings.py#L134 points STATICFILES_DIRS
+     at assets, but that directory is currently missing in this workspace, and check
+     --deploy warns with staticfiles.W004. If those deletions are intentional, update the
+
+  I could not get a clean automated test run in this environment. manage.py test
+  events.tests_api_contract failed because the configured MySQL user cannot create
+  test_jumar_db, and a temporary SQLite run exposed that the migration chain is MySQL-
+  specific around events/migrations/0003_zamowienie_legacy_fields.py#L13, events/
+
+
+
+• Findings
+
+  1. High: the frontend can silently run against the mock adapter instead of Django because
+     mock mode is enabled by default in frontend/src/api/client.js#L8. If
+     REACT_APP_USE_MOCK_API=false is forgotten in QA or production, the UI still “works” but
+     all reads/writes stay in the in-memory mock defined in frontend/src/api/mockApi.js#L1.
+     This is the biggest integration risk in the project.
+  2. High: the order status transition rule is still bypassable. The guarded path is only
+     the custom status action in events/api/views.py#L188, but Status is still writable
+     through the main serializer in events/api/serializers.py#L126, and the form submits it
+     in normal saves from frontend/src/apps/JumarProdukcjaApp/pages/OrderFormPage.js#L71.
+     The current contract test in events/tests_api_contract.py#L138 actually locks that
+     bypass in.
+  3. High: API-created users bypass Django’s password validators. Validators are configured
+     in jumar/settings.py#L105, but user creation only checks min_length=6 and then calls
+     set_password() directly in events/api/serializers.py#L59. Weak/common passwords can
+     still be created through the admin UI.
+  4. Medium: auth/navigation handling is inconsistent. Protected routes preserve the
+     intended destination in frontend/src/components/ProtectedRoute.js#L12 and frontend/src/
+     components/RequirePermission.js#L16, but login ignores it and always sends the user
+     to /apps in frontend/src/pages/LoginPage.js#L18. Also, a 401 only clears localStorage
+     in frontend/src/api/client.js#L22; it does not clear the in-memory auth state held in
+     frontend/src/context/AuthContext.js#L7, so the app can remain visually “logged in”
+     until reload.
+  5. Medium: the calculator flow is not really connected. The backend calculator endpoint
+     exists in events/api/views.py#L304, but the frontend calculator page does only local
+     math in frontend/src/apps/JumarProdukcjaApp/pages/CalculatorPage.js#L35, never calls
+     the API, and its “Utwórz zlecenie” button in frontend/src/apps/JumarProdukcjaApp/pages/
+     CalculatorPage.js#L213 has no behavior. This feature is not complete.
+  6. Medium: DlugFoilPlan_Korekta is exposed as a required, editable field in frontend/src/
+     apps/JumarProdukcjaApp/pages/OrderFormPage.js#L20 and frontend/src/apps/
+     JumarProdukcjaApp/pages/OrderFormPage.js#L277, but the backend calculation code in
+     events/services/calculations.py#L36 never reads it. Right now users can change that
+     correction field and get no effect on derived values.
+  7. Medium: production/roll flows still overfetch. The roll list endpoint is unpaginated in
+     events/api/views.py#L238, the production page loads all rolls for the selected order in
+     frontend/src/apps/JumarProdukcjaApp/pages/ProductionPage.js#L137, and the roll form
+     loads all rolls just to guess the next roll number in frontend/src/apps/
+     JumarProdukcjaApp/pages/ProductionRollFormPage.js#L95 even though the backend already
+     assigns Rolka on create in events/api/views.py#L246. This is the next performance
+     bottleneck after the report fixes.
+  8. Medium: the frontend test setup is not usable. The only test file is still the CRA
+     placeholder in frontend/src/App.test.js#L1, and npm test -- --watchAll=false currently
+     fails before executing any real UI assertions. That means route guards, auth flows,
+     forms, and report pages have no frontend regression coverage.
+
+  Residual Risks
+
+  - Legacy array endpoints remain exposed and unpaginated in events/api/views.py#L295,
+    events/api/views.py#L313, and events/api/views.py#L436. Current frontend mostly avoids
+    them, but events/tests_api_contract.py#L155 still treats that full-array behavior as the
+    contract.
+  - Several pages still have weak initial-load error handling, for example frontend/src/
+    apps/JumarProdukcjaApp/pages/OrderFormPage.js#L44, where metadata/detail fetch failures
+    are not surfaced cleanly.
+
+  Verification
+  Backend integration is in much better shape than frontend quality gates: .venv/bin/python
+  manage.py test events.tests events.tests_api_contract passes on MySQL. npm run build also
+  passes, but with the existing unused location warning from frontend/src/pages/
+  LoginPage.js#L8. npm test -- --watchAll=false fails immediately because the frontend test
+  setup is still stale.
+
+  Before calling the project complete, I would fix findings 1 through 4 at minimum, then
+  either remove or properly wire the calculator and clean up the roll-loading path.

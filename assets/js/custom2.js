@@ -29,7 +29,26 @@ $(document).ready(function(){
     });
 
     var table = $('#example').DataTable({
+           initComplete: function () {
+            this.api()
+                .columns()
+                .every(function () {
+                    let column = this;
+                    let title = column.footer().textContent;
 
+                    // Create input element
+                    let input = document.createElement('input');
+                    input.placeholder = title;
+                    column.footer().replaceChildren(input);
+
+                    // Event listener for user input
+                    input.addEventListener('keyup', () => {
+                        if (column.search() !== this.value) {
+                            column.search(input.value).draw();
+                        }
+                    });
+                });
+            },
           language: {
               search: "Wyszukaj:",
               "buttons": {
@@ -123,6 +142,18 @@ $(document).ready(function(){
     // Redraw the table to remove the applied filtering
     table.draw();
   });
+  table.on('mouseenter', 'td', function () {
+    let rowIdx = table.cell(this).index().row;
+    table
+        .rows()
+        .nodes()
+        .each((el) => el.classList.remove('highlight'));
+
+    table
+        .row(rowIdx)
+        .nodes()
+        .each((el) => el.classList.add('highlight'));
+});
 
 
 });

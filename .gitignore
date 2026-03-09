@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment and local config
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs and runtime artifacts
+logs/
+*.log
+*.pid
+
+# Build and generated assets
+staticfiles/
+media/
+frontend/build/
+frontend/node_modules/
+node_modules/
+TMP/
+
+# Local databases and notebooks
+*.sqlite3
+db.sqlite3
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+
+# AWS / TLS
+*.pem

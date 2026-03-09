@@ -2,7 +2,6 @@
 var global_id = NaN
 function showPopup(id) {
     // Show the popup
-    console.log(id)
     $(".popup").show();
     // Set the selected object ID
     global_id = id
@@ -12,6 +11,22 @@ function hidePopup() {
     // Hide the popup
     $(".popup").hide();
 }
+
+function copyFormURL() {
+        // Get the URL with global_id
+
+        // Split the string by "/"
+        var parts = global_id.split("/");
+
+        // Extract the second part and convert it to a number
+        var secondPart = parseInt(parts[1]);
+
+        // Add 1 to the second part
+        secondPart += 1;
+          var url = "/copyForm/" + secondPart;
+          window.location.href = url;
+
+    }
 
 function updateStatus() {
     // Get the selected object ID and status value
