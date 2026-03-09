@@ -11,7 +11,7 @@ const apps = [
   {
     id: 'warehouse',
     title: 'JumarMagazynApp',
-    description: 'Wkrótce dostępne: zarządzanie magazynem i logistyką wysyłek.',
+    description: 'Szybkie zarządzanie stanami magazynowymi: dodawanie, wydania i kontrola braków.',
     action: () => '/magazyn'
   }
 ];
