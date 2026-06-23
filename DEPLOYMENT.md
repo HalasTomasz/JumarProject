@@ -1,72 +1,122 @@
 # Deployment
 
-## Backend
+## Vercel Hobby
 
-1. Create the backend environment file from `.env.example` and fill in real values.
-2. Install dependencies:
+Ten branch jest przygotowany pod jeden projekt Vercel:
+
+- Django + DRF działa jako Python Function
+- React builduje się w `frontend/build`
+- Django serwuje SPA shell oraz `/api/` z tego samego hosta
+- baza docelowa to PostgreSQL przez `DATABASE_URL`
+- migracje uruchamiamy ręcznie z lokalnej maszyny
+
+### 1. Wymagane zmienne środowiskowe w Vercel
+
+Minimum dla preview/test:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+DJANGO_SECRET_KEY=...
+DEBUG=False
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DBNAME
+ALLOWED_HOSTS=jumar-produkcja-test.vercel.app
+CORS_ALLOWED_ORIGINS=https://jumar-produkcja-test.vercel.app
+CSRF_TRUSTED_ORIGINS=https://jumar-produkcja-test.vercel.app
+TIME_ZONE=Europe/Warsaw
+SECURE_SSL_REDIRECT=True
+SESSION_COOKIE_SECURE=True
+CSRF_COOKIE_SECURE=True
+DEPLOY_CONSOLE_LOG_LEVEL=WARNING
 ```
 
-3. Run deployment checks:
+Uwagi:
 
-```bash
-python manage.py check --deploy --settings=jumar.settings_deployment
-```
+- `VERCEL_URL` i `VERCEL` są dostarczane automatycznie przez Vercel.
+- `REACT_APP_API_BASE_URL` nie musi być ustawione. Produkcyjny fallback to `/api/`.
+- Stare zmienne `MYSQL_*` są opcjonalnym fallbackiem lokalnym i nie są wymagane na Vercel.
 
-4. Apply migrations and collect static files:
+### 2. Baza danych na Vercel
+
+Najbezpieczniejszy wariant dla tego repo:
+
+- Vercel Marketplace -> Neon PostgreSQL
+- do aplikacji trafia jeden `DATABASE_URL`
+- nie robimy migracji danych z obecnego MySQL, tylko świeżą bazę testową
+
+To jest sensowniejsze niż trzymanie MySQL obok Vercel, bo:
+
+- Vercel nie daje zarządzanego MySQL jako natywnego domyślnego storage
+- `DATABASE_URL` upraszcza konfigurację Django i preview deployments
+- Postgres z Neon jest standardowym wariantem wspieranym w ekosystemie Vercel
+
+### 3. Build na Vercel
+
+Repo zawiera:
+
+- `api/index.py` jako entrypoint Python Function
+- `vercel.json` z limitem `maxDuration: 300` dla Hobby
+- build command, który:
+  - instaluje frontend dependencies
+  - buduje React
+  - uruchamia `collectstatic`
+
+### 4. Migracje
+
+Migracje wykonujemy ręcznie po ustawieniu `DATABASE_URL`:
 
 ```bash
 python manage.py migrate --settings=jumar.settings_deployment
-python manage.py collectstatic --noinput --settings=jumar.settings_deployment
 ```
 
-5. Start the backend with Gunicorn:
+Jeśli tworzysz superusera:
 
 ```bash
-gunicorn -c gunicorn.conf.py jumar.wsgi:application
+python manage.py createsuperuser --settings=jumar.settings_deployment
 ```
 
-`jumar.wsgi` now defaults to `jumar.settings_deployment`, so missing `DJANGO_SETTINGS_MODULE` no longer falls back to the permissive base settings.
+### 5. Lokalna walidacja przed deployem
 
-## Frontend
+Backend:
 
-1. Create the frontend environment file from `frontend/.env.example`.
-2. Install dependencies and build:
+```bash
+.venv/bin/python manage.py check --deploy --settings=jumar.settings_deployment
+.venv/bin/python manage.py test
+```
+
+Frontend:
 
 ```bash
 cd frontend
-npm ci
+npm test -- --watchAll=false
 npm run build
 ```
 
-`REACT_APP_USE_MOCK_API` now defaults to `false`. Mock mode is only enabled when you explicitly set it to `true`.
+### 6. Linkowanie i deploy
 
-Once `frontend/build` exists, Django serves the SPA shell and WhiteNoise serves the built frontend assets together with Django static files.
+Przykładowy flow przez CLI:
 
-## AWS
+```bash
+vercel link
+vercel pull --yes --environment=preview
+vercel deploy
+```
 
-Recommended baseline:
+Po walidacji preview można przejść na produkcyjny deploy:
 
-- EC2 for the app process
-- RDS MySQL for the database
-- ALB or Nginx as the reverse proxy
-- ACM for TLS
-- Route 53 for DNS
+```bash
+vercel --prod
+```
 
-Minimum AWS-specific environment values:
+### 7. Ograniczenia tego wariantu
 
-- `DEBUG=False`
-- `ALLOWED_HOSTS=your-domain.com,www.your-domain.com`
-- `CORS_ALLOWED_ORIGINS=https://your-domain.com,https://www.your-domain.com`
-- `CSRF_TRUSTED_ORIGINS=https://your-domain.com,https://www.your-domain.com`
-- `MYSQL_HOST=<your-rds-endpoint>`
-- `MYSQL_PORT=3306`
+- Vercel Hobby ma limit 300 sekund na function execution.
+- System plików w runtime jest efemeryczny, więc logi plikowe i trwałe uploady nie powinny tam trafiać.
+- Jeśli w przyszłości pojawią się ciężkie joby lub większe uploady, trzeba to wydzielić poza standardowy request cycle.
 
-EC2 flow:
+## AWS / klasyczny serwer
+
+Stary wariant z Gunicorn + własnym hostem nadal jest możliwy, ale nie jest już domyślnym targetem tego branchu.
+
+Minimalny flow:
 
 ```bash
 python -m venv .venv
@@ -80,12 +130,11 @@ cd ..
 
 python manage.py migrate --settings=jumar.settings_deployment
 python manage.py collectstatic --noinput --settings=jumar.settings_deployment
-gunicorn -c gunicorn.conf.py jumar.wsgi:application
+gunicorn jumar.wsgi:application
 ```
 
 ## Notes
 
-- The default setup can serve the built SPA from Django/WhiteNoise once `frontend/build` is present.
-- If you prefer, you can still serve `frontend/build` from your reverse proxy or a separate static host.
-- Serve Django static files from `staticfiles/` after `collectstatic`.
-- Keep `.env` and `frontend/.env` out of git.
+- Django/WhiteNoise może serwować zbudowany frontend, jeśli `frontend/build` istnieje.
+- `frontend/src/api/client.js` używa `/api/` w production, więc frontend i backend mogą działać pod jednym hostem.
+- `.env` i `frontend/.env` muszą pozostać poza gitem.

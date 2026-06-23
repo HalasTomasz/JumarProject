@@ -17,6 +17,13 @@ FRONTEND_STATIC_DIR = FRONTEND_BUILD_DIR / "static"
 
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
+IS_VERCEL = env.bool("VERCEL", default=False)
+VERCEL_URL = env("VERCEL_URL", default="").strip()
+
+
+def _append_unique(values: list[str], value: str) -> None:
+    if value and value not in values:
+        values.append(value)
 
 
 # --------------------------------------------------------------------
@@ -25,6 +32,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
+_append_unique(ALLOWED_HOSTS, VERCEL_URL)
 
 ROOT_URLCONF = "jumar.urls"
 WSGI_APPLICATION = "jumar.wsgi.application"
@@ -88,21 +96,26 @@ if FRONTEND_BUILD_DIR.exists():
 # --------------------------------------------------------------------
 # Database
 # --------------------------------------------------------------------
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": env("MYSQL_DATABASE"),
-        "USER": env("MYSQL_USER"),
-        "PASSWORD": env("MYSQL_PASSWORD"),
-        "HOST": env("MYSQL_HOST", default="localhost"),
-        "PORT": env("MYSQL_PORT", default="3306"),
-        "OPTIONS": {
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            "charset": "utf8mb4",
-            "unix_socket": env("MYSQL_UNIX_SOCKET", default="/var/run/mysqld/mysqld.sock"),
-        },
+DATABASE_URL = env("DATABASE_URL", default="").strip()
+
+if DATABASE_URL:
+    DATABASES = {"default": env.db("DATABASE_URL")}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": env("MYSQL_DATABASE"),
+            "USER": env("MYSQL_USER"),
+            "PASSWORD": env("MYSQL_PASSWORD"),
+            "HOST": env("MYSQL_HOST", default="localhost"),
+            "PORT": env("MYSQL_PORT", default="3306"),
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                "charset": "utf8mb4",
+                "unix_socket": env("MYSQL_UNIX_SOCKET", default="/var/run/mysqld/mysqld.sock"),
+            },
+        }
     }
-}
 
 
 # --------------------------------------------------------------------
@@ -140,7 +153,8 @@ USE_TZ = True
 # --------------------------------------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_ROOT.mkdir(parents=True, exist_ok=True)
+if not IS_VERCEL:
+    STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 STATICFILES_DIRS = []
 if (BASE_DIR / "assets").exists():
     STATICFILES_DIRS.append(BASE_DIR / "assets")
@@ -169,6 +183,11 @@ CSRF_TRUSTED_ORIGINS = env.list(
     default=["http://localhost:3000", "http://127.0.0.1:3000"],
 )
 
+if VERCEL_URL:
+    vercel_origin = f"https://{VERCEL_URL}"
+    _append_unique(CORS_ALLOWED_ORIGINS, vercel_origin)
+    _append_unique(CSRF_TRUSTED_ORIGINS, vercel_origin)
+
 
 # --------------------------------------------------------------------
 # REST Framework
@@ -190,7 +209,8 @@ REST_FRAMEWORK = {
 # Logging
 # --------------------------------------------------------------------
 LOG_DIR = BASE_DIR / "logs"
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+if not IS_VERCEL:
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 APP_LOG_LEVEL = env("APP_LOG_LEVEL", default="INFO")
 DJANGO_LOG_LEVEL = env("DJANGO_LOG_LEVEL", default="WARNING")
@@ -219,52 +239,60 @@ LOGGING = {
             "formatter": "simple",
             "level": APP_LOG_LEVEL,
         },
-        "django_file": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "level": "INFO",
-            "filename": LOG_DIR / "django.log",
-            "maxBytes": 10 * 1024 * 1024,
-            "backupCount": 5,
-            "formatter": "verbose",
-        },
-        "error_file": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "level": "ERROR",
-            "filename": LOG_DIR / "error.log",
-            "maxBytes": 10 * 1024 * 1024,
-            "backupCount": 10,
-            "formatter": "verbose",
-        },
     },
     "root": {
-        "handlers": ["console", "django_file", "error_file"],
+        "handlers": ["console"],
         "level": ROOT_LOG_LEVEL,
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "django_file", "error_file"],
+            "handlers": ["console"],
             "level": DJANGO_LOG_LEVEL,
             "propagate": False,
         },
         "django.request": {
-            "handlers": ["django_file", "error_file"],
+            "handlers": ["console"],
             "level": "WARNING",
             "propagate": False,
         },
         "django.server": {
-            "handlers": ["console", "django_file"],
+            "handlers": ["console"],
             "level": DJANGO_SERVER_LOG_LEVEL,
             "propagate": False,
         },
         "events": {
-            "handlers": ["console", "django_file", "error_file"],
+            "handlers": ["console"],
             "level": APP_LOG_LEVEL,
             "propagate": False,
         },
         "events.request": {
-            "handlers": ["console", "django_file", "error_file"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
     },
 }
+
+if not IS_VERCEL:
+    LOGGING["handlers"]["django_file"] = {
+        "class": "logging.handlers.RotatingFileHandler",
+        "level": "INFO",
+        "filename": LOG_DIR / "django.log",
+        "maxBytes": 10 * 1024 * 1024,
+        "backupCount": 5,
+        "formatter": "verbose",
+    }
+    LOGGING["handlers"]["error_file"] = {
+        "class": "logging.handlers.RotatingFileHandler",
+        "level": "ERROR",
+        "filename": LOG_DIR / "error.log",
+        "maxBytes": 10 * 1024 * 1024,
+        "backupCount": 10,
+        "formatter": "verbose",
+    }
+    LOGGING["root"]["handlers"].extend(["django_file", "error_file"])
+    LOGGING["loggers"]["django"]["handlers"].extend(["django_file", "error_file"])
+    LOGGING["loggers"]["django.request"]["handlers"].extend(["django_file", "error_file"])
+    LOGGING["loggers"]["django.server"]["handlers"].append("django_file")
+    LOGGING["loggers"]["events"]["handlers"].extend(["django_file", "error_file"])
+    LOGGING["loggers"]["events.request"]["handlers"].extend(["django_file", "error_file"])

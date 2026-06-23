@@ -12,7 +12,9 @@ export function setUnauthorizedHandler(handler) {
 }
 
 const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/',
+  baseURL: process.env.REACT_APP_API_BASE_URL || (
+    process.env.NODE_ENV === 'production' ? '/api/' : 'http://localhost:8000/api/'
+  ),
 });
 
 // Mock mode must be explicitly enabled so deployment defaults to the real API.
