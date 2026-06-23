@@ -4,3 +4,7 @@ node_modules
 logs
 TMP
 media
+.env
+.env.*
+frontend/.env
+frontend/.env.*
