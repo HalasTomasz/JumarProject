@@ -5,7 +5,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from django.contrib.auth.models import Group, User
 from django.core.management.base import BaseCommand
-from django.db import transaction
+from django.utils import timezone
 
 from events.models import Rolki, UserProfile, Zamowienie
 
@@ -56,8 +56,24 @@ class Command(BaseCommand):
             action="store_true",
             help="Delete all existing orders and rolls before seeding.",
         )
+        parser.add_argument(
+            "--bulk-orders",
+            type=int,
+            default=0,
+            help="Append additional deterministic demo orders for large-volume testing.",
+        )
+        parser.add_argument(
+            "--bulk-start",
+            type=int,
+            default=1,
+            help="Start sequence number for deterministic bulk demo orders.",
+        )
+        parser.add_argument(
+            "--bulk-only",
+            action="store_true",
+            help="Skip baseline demo orders and seed only the requested bulk range.",
+        )
 
-    @transaction.atomic
     def handle(self, *args, **options):
         if options["wipe_orders"]:
             Rolki.objects.all().delete()
@@ -66,9 +82,27 @@ class Command(BaseCommand):
         groups = {name: Group.objects.get_or_create(name=name)[0] for name in GROUP_NAMES}
 
         demo_users = self._ensure_users(groups)
-        orders_created, orders_updated, rolls_created, rolls_updated = self._seed_orders_and_rolls(
-            demo_users
-        )
+        if options["bulk_only"]:
+            orders_created = 0
+            orders_updated = 0
+            rolls_created = 0
+            rolls_updated = 0
+        else:
+            orders_created, orders_updated, rolls_created, rolls_updated = self._seed_orders_and_rolls(
+                demo_users
+            )
+        bulk_orders = max(0, options["bulk_orders"])
+        bulk_start = max(1, options["bulk_start"])
+        if bulk_orders:
+            bulk_created, bulk_updated, bulk_rolls_created, bulk_rolls_updated = self._seed_bulk_orders(
+                demo_users,
+                bulk_start,
+                bulk_orders,
+            )
+            orders_created += bulk_created
+            orders_updated += bulk_updated
+            rolls_created += bulk_rolls_created
+            rolls_updated += bulk_rolls_updated
 
         done_canceled_count = Zamowienie.objects.filter(
             Status__in=[
@@ -378,5 +412,247 @@ class Command(BaseCommand):
                 created_rolls += 1
             else:
                 updated_rolls += 1
+
+        return created_orders, updated_orders, created_rolls, updated_rolls
+
+    def _seed_bulk_orders(self, users: dict[str, User], start: int, count: int) -> tuple[int, int, int, int]:
+        colors = ("Blue", "Transparent", "Green", "Black", "Red", "Yellow", "Gray", "Natural", "White")
+        foil_names = ("HDPE", "LDPE", "MDPE")
+        article_sizes = (
+            "18L",
+            "24L",
+            "28L",
+            "32L",
+            "38L",
+            "42L",
+            "48L",
+            "52L",
+            "58L",
+            "66L",
+            "74L",
+            "82L",
+            "96L",
+            "130L",
+        )
+        operator_names = ("operator1", "operator2", "operator3")
+        status_cycle = (
+            Zamowienie.StatusChoices.W_REALIZACJI,
+            Zamowienie.StatusChoices.ZREALIZOWANE,
+            Zamowienie.StatusChoices.PLANOWANE,
+            Zamowienie.StatusChoices.ZREALIZOWANE,
+            Zamowienie.StatusChoices.ANULOWANE,
+            Zamowienie.StatusChoices.W_REALIZACJI,
+        )
+
+        created_orders = 0
+        updated_orders = 0
+        created_rolls = 0
+        updated_rolls = 0
+
+        base_date = date(2026, 5, 1)
+        end = start + count
+        now = timezone.now()
+        order_specs: list[tuple[int, str, dict[str, object]]] = []
+        order_numbers: list[str] = []
+        for seq in range(start, end):
+            order_date = base_date + timedelta(days=seq - 1)
+            nrzp = f"{order_date.strftime('%Y%m%d')}/{4000 + seq}"
+            status_value = status_cycle[(seq - 1) % len(status_cycle)]
+            foil_type = (seq - 1) % len(foil_names)
+            priority = seq % 3
+            nr_wytl = (seq - 1) % 5
+
+            szer_worka = 200 + ((seq * 11) % 460)
+            szer_rekawa = szer_worka + 30 + (seq % 5) * 10
+            dlug_worka = 380 + ((seq * 17) % 820)
+            grub_worka = 24 + ((seq * 2) % 48)
+            ilosc_zlec = q2(4800 + seq * 55)
+            ilosc_rolek = q2(3 + (seq % 6))
+            dlug_foli_plan = (ilosc_zlec / Decimal("1000")) * Decimal(str(dlug_worka))
+            dlug_foil_plan_korekta = q2(dlug_foli_plan * (Decimal("1.00") + Decimal(seq % 4) / Decimal("100")))
+            dlug_rolki_korekta = q2(dlug_foil_plan_korekta / ilosc_rolek)
+
+            if status_value == Zamowienie.StatusChoices.ANULOWANE:
+                uwagi = "Dummy data: anulowane testowo"
+            elif status_value == Zamowienie.StatusChoices.ZREALIZOWANE:
+                uwagi = "Dummy data: zakonczone"
+            elif status_value == Zamowienie.StatusChoices.W_REALIZACJI:
+                uwagi = "Dummy data: w realizacji"
+            else:
+                uwagi = "Dummy data: planowane"
+
+            defaults = {
+                "Data": order_date,
+                "Artykul": f"Dummy {foil_names[foil_type]} {article_sizes[seq % len(article_sizes)]} #{seq:04d}",
+                "Kod": f"DUM-{foil_names[foil_type][:2]}-{seq:04d}",
+                "MMK": f"BULK-{seq:04d}" if seq % 2 == 0 else "",
+                "Barwnik": colors[seq % len(colors)],
+                "Status": status_value,
+                "Priorytet": priority,
+                "Rodzaj": foil_type,
+                "IloscZlec": ilosc_zlec,
+                "SzerWorka": szer_worka,
+                "SzerRekawa": szer_rekawa,
+                "DlugWorka": dlug_worka,
+                "GrubWorka": grub_worka,
+                "DlugFoilPlan_Korekta": dlug_foil_plan_korekta,
+                "IloscRolekZlec": ilosc_rolek,
+                "DlugRolkiZlec_Korekta": dlug_rolki_korekta,
+                "NrWytl": nr_wytl,
+                "Tasma": bool(seq % 2 == 0),
+                "Uwagi": uwagi,
+                "created_by": users["demo"],
+            }
+            order_specs.append((seq, nrzp, defaults))
+            order_numbers.append(nrzp)
+
+        existing_orders = {
+            order.NrZp: order
+            for order in Zamowienie.objects.filter(NrZp__in=order_numbers)
+        }
+        orders_to_create: list[Zamowienie] = []
+        orders_to_update: list[Zamowienie] = []
+        order_update_fields = [
+            "Data",
+            "Artykul",
+            "Kod",
+            "MMK",
+            "Barwnik",
+            "Status",
+            "Priorytet",
+            "Rodzaj",
+            "IloscZlec",
+            "SzerWorka",
+            "SzerRekawa",
+            "DlugWorka",
+            "GrubWorka",
+            "DlugFoilPlan_Korekta",
+            "IloscRolekZlec",
+            "DlugRolkiZlec_Korekta",
+            "NrWytl",
+            "Tasma",
+            "Uwagi",
+            "created_by",
+            "Zakladka",
+            "WagaFoliZlec",
+            "DlugFoliPlan",
+            "DlugRolkiPlan",
+            "DlugFoliZlec_Korekta",
+            "WagaRolkiZlec",
+            "updated_at",
+        ]
+
+        for _, nrzp, defaults in order_specs:
+            order = existing_orders.get(nrzp)
+            if order is None:
+                order = Zamowienie(NrZp=nrzp, **defaults)
+                order.calculate_parameters()
+                order.created_at = now
+                order.updated_at = now
+                orders_to_create.append(order)
+                created_orders += 1
+                continue
+
+            for field_name, value in defaults.items():
+                setattr(order, field_name, value)
+            order.calculate_parameters()
+            order.updated_at = now
+            orders_to_update.append(order)
+            updated_orders += 1
+
+        if orders_to_create:
+            Zamowienie.objects.bulk_create(orders_to_create, batch_size=200)
+        if orders_to_update:
+            Zamowienie.objects.bulk_update(
+                orders_to_update,
+                order_update_fields,
+                batch_size=200,
+            )
+
+        orders_by_number = {
+            order.NrZp: order
+            for order in Zamowienie.objects.filter(NrZp__in=order_numbers)
+        }
+
+        active_order_numbers: list[str] = []
+        roll_specs: list[tuple[str, int, dict[str, object]]] = []
+        for seq, nrzp, _ in order_specs:
+            order = orders_by_number[nrzp]
+            if order.Status not in [
+                Zamowienie.StatusChoices.W_REALIZACJI,
+                Zamowienie.StatusChoices.ZREALIZOWANE,
+            ]:
+                continue
+
+            active_order_numbers.append(nrzp)
+            completion_ratio = Decimal("0.68") + (Decimal(seq % 28) / Decimal("100"))
+            roll_count = min(int(order.IloscRolekZlec or 0), 4)
+            for roll_number in range(1, roll_count + 1):
+                produced_length = q2((order.DlugRolkiZlec_Korekta or Decimal("700")) * completion_ratio)
+                produced_weight = q2((order.WagaRolkiZlec or Decimal("20")) * completion_ratio)
+                roll_defaults = {
+                    "Data": order.Data,
+                    "Zmiana": SHIFT_SEQUENCE[(seq + roll_number - 1) % len(SHIFT_SEQUENCE)],
+                    "NrWytl": order.NrWytl,
+                    "Rodzaj": order.Rodzaj,
+                    "DlugRolkiProd": produced_length,
+                    "WagaRolkiProd": produced_weight,
+                    "Slimak": q2(0),
+                    "Walce": q2(0),
+                    "Wynikowa": q2(order.GrubWorka),
+                    "Wynik": q2(97 + ((seq + roll_number) % 5)),
+                    "Mieszanka": f"Bulk {chr(65 + (seq % 6))}",
+                    "Uwagi": "",
+                    "UserName": operator_names[(seq + roll_number) % len(operator_names)],
+                }
+                roll_specs.append((nrzp, roll_number, roll_defaults))
+
+        existing_rolls = {
+            (roll.order_id, roll.Rolka): roll
+            for roll in Rolki.objects.filter(order_id__in=active_order_numbers)
+        }
+        rolls_to_create: list[Rolki] = []
+        rolls_to_update: list[Rolki] = []
+        roll_update_fields = [
+            "Data",
+            "Zmiana",
+            "NrWytl",
+            "Rodzaj",
+            "DlugRolkiProd",
+            "WagaRolkiProd",
+            "Slimak",
+            "Walce",
+            "Wynikowa",
+            "Wynik",
+            "Mieszanka",
+            "Uwagi",
+            "UserName",
+            "updated_at",
+        ]
+
+        for nrzp, roll_number, defaults in roll_specs:
+            roll = existing_rolls.get((nrzp, roll_number))
+            if roll is None:
+                roll = Rolki(order_id=nrzp, Rolka=roll_number, **defaults)
+                roll.created_at = now
+                roll.updated_at = now
+                rolls_to_create.append(roll)
+                created_rolls += 1
+                continue
+
+            for field_name, value in defaults.items():
+                setattr(roll, field_name, value)
+            roll.updated_at = now
+            rolls_to_update.append(roll)
+            updated_rolls += 1
+
+        if rolls_to_create:
+            Rolki.objects.bulk_create(rolls_to_create, batch_size=400)
+        if rolls_to_update:
+            Rolki.objects.bulk_update(
+                rolls_to_update,
+                roll_update_fields,
+                batch_size=400,
+            )
 
         return created_orders, updated_orders, created_rolls, updated_rolls

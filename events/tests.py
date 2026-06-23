@@ -3,6 +3,7 @@ from decimal import Decimal
 import importlib
 
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.db import transaction
 from django.test import TestCase, override_settings
 
@@ -118,6 +119,42 @@ class LegacySerializerModuleTests(TestCase):
             importlib.import_module("events.serializer")
 
         self.assertIn("events.serializer is deprecated and intentionally disabled", str(exc_info.exception))
+
+
+class FrontendDemoSeedCommandTests(TestCase):
+    def test_bulk_orders_creates_predictable_orders_and_rolls_without_duplicates(self):
+        call_command("seed_frontend_demo", bulk_orders=5)
+
+        self.assertTrue(get_user_model().objects.filter(username="demo").exists())
+        self.assertTrue(Zamowienie.objects.filter(NrZp="20260501/4001").exists())
+        self.assertTrue(Zamowienie.objects.filter(NrZp="20260505/4005").exists())
+        self.assertEqual(
+            Zamowienie.objects.filter(NrZp__startswith="202605").count(),
+            5,
+        )
+        self.assertGreaterEqual(
+            Rolki.objects.filter(order__NrZp__startswith="202605").count(),
+            8,
+        )
+
+        call_command("seed_frontend_demo", bulk_orders=3, bulk_start=6)
+
+        self.assertTrue(Zamowienie.objects.filter(NrZp="20260506/4006").exists())
+        self.assertEqual(
+            Zamowienie.objects.filter(NrZp__startswith="202605").count(),
+            8,
+        )
+
+        call_command("seed_frontend_demo", bulk_orders=5)
+
+        self.assertEqual(
+            Zamowienie.objects.filter(NrZp__startswith="202605").count(),
+            8,
+        )
+        self.assertGreaterEqual(
+            Rolki.objects.filter(order__NrZp__startswith="202605").count(),
+            8,
+        )
 
 
 class OrderCalculationTests(TestCase):
