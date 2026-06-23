@@ -1,11 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm --prefix frontend ci && npm --prefix frontend run build && python manage.py collectstatic --noinput --settings=jumar.settings_deployment",
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 300
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
