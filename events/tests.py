@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+import importlib
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
@@ -109,6 +110,14 @@ class SequenceAllocationTests(TestCase):
                 raise RuntimeError("force rollback")
 
         self.assertFalse(DailyOrderCounter.objects.filter(date_prefix=self.date_prefix).exists())
+
+
+class LegacySerializerModuleTests(TestCase):
+    def test_legacy_events_serializer_module_is_disabled(self):
+        with self.assertRaises(ImportError) as exc_info:
+            importlib.import_module("events.serializer")
+
+        self.assertIn("events.serializer is deprecated and intentionally disabled", str(exc_info.exception))
 
 
 class OrderCalculationTests(TestCase):
