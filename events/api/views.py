@@ -2,13 +2,14 @@
 
 from django.contrib.auth.models import Group, User
 from django.db import transaction
-from django.db.models import Aggregate, CharField, Count, F, OuterRef, Q, Subquery, Sum, Value
+from django.db.models import Aggregate, CharField, Count, F, Q, Sum, Value
 from django.db.models.functions import Cast, Coalesce
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -49,7 +50,14 @@ from .serializers import (
 )
 
 
-DEFAULT_USER_GROUPS = ("admin", "manager", "operator", "kierownik", "pracownik")
+DEFAULT_USER_GROUPS = (
+    "admin",
+    "manager",
+    "operator",
+    "kierownik",
+    "pracownik",
+    "pracownik_maszyna",
+)
 
 
 class GroupConcat(Aggregate):
@@ -177,6 +185,13 @@ class OrderViewSet(viewsets.ModelViewSet):
                 created_by=self.request.user,
             )
 
+    def perform_destroy(self, instance):
+        if instance.rolls.exists():
+            raise ValidationError(
+                {"detail": "Nie można usunąć zlecenia, które zawiera rolki produkcyjne."}
+            )
+        instance.delete()
+
     @action(detail=True, methods=["post"])
     def copy(self, request, pk=None):
         """Duplicate an existing order."""
@@ -246,13 +261,16 @@ class OrderRollListCreateView(generics.ListCreateAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return Rolki.objects.filter(NrZp=self.kwargs["nrzp"]).order_by("-Data", "-Zmiana", "Rolka")
+        return Rolki.objects.filter(order_id=self.kwargs["nrzp"]).order_by("-Data", "-Zmiana", "Rolka")
 
     def perform_create(self, serializer):
         nrzp = self.kwargs["nrzp"]
         with transaction.atomic():
+            order = get_object_or_404(Zamowienie.objects.select_for_update(), NrZp=nrzp)
             serializer.save(
-                NrZp=nrzp,
+                order=order,
+                NrWytl=order.NrWytl,
+                Rodzaj=order.Rodzaj,
                 UserName=self.request.user.username,
                 Rolka=get_next_roll_number(nrzp),
             )
@@ -264,7 +282,7 @@ class OrderRollDetailView(generics.RetrieveUpdateAPIView):
     lookup_field = "pk"
 
     def get_queryset(self):
-        return Rolki.objects.filter(NrZp=self.kwargs["nrzp"])
+        return Rolki.objects.filter(order_id=self.kwargs["nrzp"])
 
 
 class ProductionSummaryView(APIView):
@@ -358,23 +376,13 @@ class CompletedProductionReportAPIView(generics.ListAPIView):
         extruder_value = (params.get("extruder") or "").strip()
 
         completed_orders = Zamowienie.objects.filter(Status=Zamowienie.StatusChoices.ZREALIZOWANE)
-        order_lookup = completed_orders.filter(NrZp=OuterRef("NrZp"))
-
-        queryset = Rolki.objects.filter(NrZp__in=Subquery(completed_orders.values("NrZp"))).annotate(
-            Artykul=Coalesce(
-                Subquery(order_lookup.values("Artykul")[:1]),
-                Value(""),
-                output_field=CharField(),
-            ),
-            SzerWorka=Subquery(order_lookup.values("SzerWorka")[:1]),
-            SzerRekawa=Subquery(order_lookup.values("SzerRekawa")[:1]),
-            Zakladka=Subquery(order_lookup.values("Zakladka")[:1]),
-            GrubWorka=Subquery(order_lookup.values("GrubWorka")[:1]),
-            order_uwagi=Coalesce(
-                Subquery(order_lookup.values("Uwagi")[:1]),
-                Value(""),
-                output_field=CharField(),
-            ),
+        queryset = Rolki.objects.filter(order__in=completed_orders).select_related("order").annotate(
+            Artykul=F("order__Artykul"),
+            SzerWorka=F("order__SzerWorka"),
+            SzerRekawa=F("order__SzerRekawa"),
+            Zakladka=F("order__Zakladka"),
+            GrubWorka=F("order__GrubWorka"),
+            order_uwagi=F("order__Uwagi"),
             DataText=Cast("Data", output_field=CharField()),
             NrWytlText=Cast("NrWytl", output_field=CharField()),
             RolkaText=Cast("Rolka", output_field=CharField()),
@@ -388,7 +396,7 @@ class CompletedProductionReportAPIView(generics.ListAPIView):
             queryset = queryset.filter(NrWytl=extruder_value)
         if search_term:
             queryset = queryset.filter(
-                Q(NrZp__icontains=search_term)
+                Q(order_id__icontains=search_term)
                 | Q(Zmiana__icontains=search_term)
                 | Q(DataText__icontains=search_term)
                 | Q(NrWytlText__icontains=search_term)
@@ -400,7 +408,7 @@ class CompletedProductionReportAPIView(generics.ListAPIView):
                 | Q(Mieszanka__icontains=search_term)
             )
 
-        return queryset.order_by("-Data", "NrWytl", "NrZp", "Rolka")
+        return queryset.order_by("-Data", "NrWytl", "order_id", "Rolka")
 
 
 class OperatorReportAPIView(generics.ListAPIView):

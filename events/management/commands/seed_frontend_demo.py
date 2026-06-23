@@ -10,8 +10,9 @@ from django.db import transaction
 from events.models import Rolki, UserProfile, Zamowienie
 
 
-GROUP_NAMES = ("admin", "manager", "operator", "kierownik", "pracownik")
+GROUP_NAMES = ("admin", "manager", "operator", "kierownik", "pracownik", "pracownik_maszyna")
 SHIFT_SEQUENCE = ("I", "II", "III")
+DEMO_COMPLETION_PROGRESS_VALUES = (60, 64, 68, 72, 76, 80, 84, 88, 92, 97)
 STATUS_BY_SEQUENCE = {
     1: 1,
     2: 2,
@@ -143,6 +144,15 @@ class Command(BaseCommand):
                 "email": "tomasz.lewandowski@example.com",
                 "phone_number": "600999000",
                 "group": "operator",
+            },
+            {
+                "username": "machine1",
+                "password": "operator123",
+                "first_name": "Marek",
+                "last_name": "Maszynski",
+                "email": "marek.maszynski@example.com",
+                "phone_number": "600222333",
+                "group": "pracownik_maszyna",
             },
         ]
 
@@ -288,7 +298,7 @@ class Command(BaseCommand):
                         "UserName": operator_names[(seq + roll_number) % len(operator_names)],
                     }
                     _, roll_created = Rolki.objects.update_or_create(
-                        NrZp=order.NrZp,
+                        order=order,
                         Rolka=roll_number,
                         defaults=roll_defaults,
                     )
@@ -296,5 +306,77 @@ class Command(BaseCommand):
                         created_rolls += 1
                     else:
                         updated_rolls += 1
+
+        demo_base_date = date(2026, 4, 1)
+        for index, progress_percent in enumerate(DEMO_COMPLETION_PROGRESS_VALUES, start=1):
+            order_date = demo_base_date + timedelta(days=index - 1)
+            nrzp = f"{order_date.strftime('%Y%m%d')}/{2000 + index}"
+            foil_type = (index - 1) % 3
+            priority = index % 3
+            nr_wytl = (index - 1) % 5
+            ilosc_zlec = q2(6000 + index * 350)
+            ilosc_rolek = q2(5)
+            dlug_worka = 700 + index * 12
+            szer_worka = 280 + index * 8
+            szer_rekawa = 340 + index * 8
+            grub_worka = 32 + (index % 4) * 3
+            dlug_foli_plan = (ilosc_zlec / Decimal("1000")) * Decimal(str(dlug_worka))
+            dlug_foil_plan_korekta = q2(dlug_foli_plan * Decimal("1.01"))
+            dlug_rolki_korekta = q2(dlug_foil_plan_korekta / ilosc_rolek)
+
+            defaults = {
+                "Data": order_date,
+                "Artykul": f"Test realizacji {progress_percent}%",
+                "Kod": f"TEST-{progress_percent}",
+                "MMK": f"MMK-T{index:02d}",
+                "Barwnik": colors[index % len(colors)],
+                "Status": Zamowienie.StatusChoices.W_REALIZACJI,
+                "Priorytet": priority,
+                "Rodzaj": foil_type,
+                "IloscZlec": ilosc_zlec,
+                "SzerWorka": szer_worka,
+                "SzerRekawa": szer_rekawa,
+                "DlugWorka": dlug_worka,
+                "GrubWorka": grub_worka,
+                "DlugFoilPlan_Korekta": dlug_foil_plan_korekta,
+                "IloscRolekZlec": ilosc_rolek,
+                "DlugRolkiZlec_Korekta": dlug_rolki_korekta,
+                "NrWytl": nr_wytl,
+                "Tasma": bool(index % 2 == 0),
+                "Uwagi": f"Demo kolorowania {progress_percent}%",
+                "created_by": users["demo"],
+            }
+            order, created = Zamowienie.objects.update_or_create(NrZp=nrzp, defaults=defaults)
+            if created:
+                created_orders += 1
+            else:
+                updated_orders += 1
+
+            produced_length = q2((order.DlugFoliZlec_Korekta or Decimal("0")) * Decimal(progress_percent) / Decimal("100"))
+            produced_weight = q2((order.WagaFoliZlec or Decimal("0")) * Decimal(progress_percent) / Decimal("100"))
+            roll_defaults = {
+                "Data": order.Data,
+                "Zmiana": SHIFT_SEQUENCE[0],
+                "NrWytl": order.NrWytl,
+                "Rodzaj": order.Rodzaj,
+                "DlugRolkiProd": produced_length,
+                "WagaRolkiProd": produced_weight,
+                "Slimak": q2(0),
+                "Walce": q2(0),
+                "Wynikowa": q2(order.GrubWorka),
+                "Wynik": q2(99),
+                "Mieszanka": f"Demo {progress_percent}",
+                "Uwagi": "",
+                "UserName": operator_names[(index - 1) % len(operator_names)],
+            }
+            _, roll_created = Rolki.objects.update_or_create(
+                order=order,
+                Rolka=1,
+                defaults=roll_defaults,
+            )
+            if roll_created:
+                created_rolls += 1
+            else:
+                updated_rolls += 1
 
         return created_orders, updated_orders, created_rolls, updated_rolls

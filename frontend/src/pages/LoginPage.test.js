@@ -25,7 +25,7 @@ describe('LoginPage', () => {
     mockLocation.mockReturnValue({
       state: {
         from: {
-          pathname: '/orders/doing',
+          pathname: '/zlecenia/w-realizacji',
           search: '?page=2',
           hash: '#summary',
         },
@@ -40,7 +40,7 @@ describe('LoginPage', () => {
 
     expect(login).toHaveBeenCalledWith({ username: 'operator', password: 'secret123' });
     await waitFor(() =>
-      expect(mockNavigate).toHaveBeenCalledWith('/orders/doing?page=2#summary', { replace: true })
+      expect(mockNavigate).toHaveBeenCalledWith('/zlecenia/w-realizacji?page=2#summary', { replace: true })
     );
   });
 

@@ -1,5 +1,5 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import apiClient from '../../../api/client';
 import { getFoilCorrectionLength } from '../../../utils/orderMetrics';
 
@@ -31,6 +31,30 @@ const formatNumber = (value) => {
   return numberFormatter.format(numeric);
 };
 
+const getCompletionRowTone = (percent, isSelected) => {
+  if (!Number.isFinite(percent) || percent < 60) {
+    return isSelected
+      ? {
+          backgroundColor: '#e9f2ff',
+          color: '#0f172a',
+          boxShadow: 'inset 0 0 0 2px rgba(37, 99, 235, 0.22)',
+        }
+      : null;
+  }
+
+  const normalized = Math.min(1, Math.max(0, (percent - 60) / 35));
+  const lightness = 92 - normalized * 58;
+  const saturation = 52 + normalized * 18;
+  const backgroundColor = `hsl(142 ${saturation}% ${lightness}%)`;
+  const color = normalized >= 0.78 ? '#f8fffb' : '#0f2d1d';
+
+  return {
+    backgroundColor,
+    color,
+    boxShadow: isSelected ? 'inset 0 0 0 2px rgba(15, 118, 110, 0.42)' : 'none',
+  };
+};
+
 const getPaginationItems = (currentPage, totalPages) => {
   if (totalPages <= 9) {
     return Array.from({ length: totalPages }, (_, index) => ({
@@ -57,6 +81,13 @@ const getPaginationItems = (currentPage, totalPages) => {
   return items;
 };
 
+const ORDER_STATUS_OPTIONS = [
+  { value: 0, label: 'Planowane' },
+  { value: 1, label: 'W realizacji' },
+  { value: 2, label: 'Zrealizowane' },
+  { value: 3, label: 'Anulowane' },
+];
+
 export default function OrdersDoingPage() {
   const [orders, setOrders] = useState([]);
   const [pagination, setPagination] = useState({ next: null, previous: null, count: 0 });
@@ -64,12 +95,19 @@ export default function OrdersDoingPage() {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [completionOrders, setCompletionOrders] = useState([]);
   const [completionOrdersLoading, setCompletionOrdersLoading] = useState(false);
-  const [completionPagination, setCompletionPagination] = useState({ count: 0, next: null, previous: null });
+  const [, setCompletionPagination] = useState({ count: 0, next: null, previous: null });
   const [completionPercentById, setCompletionPercentById] = useState({});
   const [completionPage, setCompletionPage] = useState(1);
+  const [pendingScrollOrderNumber, setPendingScrollOrderNumber] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [editingStatus, setEditingStatus] = useState(String(ORDER_STATUS_OPTIONS[0].value));
+  const [statusSaving, setStatusSaving] = useState(false);
+  const [statusError, setStatusError] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
+  const orderRowRefs = useRef(new Map());
   const statusFilter = '1';
-  const title = 'OrdersDoing';
+  const title = 'Zlecenia w realizacji';
   const description = 'Zlecenia w realizacji.';
   const searchTerm = searchParams.get('q') || '';
   const yearFilter = searchParams.get('year') || '';
@@ -87,7 +125,8 @@ export default function OrdersDoingPage() {
   const effectiveDateTo = activeYearFilter ? `${activeYearFilter}-12-31` : dateTo;
   const showCompletionFeature = statusFilter === '1' || statusFilter === '3';
   const showCompletionTableFeature = showCompletionFeature;
-  const completionPageSize = 15;
+  const ordersPageSize = 10;
+  const completionPageSize = 10;
   const perPage = Math.max(orders.length, 1);
   const calculatedTotalPages = pagination.next ? Math.ceil(pagination.count / perPage) : page;
   const totalPages = Math.max(calculatedTotalPages, page);
@@ -111,12 +150,62 @@ export default function OrdersDoingPage() {
     () => orders.find((order) => order.id === selectedOrderId) || null,
     [orders, selectedOrderId],
   );
-  const completionTotalPages = Math.max(1, Math.ceil((completionPagination.count || 0) / completionPageSize));
+  const selectedOrderNumber = selectedOrder?.NrZp || pendingScrollOrderNumber || null;
+  const sortedCompletionOrders = useMemo(() => {
+    const getSortablePercent = (entry) => {
+      const rawPercent = completionPercentById[entry.id];
+      if (rawPercent === undefined) {
+        return Number.NEGATIVE_INFINITY;
+      }
+      if (rawPercent === null) {
+        return -1;
+      }
+      return rawPercent;
+    };
+
+    return [...completionOrders].sort((left, right) => {
+      const percentDiff = getSortablePercent(right) - getSortablePercent(left);
+      if (percentDiff !== 0) {
+        return percentDiff;
+      }
+      return String(left.NrZp || '').localeCompare(String(right.NrZp || ''), 'pl');
+    });
+  }, [completionOrders, completionPercentById]);
+  const completionTotalPages = Math.max(1, Math.ceil(sortedCompletionOrders.length / completionPageSize));
   const normalizedCompletionPage = Math.min(completionPage, completionTotalPages);
-  const completionPageOrders = completionOrders;
+  const completionPageOrders = useMemo(() => {
+    const startIndex = (normalizedCompletionPage - 1) * completionPageSize;
+    return sortedCompletionOrders.slice(startIndex, startIndex + completionPageSize);
+  }, [completionPageSize, normalizedCompletionPage, sortedCompletionOrders]);
 
   const handleOrderSelect = useCallback((orderId) => {
     setSelectedOrderId(orderId);
+  }, []);
+
+  const openStatusModal = useCallback((order) => {
+    setEditingOrder(order);
+    setEditingStatus(String(order?.Status ?? ORDER_STATUS_OPTIONS[0].value));
+    setStatusSaving(false);
+    setStatusError('');
+  }, []);
+
+  const closeStatusModal = useCallback(() => {
+    if (statusSaving) {
+      return;
+    }
+    setEditingOrder(null);
+    setStatusError('');
+  }, [statusSaving]);
+
+  const registerOrderRow = useCallback((orderNumber, node) => {
+    if (!orderNumber) {
+      return;
+    }
+    if (node) {
+      orderRowRefs.current.set(orderNumber, node);
+    } else {
+      orderRowRefs.current.delete(orderNumber);
+    }
   }, []);
 
   const loadOrders = useCallback(async () => {
@@ -129,6 +218,7 @@ export default function OrdersDoingPage() {
           date_from: effectiveDateFrom || undefined,
           date_to: effectiveDateTo || undefined,
           page,
+          page_size: ordersPageSize,
         },
       });
       let nextOrders = [];
@@ -152,7 +242,42 @@ export default function OrdersDoingPage() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, searchTerm, effectiveDateFrom, effectiveDateTo, page]);
+  }, [statusFilter, searchTerm, effectiveDateFrom, effectiveDateTo, page, ordersPageSize]);
+
+  const handleStatusChanged = useCallback(() => {
+    loadOrders();
+    setRefreshKey((prev) => prev + 1);
+  }, [loadOrders]);
+
+  const handleStatusSave = useCallback(
+    async (event) => {
+      event.preventDefault();
+      if (!editingOrder?.id) {
+        return;
+      }
+
+      setStatusSaving(true);
+      setStatusError('');
+      try {
+        await apiClient.post(`orders/${editingOrder.id}/status/`, { status: Number(editingStatus) });
+        setEditingOrder(null);
+        handleStatusChanged();
+      } catch (error) {
+        const detail = error?.response?.data?.detail;
+        const statusDetail = error?.response?.data?.Status;
+        setStatusError(
+          Array.isArray(statusDetail)
+            ? statusDetail.join(' ')
+            : Array.isArray(detail)
+              ? detail.join(' ')
+              : detail || 'Nie udało się zmienić statusu.',
+        );
+      } finally {
+        setStatusSaving(false);
+      }
+    },
+    [editingOrder?.id, editingStatus, handleStatusChanged],
+  );
 
   useEffect(() => {
     loadOrders();
@@ -242,98 +367,92 @@ export default function OrdersDoingPage() {
     setCompletionOrdersLoading(true);
     setCompletionPercentById({});
 
-    apiClient
-      .get('orders/legacy/', {
-        params: {
-          status: statusFilter || undefined,
-          q: searchTerm || undefined,
-          date_from: effectiveDateFrom || undefined,
-          date_to: effectiveDateTo || undefined,
-          page: normalizedCompletionPage,
-          page_size: completionPageSize,
-        },
-      })
-      .then(({ data }) => {
+    const loadCompletionOrders = async () => {
+      try {
+        const lookupPageSize = 200;
+        let nextPage = 1;
+        let hasNextPage = true;
+        let fetchedOrders = [];
+
+        while (hasNextPage) {
+          const { data } = await apiClient.get('orders/legacy/', {
+            params: {
+              status: statusFilter || undefined,
+              q: searchTerm || undefined,
+              date_from: effectiveDateFrom || undefined,
+              date_to: effectiveDateTo || undefined,
+              page: nextPage,
+              page_size: lookupPageSize,
+            },
+          });
+
+          const pageOrders = Array.isArray(data) ? data : data?.results || [];
+          fetchedOrders = [...fetchedOrders, ...pageOrders];
+          hasNextPage = !Array.isArray(data) && Boolean(data?.next) && pageOrders.length > 0;
+          nextPage += 1;
+        }
+
         if (!active) {
           return;
         }
-        const nextOrders = Array.isArray(data) ? data : data?.results || [];
-        setCompletionOrders(nextOrders);
-        setCompletionPagination({
-          count: Number(data?.count) || nextOrders.length,
-          next: data?.next || null,
-          previous: data?.previous || null,
-        });
-      })
-      .catch(() => {
-        if (active) {
-          setCompletionOrders([]);
-          setCompletionPagination({ count: 0, next: null, previous: null });
-        }
-      })
-      .finally(() => {
-        if (active) {
-          setCompletionOrdersLoading(false);
-        }
-      });
 
-    return () => {
-      active = false;
-    };
-  }, [showCompletionTableFeature, statusFilter, searchTerm, effectiveDateFrom, effectiveDateTo, normalizedCompletionPage]);
+        let nextPercentById = {};
+        if (fetchedOrders.length) {
+          const { data: progressData } = await apiClient.post('orders/progress/', {
+            order_numbers: fetchedOrders.map((entry) => entry.NrZp),
+          });
 
-  useEffect(() => {
-    if (!showCompletionTableFeature || !completionPageOrders.length) {
-      return;
-    }
+          if (!active) {
+            return;
+          }
 
-    const ordersToLoad = completionPageOrders.filter((entry) => completionPercentById[entry.id] === undefined);
-    if (!ordersToLoad.length) {
-      return;
-    }
-
-    let active = true;
-
-    apiClient
-      .post('orders/progress/', {
-        order_numbers: ordersToLoad.map((entry) => entry.NrZp),
-      })
-      .then(({ data }) => {
-        if (!active) {
-          return;
-        }
-        setCompletionPercentById((prev) => {
-          const next = { ...prev };
-          ordersToLoad.forEach((entry) => {
-            const percent = Number(data?.items?.[entry.NrZp]?.progress_percent);
-            next[entry.id] = Number.isFinite(percent)
+          nextPercentById = fetchedOrders.reduce((acc, entry) => {
+            const percent = Number(progressData?.items?.[entry.NrZp]?.progress_percent);
+            acc[entry.id] = Number.isFinite(percent)
               ? Math.min(100, Math.max(0, percent))
               : Number(entry.Status) === 2
                 ? 100
                 : null;
-          });
-          return next;
+            return acc;
+          }, {});
+        }
+
+        setCompletionOrders(fetchedOrders);
+        setCompletionPercentById(nextPercentById);
+        setCompletionPagination({
+          count: fetchedOrders.length,
+          next: null,
+          previous: null,
         });
-      })
-      .catch(() => {
+      } catch (error) {
         if (!active) {
           return;
         }
-        setCompletionPercentById((prev) => {
-          const next = { ...prev };
-          ordersToLoad.forEach((entry) => {
-            next[entry.id] = Number(entry.Status) === 2 ? 100 : null;
-          });
-          return next;
-        });
-      });
+        setCompletionOrders([]);
+        setCompletionPagination({ count: 0, next: null, previous: null });
+        setCompletionPercentById({});
+      } finally {
+        if (active) {
+          setCompletionOrdersLoading(false);
+        }
+      }
+    };
+
+    loadCompletionOrders();
 
     return () => {
       active = false;
     };
-  }, [showCompletionTableFeature, completionPageOrders, completionPercentById]);
+  }, [
+    showCompletionTableFeature,
+    statusFilter,
+    searchTerm,
+    effectiveDateFrom,
+    effectiveDateTo,
+    refreshKey,
+  ]);
 
-  const setOrderPage = (nextPage) => {
+  const setOrderPage = useCallback((nextPage) => {
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
       if (nextPage <= 0) {
@@ -343,20 +462,126 @@ export default function OrdersDoingPage() {
       }
       return params;
     });
-  };
+  }, [setSearchParams]);
 
   const handlePageChange = (direction) => {
     const nextPage = direction === 'next' ? page + 1 : page - 1;
     setOrderPage(nextPage);
   };
 
+  useEffect(() => {
+    if (!pendingScrollOrderNumber) {
+      return;
+    }
+
+    const matchingOrder = orders.find((order) => order.NrZp === pendingScrollOrderNumber);
+    if (!matchingOrder) {
+      return;
+    }
+
+    setSelectedOrderId(matchingOrder.id);
+    const rowNode = orderRowRefs.current.get(pendingScrollOrderNumber);
+    if (rowNode) {
+      window.requestAnimationFrame(() => {
+        rowNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        rowNode.focus();
+      });
+    }
+    setPendingScrollOrderNumber(null);
+  }, [orders, pendingScrollOrderNumber]);
+
+  const handleCompletionOrderSelect = useCallback(
+    async (completionOrder) => {
+      const orderNumber = completionOrder?.NrZp;
+      if (!orderNumber) {
+        return;
+      }
+
+      const orderOnCurrentPage = orders.find((order) => order.NrZp === orderNumber);
+      setPendingScrollOrderNumber(orderNumber);
+      if (orderOnCurrentPage) {
+        setSelectedOrderId(orderOnCurrentPage.id);
+        return;
+      }
+
+      try {
+        const lookupPageSize = 200;
+        let lookupPage = 1;
+        let scannedCount = 0;
+        let targetPage = null;
+
+        while (targetPage === null) {
+          const { data } = await apiClient.get('orders/', {
+            params: {
+              status: statusFilter || undefined,
+              q: searchTerm || undefined,
+              date_from: effectiveDateFrom || undefined,
+              date_to: effectiveDateTo || undefined,
+              page: lookupPage,
+              page_size: lookupPageSize,
+            },
+          });
+
+          const lookupOrders = Array.isArray(data) ? data : data?.results || [];
+          const matchIndex = lookupOrders.findIndex((order) => order.NrZp === orderNumber);
+          if (matchIndex !== -1) {
+            targetPage = Math.floor((scannedCount + matchIndex) / ordersPageSize) + 1;
+            break;
+          }
+
+          if (Array.isArray(data) || !data?.next || !lookupOrders.length) {
+            break;
+          }
+
+          scannedCount += lookupOrders.length;
+          lookupPage += 1;
+        }
+
+        if (targetPage !== null) {
+          setOrderPage(targetPage);
+        } else {
+          setPendingScrollOrderNumber(null);
+        }
+      } catch (error) {
+        setPendingScrollOrderNumber(null);
+      }
+    },
+    [orders, statusFilter, searchTerm, effectiveDateFrom, effectiveDateTo, ordersPageSize, setOrderPage],
+  );
+
   return (
     <section className="orders-page">
       <div className="orders-layout-top">
         <div className="orders-top-main-column">
           <header className="orders-intro-card">
-            <h1>{title}</h1>
-            <p>{description}</p>
+            <div className="orders-intro-heading">
+              <h1>{title}</h1>
+              <p>{description}</p>
+            </div>
+            <div className="filters orders-filters orders-intro-filters">
+              <label>
+                Szukaj po numerze
+                <input value={searchTerm} onChange={handleSearch} placeholder="np. 2024/15" />
+              </label>
+              <label>
+                Data od
+                <input
+                  type="date"
+                  value={dateFrom}
+                  max={dateTo || undefined}
+                  onChange={handleDateChange('date_from')}
+                />
+              </label>
+              <label>
+                Data do
+                <input
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || undefined}
+                  onChange={handleDateChange('date_to')}
+                />
+              </label>
+            </div>
           </header>
           {allowYearFilter && (
             <div className="orders-year-spotlight">
@@ -373,30 +598,6 @@ export default function OrdersDoingPage() {
               </label>
             </div>
           )}
-        </div>
-        <div className="filters orders-filters">
-          <label>
-            Szukaj po numerze
-            <input value={searchTerm} onChange={handleSearch} placeholder="np. 2024/15" />
-          </label>
-          <label>
-            Data od
-            <input
-              type="date"
-              value={dateFrom}
-              max={dateTo || undefined}
-              onChange={handleDateChange('date_from')}
-            />
-          </label>
-          <label>
-            Data do
-            <input
-              type="date"
-              value={dateTo}
-              min={dateFrom || undefined}
-              onChange={handleDateChange('date_to')}
-            />
-          </label>
         </div>
       </div>
 
@@ -427,6 +628,8 @@ export default function OrdersDoingPage() {
                       order={order}
                       isSelected={order.id === selectedOrderId}
                       onSelect={handleOrderSelect}
+                      onEditStatus={openStatusModal}
+                      registerRow={registerOrderRow}
                     />
                   ))}
                 </tbody>
@@ -506,17 +709,72 @@ export default function OrdersDoingPage() {
               orders={completionPageOrders}
               loading={completionOrdersLoading}
               completionPercentById={completionPercentById}
-              totalCount={completionPagination.count}
+              totalCount={sortedCompletionOrders.length}
               page={normalizedCompletionPage}
               totalPages={completionTotalPages}
               onPageChange={setCompletionPage}
-              selectedOrderId={selectedOrderId}
-              onSelectOrder={handleOrderSelect}
+              selectedOrderNumber={selectedOrderNumber}
+              onSelectOrder={handleCompletionOrderSelect}
             />
           )}
-          <OrdersDetailPanel order={selectedOrder} showCompletionFeature={showCompletionFeature} />
         </aside>
       </div>
+
+      {!loading && (
+        <div className="orders-doing-detail-section">
+          <div className="orders-doing-detail-shell">
+            <OrdersDetailPanel
+              order={selectedOrder}
+              showCompletionFeature={showCompletionFeature}
+            />
+          </div>
+        </div>
+      )}
+
+      {editingOrder && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true">
+          <div className="modal-card">
+            <div className="modal-header">
+              <h3>Edytuj status zlecenia</h3>
+              <button type="button" className="modal-close" onClick={closeStatusModal} disabled={statusSaving}>
+                {'\u00d7'}
+              </button>
+            </div>
+            <p className="orders-status-modal-caption">
+              Nr ZP: <strong>{editingOrder.NrZp || '—'}</strong>
+            </p>
+            {statusError && <div className="callout error">{statusError}</div>}
+            <form className="modal-form" onSubmit={handleStatusSave}>
+              <label>
+                Status
+                <select
+                  value={editingStatus}
+                  onChange={(event) => setEditingStatus(event.target.value)}
+                  disabled={statusSaving}
+                >
+                  {ORDER_STATUS_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="modal-actions">
+                <button type="button" className="btn btn-outline" onClick={closeStatusModal} disabled={statusSaving}>
+                  Anuluj
+                </button>
+                <button
+                  type="submit"
+                  className="btn"
+                  disabled={statusSaving || editingStatus === String(editingOrder.Status)}
+                >
+                  {statusSaving ? 'Zapisywanie…' : 'Zapisz status'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -529,7 +787,7 @@ function OrdersCompletionTable({
   page,
   totalPages,
   onPageChange,
-  selectedOrderId,
+  selectedOrderNumber,
   onSelectOrder,
 }) {
   const pageItems = getPaginationItems(page, totalPages);
@@ -559,21 +817,23 @@ function OrdersCompletionTable({
               <tbody>
                 {orders.map((entry) => {
                   const rawPercent = completionPercentById[entry.id];
+                  const isSelected = selectedOrderNumber === entry.NrZp;
                   const percentDisplay =
                     rawPercent === undefined
                       ? '…'
                       : rawPercent === null
                         ? '—'
                         : `${formatNumber(rawPercent)}%`;
+                  const rowTone = getCompletionRowTone(rawPercent, isSelected);
                   return (
                     <tr
                       key={entry.id}
-                      className={selectedOrderId === entry.id ? 'is-selected' : ''}
-                      onClick={() => onSelectOrder(entry.id)}
+                      className={isSelected ? 'is-selected' : ''}
+                      onClick={() => onSelectOrder(entry)}
                     >
-                      <td>{entry.NrZp || '—'}</td>
-                      <td>{entry.Artykul || '—'}</td>
-                      <td>{percentDisplay}</td>
+                      <td style={rowTone || undefined}>{entry.NrZp || '—'}</td>
+                      <td style={rowTone || undefined}>{entry.Artykul || '—'}</td>
+                      <td style={rowTone ? { ...rowTone, fontWeight: 700 } : undefined}>{percentDisplay}</td>
                     </tr>
                   );
                 })}
@@ -635,7 +895,7 @@ function OrdersCompletionTable({
   );
 }
 
-const OrderRow = memo(function OrderRow({ order, isSelected, onSelect }) {
+const OrderRow = memo(function OrderRow({ order, isSelected, onSelect, onEditStatus, registerRow }) {
   const handleClick = useCallback(
     (event) => {
       if (event.target.closest('a, button')) {
@@ -658,11 +918,13 @@ const OrderRow = memo(function OrderRow({ order, isSelected, onSelect }) {
 
   return (
     <tr
+      ref={(node) => registerRow(order.NrZp, node)}
       className={`orders-row${isSelected ? ' is-selected' : ''}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-selected={isSelected}
+      data-order-number={order.NrZp || ''}
       style={isSelected ? { backgroundColor: 'rgba(37, 99, 235, 0.08)' } : undefined}
     >
       <td>{order.NrZp || '—'}</td>
@@ -681,9 +943,9 @@ const OrderRow = memo(function OrderRow({ order, isSelected, onSelect }) {
         {order.Uwagi || '—'}
       </td>
       <td>
-        <Link className="btn btn-link" to={`/orders/${order.id}`}>
+        <button type="button" className="btn btn-link" onClick={() => onEditStatus(order)}>
           Edytuj
-        </Link>
+        </button>
       </td>
     </tr>
   );
@@ -744,7 +1006,10 @@ function OrdersDetailPanel({ order, showCompletionFeature }) {
   if (!order) {
     return (
       <aside className="orders-detail-panel">
-        <div className="callout info">Wybierz zlecenie z tabeli, aby zobaczyć szczegóły.</div>
+        <div className="orders-detail-empty-state callout info">
+          <strong>Wybierz zlecenie z tabeli</strong>
+          <span>Informacje pojawią się tutaj po zaznaczeniu wiersza.</span>
+        </div>
       </aside>
     );
   }
@@ -799,36 +1064,63 @@ function OrdersDetailPanel({ order, showCompletionFeature }) {
     },
   ];
 
+  const dimensionsItems = sections.find((section) => section.title === 'Wymiary i parametry folii')?.items || [];
+  const planItems = sections.find((section) => section.title === 'Plan produkcji')?.items || [];
+  const roleItems = sections.find((section) => section.title === 'Role')?.items || [];
+  const additionalInfoItems = sections.find((section) => section.title === 'Dodatkowe informacje')?.items || [];
+
+  const completionValue = completionLoading
+    ? 'Ladowanie...'
+    : completionPercent === null
+      ? '—'
+      : `${formatNumber(completionPercent)}%`;
+
+  const topSummaryItems = [
+    { label: 'Status', value: <StatusBadge status={order.Status} label={order.status_label} /> },
+    { label: 'Priorytet', value: order.priority_label || '—' },
+    { label: 'Nr wytlaczarki', value: order.nrwyt_label || order.nrwyt || '—' },
+    { label: 'Rodzaj folii', value: order.foil_type_label || '—' },
+    { label: 'Tasma', value: order.tasma_label || order.Tasma || '—' },
+    ...(showCompletionFeature ? [{ label: 'Realizacja', value: completionValue, highlight: true }] : []),
+  ];
+
+  const productionMetrics = [...planItems, ...roleItems];
+  const footerMetaItems = additionalInfoItems;
+  const orderNotes = order.Uwagi || 'Brak dodatkowych uwag.';
+
   return (
     <aside className="orders-detail-panel">
-      <div className="callout info">
-        <header
-          className="orders-detail-header"
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: '1rem',
-            alignItems: 'flex-start',
-            marginBottom: '1rem',
-          }}
-        >
-          <h2 style={{ margin: 0 }}>Zlecenie</h2>
-          <div className="orders-detail-header-meta">
-            <p className="orders-detail-header-article">{order.Artykul || '—'}</p>
-            <p className="orders-detail-header-zp">Nr ZP: {order.NrZp || '—'}</p>
+      <div className="callout info orders-doing-detail-card">
+        <header className="orders-doing-detail-header">
+          <div className="orders-doing-detail-heading">
+            <span className="orders-doing-detail-kicker">Informacje o zleceniu</span>
+            <div className="orders-doing-detail-title-row">
+              <h2>{order.Artykul || '—'}</h2>
+              <span className="orders-doing-detail-zp">Nr ZP: {order.NrZp || '—'}</span>
+              <div className="orders-doing-detail-note">
+                <span>Uwagi:</span>
+                <p>{orderNotes}</p>
+              </div>
+            </div>
+          </div>
+          <div className="orders-doing-detail-summary-strip">
+            {topSummaryItems.map((item) => (
+              <div
+                key={item.label}
+                className={`orders-doing-summary-chip${item.highlight ? ' is-highlight' : ''}`}
+              >
+                <span>{item.label}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
           </div>
         </header>
+
         {showCompletionFeature && (
-          <section className="orders-completion-card">
+          <section className="orders-completion-card orders-doing-completion-card">
             <div className="orders-completion-header">
               <span>Procent realizacji</span>
-              <strong>
-                {completionLoading
-                  ? 'Ładowanie…'
-                  : completionPercent === null
-                    ? '—'
-                    : `${formatNumber(completionPercent)}%`}
-              </strong>
+              <strong>{completionValue}</strong>
             </div>
             <div className="orders-completion-bar" aria-label="Procent realizacji">
               <span
@@ -838,248 +1130,53 @@ function OrdersDetailPanel({ order, showCompletionFeature }) {
             </div>
           </section>
         )}
-        {sections.map((section) => {
-          const isDimensionsSection = section.title === 'Wymiary i parametry folii';
-          const isPlanSection = section.title === 'Plan produkcji';
-          const isRolesSection = section.title === 'Role';
-          const isBaseInfoSection = section.title === 'Podstawowe informacje';
-          const isAdditionalInfoSection = section.title === 'Dodatkowe informacje';
-          const dimensionsItems = isDimensionsSection ? section.items : [];
-          const additionalInfoItems = isAdditionalInfoSection ? section.items : [];
-          const baseInfoPlanLabels = ['Priorytet', 'Rodzaj folii', 'Nr wytłaczarki', 'Taśma'];
-          const baseInfoPlanItems = isBaseInfoSection
-            ? section.items.filter((item) => baseInfoPlanLabels.includes(item.label))
-            : [];
-          const rolesSectionItems = isPlanSection
-            ? sections.find((candidate) => candidate.title === 'Role')?.items || []
-            : [];
-          const detailItems = (() => {
-            if (isDimensionsSection) {
-              return [];
-            }
-            if (isPlanSection) {
-              return [];
-            }
-            if (isRolesSection) {
-              return [];
-            }
-            if (isBaseInfoSection) {
-              return section.items.filter((item) => !baseInfoPlanLabels.includes(item.label));
-            }
-            if (isAdditionalInfoSection) {
-              return [];
-            }
-            return section.items;
-          })();
 
-          if (isRolesSection) {
-            return null;
-          }
+        <section className="orders-doing-detail-block">
+          <div className="orders-doing-detail-block-header">
+            <h3 className="orders-detail-section-title">Plan i rolki</h3>
+          </div>
+          <div className="orders-doing-metrics-grid">
+            {productionMetrics.map((item) => (
+              <div key={item.label} className="orders-doing-metric-card">
+                <span>{item.label}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          if (isPlanSection) {
-            return (
-              <section key="plan-role-row" style={{ marginTop: '1.75rem' }}>
-                <div className="orders-detail-duo-row">
-                  <div className="orders-detail-duo-card">
-                    <h3 className="orders-detail-section-title" style={{ margin: '0 0 0.5rem' }}>Plan produkcji</h3>
-                    <div className="orders-detail-duo-grid">
-                      {section.items.map((item) => (
-                        <div key={`plan-${item.label}`} className="orders-detail-duo-item">
-                          <span className="orders-detail-duo-label">{item.label}</span>
-                          <span className="orders-detail-duo-value">{item.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="orders-detail-duo-card">
-                    <h3 className="orders-detail-section-title" style={{ margin: '0 0 0.5rem' }}>Role</h3>
-                    <div className="orders-detail-duo-grid">
-                      {rolesSectionItems.map((item) => (
-                        <div key={`roles-${item.label}`} className="orders-detail-duo-item">
-                          <span className="orders-detail-duo-label">{item.label}</span>
-                          <span className="orders-detail-duo-value">{item.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+        <section className="orders-doing-detail-row">
+          <div className="orders-doing-detail-block">
+            <div className="orders-doing-detail-block-header">
+              <h3 className="orders-detail-section-title">Wymiary i parametry</h3>
+            </div>
+            <div className="orders-doing-dimensions-grid">
+              {dimensionsItems.map((item) => (
+                <div key={item.label} className="orders-doing-dimension-card">
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
                 </div>
-              </section>
-            );
-          }
+              ))}
+            </div>
+          </div>
 
-          return (
-            <section key={section.title} style={{ marginTop: '1.75rem' }}>
-              <h3 className="orders-detail-section-title" style={{ margin: '0 0 0.5rem' }}>{section.title}</h3>
-              {isDimensionsSection && dimensionsItems.length > 0 && (
-                <div className="orders-dimensions-grid">
-                  {dimensionsItems.map((item) => (
-                    <div key={item.label} className="orders-dimensions-item">
-                      <span className="orders-dimensions-label">{item.label}</span>
-                      <span className="orders-dimensions-value">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {isAdditionalInfoSection && additionalInfoItems.length > 0 && (
+          <div className="orders-doing-detail-block">
+            <div className="orders-doing-detail-block-header">
+              <h3 className="orders-detail-section-title">Dodatkowe informacje</h3>
+            </div>
+            <div className="orders-doing-footer-grid">
+              {footerMetaItems.map((item) => (
                 <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                    gap: '1rem',
-                    marginTop: '1.25rem',
-                  }}
+                  key={item.label}
+                  className={`orders-doing-footer-card${item.wide ? ' is-wide' : ''}`}
                 >
-                  {additionalInfoItems.map((item) => (
-                    <div
-                      key={item.label}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '0.4rem',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: '0.75rem',
-                          textTransform: 'uppercase',
-                          color: '#555',
-                          letterSpacing: '0.02em',
-                        }}
-                      >
-                        {item.label}
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: 600,
-                          fontSize: '1.1rem',
-                        }}
-                      >
-                        {item.value}
-                      </span>
-                    </div>
-                  ))}
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
                 </div>
-              )}
-              {isBaseInfoSection && baseInfoPlanItems.length > 0 && (
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${baseInfoPlanItems.length}, minmax(0, 1fr))`,
-                    gap: '1rem 1.25rem',
-                    textAlign: 'center',
-                  }}
-                >
-                  {baseInfoPlanItems.map((item) => (
-                    <div
-                      key={item.label}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.35rem',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: '0.75rem',
-                          textTransform: 'uppercase',
-                          color: '#555',
-                          letterSpacing: '0.02em',
-                        }}
-                      >
-                        {item.label}
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: 600,
-                          fontSize: '1.1rem',
-                        }}
-                      >
-                        {item.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {detailItems.length > 0 && (
-                <dl
-                  className="orders-detail-grid"
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                    gap: '1rem',
-                    margin: 0,
-                    marginTop: isDimensionsSection && dimensionsItems.length ? '1rem' : 0,
-                  }}
-                >
-                  {detailItems.map((item) => {
-                    const shouldStackValue = [
-                      'Kod',
-                      'MMK',
-                      'Barwnik',
-                      'Dł. worka [mm]',
-                      'Grubość [μm]',
-                    ].includes(item.label);
-
-                    return (
-                      <div
-                        key={item.label}
-                        className="orders-detail-item"
-                        style={{
-                          display: 'flex',
-                          gap: shouldStackValue ? '0.35rem' : '0.5rem',
-                          flexWrap: 'wrap',
-                          justifyContent: 'center',
-                          ...(shouldStackValue
-                            ? { flexDirection: 'column', alignItems: 'center', textAlign: 'center' }
-                            : { alignItems: 'center', textAlign: 'center' }),
-                        }}
-                      >
-                        <dt
-                          style={{
-                            fontSize: '0.75rem',
-                            textTransform: 'uppercase',
-                            margin: 0,
-                            color: '#555',
-                            letterSpacing: '0.02em',
-                            whiteSpace: shouldStackValue ? 'normal' : 'nowrap',
-                            ...(shouldStackValue
-                              ? { marginBottom: '0.15rem', width: '100%', textAlign: 'center' }
-                              : {}),
-                          }}
-                        >
-                          {item.label}
-                        </dt>
-                        <dd
-                          style={{
-                            margin: 0,
-                            fontWeight: 600,
-                            fontSize: '1.05rem',
-                            whiteSpace: 'normal',
-                            overflowWrap: 'anywhere',
-                            wordBreak: 'break-word',
-                            textAlign: 'center',
-                            flexBasis: '100%',
-                          }}
-                        >
-                          {item.value}
-                        </dd>
-                      </div>
-                    );
-                  })}
-                </dl>
-              )}
-              {isBaseInfoSection && (
-                <section className="orders-detail-notes" style={{ marginTop: '1.5rem' }}>
-                  <h3 className="orders-detail-section-title" style={{ margin: '0 0 0.5rem' }}>Uwagi</h3>
-                  <p style={{ margin: 0 }}>{order.Uwagi || 'Brak dodatkowych uwag.'}</p>
-                </section>
-              )}
-            </section>
-          );
-        })}
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     </aside>
   );

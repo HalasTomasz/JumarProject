@@ -4,14 +4,14 @@ import apiClient from '../../../api/client';
 import useAuth from '../../../hooks/useAuth';
 
 const cardConfig = [
-  { title: 'Formularz 1', description: 'Zlecenia produkcyjne', path: '/add_order', perm: 'can_edit_orders' },
-  { title: 'OrdersPlaning', description: 'Planowane zlecenia produkcyjne', path: '/orders/planning', perm: 'can_edit_orders' },
+  { title: 'Formularz 1', description: 'Zlecenia produkcyjne', path: '/formularz_zlecenia_produkcyjne', perm: 'can_edit_orders' },
+  { title: 'Planowane zlecenia', description: 'Planowane zlecenia produkcyjne', path: '/zlecenia/planowanie', perm: 'can_edit_orders' },
   { title: 'Raport 1', description: 'Zlecenia w realizacji po wytłaczarkach', path: '/production', perm: 'can_manage_production' },
-  { title: 'Formularz 2', description: 'Użytkownicy', path: '/users', perm: 'can_manage_users' },
-  { title: 'OrdersDoing', description: 'Zlecenia w realizacji', path: '/orders/doing', perm: 'can_edit_orders' },
+  { title: 'Formularz 2', description: 'Użytkownicy', path: '/jumar_pracownicy', perm: 'can_manage_users' },
+  { title: 'Zlecenia w realizacji', description: 'Zlecenia w realizacji', path: '/zlecenia/w-realizacji', perm: 'can_edit_orders' },
   { title: 'Raport 2', description: 'Zlecenia zrealizowane po wytłaczarkach', path: '/wyt_ordered', perm: 'can_view_reports' },
-  { title: 'Kalkulator', description: 'Kalkulator produkcyjny', path: '/calculator', perm: 'can_use_calculator' },
-  { title: 'OrderDoneCanceled', description: 'Zlecenia zrealizowane lub anulowane', path: '/orders/done-canceled', perm: 'can_edit_orders' },
+  { title: 'Kalkulator', description: 'Kalkulator produkcyjny', path: '/kalkulator_formularza_zlecen', perm: 'can_use_calculator' },
+  { title: 'Zlecenia zrealizowane lub anulowane', description: 'Zlecenia zrealizowane lub anulowane', path: '/zlecenia/zrealizowane-anulowane', perm: 'can_edit_orders' },
   { title: 'Raport 3', description: 'Wydajność na zmianach', path: '/reports_workers', perm: 'can_view_reports' },
 ];
 
@@ -19,12 +19,12 @@ const groupDefinitions = [
   {
     key: 'forms',
     title: 'Formularze',
-    match: (card) => card.title.startsWith('Formularz') || card.path === '/calculator',
+    match: (card) => card.title.startsWith('Formularz') || card.path === '/kalkulator_formularza_zlecen',
   },
   {
     key: 'planning',
     title: 'Planowanie',
-    match: (card) => card.path.startsWith('/orders/'),
+    match: (card) => card.path.startsWith('/zlecenia/'),
   },
   {
     key: 'reports',

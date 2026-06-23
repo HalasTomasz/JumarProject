@@ -69,7 +69,7 @@ export default function OrdersPlanningPage() {
   const [completionPage, setCompletionPage] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
   const statusFilter = '0';
-  const title = 'OrdersPlaning';
+  const title = 'Planowane zlecenia';
   const description = 'Planowane zlecenia produkcyjne.';
   const searchTerm = searchParams.get('q') || '';
   const yearFilter = searchParams.get('year') || '';
@@ -355,8 +355,34 @@ export default function OrdersPlanningPage() {
       <div className="orders-layout-top">
         <div className="orders-top-main-column">
           <header className="orders-intro-card">
-            <h1>{title}</h1>
-            <p>{description}</p>
+            <div className="orders-intro-heading">
+              <h1>{title}</h1>
+              <p>{description}</p>
+            </div>
+            <div className="filters orders-filters orders-intro-filters">
+              <label>
+                Szukaj po numerze
+                <input value={searchTerm} onChange={handleSearch} placeholder="np. 2024/15" />
+              </label>
+              <label>
+                Data od
+                <input
+                  type="date"
+                  value={dateFrom}
+                  max={dateTo || undefined}
+                  onChange={handleDateChange('date_from')}
+                />
+              </label>
+              <label>
+                Data do
+                <input
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || undefined}
+                  onChange={handleDateChange('date_to')}
+                />
+              </label>
+            </div>
           </header>
           {allowYearFilter && (
             <div className="orders-year-spotlight">
@@ -373,30 +399,6 @@ export default function OrdersPlanningPage() {
               </label>
             </div>
           )}
-        </div>
-        <div className="filters orders-filters">
-          <label>
-            Szukaj po numerze
-            <input value={searchTerm} onChange={handleSearch} placeholder="np. 2024/15" />
-          </label>
-          <label>
-            Data od
-            <input
-              type="date"
-              value={dateFrom}
-              max={dateTo || undefined}
-              onChange={handleDateChange('date_from')}
-            />
-          </label>
-          <label>
-            Data do
-            <input
-              type="date"
-              value={dateTo}
-              min={dateFrom || undefined}
-              onChange={handleDateChange('date_to')}
-            />
-          </label>
         </div>
       </div>
 
@@ -681,7 +683,7 @@ const OrderRow = memo(function OrderRow({ order, isSelected, onSelect }) {
         {order.Uwagi || '—'}
       </td>
       <td>
-        <Link className="btn btn-link" to={`/orders/${order.id}`}>
+        <Link className="btn btn-link" to={`/zlecenia/${order.id}`}>
           Edytuj
         </Link>
       </td>

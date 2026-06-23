@@ -59,7 +59,7 @@ def _get_or_create_locked_roll_counter(nr_zp: str) -> OrderRollCounter:
         except OrderRollCounter.DoesNotExist:
             try:
                 with transaction.atomic():
-                    current_max = Rolki.objects.filter(NrZp=nr_zp).aggregate(max_roll=Max("Rolka")).get("max_roll") or 0
+                    current_max = Rolki.objects.filter(order_id=nr_zp).aggregate(max_roll=Max("Rolka")).get("max_roll") or 0
                     return OrderRollCounter.objects.create(NrZp=nr_zp, last_value=current_max)
             except IntegrityError:
                 continue
@@ -81,7 +81,7 @@ def get_next_roll_number(nr_zp: str) -> int:
     """Return the next sequential roll number for an order."""
     with transaction.atomic():
         counter = _get_or_create_locked_roll_counter(nr_zp)
-        current_max = Rolki.objects.filter(NrZp=nr_zp).aggregate(max_roll=Max("Rolka")).get("max_roll") or 0
+        current_max = Rolki.objects.filter(order_id=nr_zp).aggregate(max_roll=Max("Rolka")).get("max_roll") or 0
         counter.last_value = max(counter.last_value, current_max) + 1
         counter.save(update_fields=["last_value"])
         return counter.last_value
@@ -132,4 +132,4 @@ def can_change_order_status(order: Zamowienie, new_status: int) -> bool:
     """
     if new_status != Zamowienie.StatusChoices.PLANOWANE:
         return True
-    return not Rolki.objects.filter(NrZp=order.NrZp).exists()
+    return not order.rolls.exists()

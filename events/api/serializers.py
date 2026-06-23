@@ -195,12 +195,24 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = ['NrZp', 'created_at', 'updated_at', 'created_by', 'created_by_name']
 
     def validate(self, attrs):
-        if self.instance is None or 'Status' not in attrs:
+        if self.instance is None:
             return attrs
 
-        new_status = attrs['Status']
+        new_status = attrs.get('Status', self.instance.Status)
         if new_status != self.instance.Status and not can_change_order_status(self.instance, new_status):
             raise serializers.ValidationError({'Status': ['Nie można zmienić statusu']})
+        protected_fields = ('NrWytl', 'Rodzaj')
+        changed_protected_fields = [
+            field for field in protected_fields
+            if field in attrs and attrs[field] != getattr(self.instance, field)
+        ]
+        if changed_protected_fields and self.instance.rolls.exists():
+            raise serializers.ValidationError(
+                {
+                    field: ['Nie można zmienić po utworzeniu rolek dla zlecenia.']
+                    for field in changed_protected_fields
+                }
+            )
         return attrs
 
     def get_tasma_label(self, obj):
@@ -218,6 +230,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class RollSerializer(serializers.ModelSerializer):
     """Serializer for production rolls."""
+
+    NrZp = serializers.CharField(source='order_id', read_only=True)
 
     class Meta:
         model = Rolki
@@ -241,7 +255,7 @@ class RollSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['NrZp', 'UserName', 'Rolka']
+        read_only_fields = ['NrZp', 'NrWytl', 'Rodzaj', 'UserName', 'Rolka']
 
 
 class CalculatorSerializer(serializers.Serializer):
@@ -270,6 +284,8 @@ class OperatorReportSerializer(serializers.Serializer):
 class ProductionReportSerializer(serializers.ModelSerializer):
     """Serializer for production report rows (individual rolls)."""
 
+    NrZp = serializers.CharField(source='order_id', read_only=True)
+
     class Meta:
         model = Rolki
         fields = [
@@ -287,7 +303,7 @@ class ProductionReportSerializer(serializers.ModelSerializer):
 
 class CompletedProductionReportSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    NrZp = serializers.CharField()
+    NrZp = serializers.CharField(source='order_id')
     Data = serializers.DateField()
     Zmiana = serializers.CharField()
     Rolka = serializers.IntegerField()

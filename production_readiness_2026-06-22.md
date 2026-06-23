@@ -1,0 +1,140 @@
+# Production Readiness Review 2026-06-22
+
+## Blockers before first production deploy
+
+1. `DEPLOYMENT.md` references `gunicorn.conf.py`, but that file is missing.
+   - File: `DEPLOYMENT.md`
+   - Impact: documented start command cannot be used as written.
+   - Fix: either add `gunicorn.conf.py` to repo or change docs and service config to explicit CLI flags.
+
+2. `manage.py` defaults to base settings, not deployment settings.
+   - File: `manage.py`
+   - Current default: `jumar.settings`
+   - Risk: any production command run without `DJANGO_SETTINGS_MODULE=jumar.settings_deployment` falls back to permissive defaults from base settings.
+   - Base settings risk points:
+     - `ALLOWED_HOSTS` defaults to `["*"]`
+     - `CORS_ALLOWED_ORIGINS` defaults to localhost
+     - `CSRF_TRUSTED_ORIGINS` defaults to localhost
+   - Fix: either:
+     - change `manage.py` default to `jumar.settings_deployment`, or
+     - enforce `DJANGO_SETTINGS_MODULE=jumar.settings_deployment` in every systemd unit / deploy script / cron / admin command.
+
+3. Frontend API base URL falls back to localhost.
+   - File: `frontend/src/api/client.js`
+   - Current fallback: `http://localhost:8000/api/`
+   - Risk: if `REACT_APP_API_BASE_URL` is missing during build, production frontend will call localhost in the user browser and fail.
+   - Fix:
+     - set `REACT_APP_API_BASE_URL` explicitly for production, or
+     - better: switch fallback to `/api/` if frontend is served from the same Django domain.
+
+## Required production configuration
+
+### Backend
+
+- Set real values in `.env`:
+  - `DJANGO_SECRET_KEY`
+  - `ALLOWED_HOSTS`
+  - `MYSQL_DATABASE`
+  - `MYSQL_USER`
+  - `MYSQL_PASSWORD`
+  - `MYSQL_HOST`
+  - `MYSQL_PORT`
+  - `CORS_ALLOWED_ORIGINS`
+  - `CSRF_TRUSTED_ORIGINS`
+- Use deployment settings:
+  - `DJANGO_SETTINGS_MODULE=jumar.settings_deployment`
+- Keep:
+  - `DEBUG=False`
+  - `SECURE_SSL_REDIRECT=True`
+  - secure cookies enabled
+
+### Frontend
+
+- Build frontend with production env:
+  - `REACT_APP_API_BASE_URL=...`
+  - `REACT_APP_USE_MOCK_API=false`
+- Run:
+  - `npm ci`
+  - `npm run build`
+
+## Hosting assumptions already supported by code
+
+- Django can serve the built SPA if `frontend/build` exists.
+  - Files:
+    - `jumar/urls.py`
+    - `jumar/settings.py`
+- WhiteNoise is already enabled.
+  - Files:
+    - `jumar/settings.py`
+    - `jumar/settings_deployment.py`
+- `wsgi.py` and `asgi.py` already default to deployment settings.
+  - Files:
+    - `jumar/wsgi.py`
+    - `jumar/asgi.py`
+
+## Recommended changes before going live
+
+1. Add a real Gunicorn config file.
+   - Suggested contents should cover:
+     - bind address / port
+     - worker count from env
+     - thread count from env
+     - timeout
+     - keepalive
+     - access log / error log output to stdout/stderr
+
+2. Decide final API hosting model and lock frontend base URL to it.
+   - Same-origin preferred:
+     - frontend served by Django or reverse proxy
+     - frontend uses `/api/`
+   - Cross-origin only if needed:
+     - then keep exact `https://...` API base URL
+     - verify CORS and CSRF settings against final domains
+
+3. Make deployment commands explicit.
+   - Run:
+     - `python manage.py migrate --settings=jumar.settings_deployment`
+     - `python manage.py collectstatic --noinput --settings=jumar.settings_deployment`
+   - Today there is at least one unapplied migration in local environment, so migration step is mandatory.
+
+4. Add process management and reverse proxy config.
+   - Not in repo yet:
+     - systemd unit for Gunicorn
+     - Nginx or ALB config
+   - Need:
+     - HTTPS termination
+     - proxy headers
+     - static serving strategy
+     - restart policy
+
+5. Review logging destination for server environment.
+   - File: `jumar/settings.py`
+   - Current behavior writes rotating files under `logs/`.
+   - Fine on a VM with persistent disk, but for container/platform hosting you may prefer stdout/stderr only.
+
+## Optional hardening
+
+1. Replace frontend localhost fallback with same-origin `/api/`.
+2. Consider moving auth away from token in `localStorage` if stronger browser-side security is required.
+3. Add a health endpoint for load balancer checks.
+4. Add backup/restore procedure for MySQL.
+5. Add CI step for:
+   - `python manage.py check --deploy --settings=jumar.settings_deployment`
+   - `python manage.py test`
+   - `npm run build`
+
+## Minimal deployment checklist
+
+1. Prepare production `.env`.
+2. Build frontend.
+3. Run migrations.
+4. Run `collectstatic`.
+5. Start Gunicorn with deployment settings.
+6. Put Nginx / ALB in front with HTTPS.
+7. Point frontend API base URL at final API host.
+8. Smoke test:
+   - login
+   - orders list
+   - order edit
+   - status change popup
+   - reports

@@ -17,7 +17,7 @@ const FOIL_TYPE_OPTIONS = [
   { value: 2, label: 'MDPE' },
 ];
 
-const GROUP_OPTIONS = ['admin', 'manager', 'operator'];
+const GROUP_OPTIONS = ['admin', 'manager', 'operator', 'pracownik', 'pracownik_maszyna', 'kierownik'];
 
 const STATUS_LABELS = Object.fromEntries(STATUS_OPTIONS.map((item) => [item.value, item.label]));
 const PRIORITY_LABELS = Object.fromEntries(PRIORITY_OPTIONS.map((item) => [item.value, item.label]));
@@ -1178,7 +1178,75 @@ const resolveEffectiveFoilLength = (plannedLength, correctionValue) => {
   return correction;
 };
 
-const calculateOrderDerivedValues = (order) => {
+const DEMO_COMPLETION_PROGRESS_VALUES = [60, 64, 68, 72, 76, 80, 84, 88, 92, 97];
+
+const appendCompletionHeatmapDemoOrders = () => {
+  if (state.orders.some((order) => String(order.NrZp || '').startsWith('202604'))) {
+    return;
+  }
+
+  DEMO_COMPLETION_PROGRESS_VALUES.forEach((progressPercent, index) => {
+    const orderId = state.nextOrderId;
+    const orderDate = new Date(Date.UTC(2026, 3, 1 + index));
+    const dateString = orderDate.toISOString().slice(0, 10);
+    const plannedLength = 4200 + index * 260;
+    const rawOrder = {
+      id: orderId,
+      NrZp: `${dateString.replace(/-/g, '')}/${2001 + index}`,
+      Data: dateString,
+      Artykul: `Test realizacji ${progressPercent}%`,
+      Kod: `TEST-${progressPercent}`,
+      MMK: `MMK-T${index + 1}`,
+      Barwnik: ['Green', 'Lime', 'Forest', 'Olive'][index % 4],
+      Status: 1,
+      Priorytet: index % 3,
+      Rodzaj: index % 3,
+      IloscZlec: 6000 + index * 350,
+      SzerWorka: 280 + index * 8,
+      SzerRekawa: 340 + index * 8,
+      DlugWorka: 700 + index * 12,
+      GrubWorka: 32 + (index % 4) * 3,
+      DlugFoilPlan_Korekta: plannedLength,
+      IloscRolekZlec: 5,
+      DlugRolkiZlec_Korekta: toFixedNumber(plannedLength / 5),
+      NrWytl: index % 5,
+      Tasma: index % 2 === 0,
+      Uwagi: `Demo kolorowania ${progressPercent}%`,
+    };
+
+    const order = calculateOrderDerivedValues(rawOrder);
+    const producedLength = toFixedNumber((parseNumber(order.DlugFoliZlec_Korekta) * progressPercent) / 100);
+    const producedWeight = toFixedNumber((parseNumber(order.WagaFoliZlec) * progressPercent) / 100);
+
+    state.orders.push(order);
+    state.rollsByOrder[order.NrZp] = [
+      {
+        id: state.nextRollId,
+        Data: dateString,
+        Zmiana: 'I',
+        Rolka: 1,
+        NrWytl: order.NrWytl,
+        Rodzaj: order.Rodzaj,
+        DlugRolkiProd: producedLength,
+        WagaRolkiProd: producedWeight,
+        Slimak: 0,
+        Walce: 0,
+        Wynikowa: order.GrubWorka,
+        Wynik: 99,
+        Mieszanka: `Demo ${progressPercent}`,
+        Uwagi: '',
+        UserName: ['operator1', 'operator2', 'operator3'][index % 3],
+      },
+    ];
+
+    state.nextOrderId += 1;
+    state.nextRollId += 1;
+  });
+};
+
+appendCompletionHeatmapDemoOrders();
+
+function calculateOrderDerivedValues(order) {
   const szerRekawa = parseNumber(order.SzerRekawa);
   const szerWorka = parseNumber(order.SzerWorka);
   const iloscZlec = parseNumber(order.IloscZlec);
@@ -1219,7 +1287,7 @@ const calculateOrderDerivedValues = (order) => {
     DlugFoliZlec_Korekta: dlugFoliZlecKorekta,
     WagaRolkiZlec: wagaRolkiZlec,
   };
-};
+}
 
 const paginate = (items, page = 1, pageSize = 10) => {
   const currentPage = Math.max(Number(page) || 1, 1);

@@ -223,9 +223,9 @@ def calculate_production_stats_batch(order_numbers: Iterable[str]) -> dict[str, 
     orders = Zamowienie.objects.filter(NrZp__in=normalized_order_numbers)
     order_map = {order.NrZp: order for order in orders}
     roll_stats_map = {
-        row["NrZp"]: row
-        for row in Rolki.objects.filter(NrZp__in=normalized_order_numbers)
-        .values("NrZp")
+        row["order_id"]: row
+        for row in Rolki.objects.filter(order_id__in=normalized_order_numbers)
+        .values("order_id")
         .annotate(
             total_weight=Sum("WagaRolkiProd"),
             total_length=Sum("DlugRolkiProd"),

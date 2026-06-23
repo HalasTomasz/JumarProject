@@ -27,7 +27,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route
-            path="/orders/planning"
+            path="/zlecenia/planowanie"
             element={
               <RequirePermission permission="can_edit_orders">
                 <OrdersPlanningPage />
@@ -35,7 +35,7 @@ function App() {
             }
           />
           <Route
-            path="/orders/doing"
+            path="/zlecenia/w-realizacji"
             element={
               <RequirePermission permission="can_edit_orders">
                 <OrdersDoingPage />
@@ -43,7 +43,7 @@ function App() {
             }
           />
           <Route
-            path="/orders/done-canceled"
+            path="/zlecenia/zrealizowane-anulowane"
             element={
               <RequirePermission permission="can_edit_orders">
                 <OrdersDoneCanceledPage />
@@ -51,16 +51,17 @@ function App() {
             }
           />
           <Route
-            path="/add_order"
+            path="/formularz_zlecenia_produkcyjne"
             element={
               <RequirePermission permission="can_edit_orders">
                 <OrderFormPage />
               </RequirePermission>
             }
           />
-          <Route path="/orders/new" element={<Navigate to="/add_order" replace />} />
+          <Route path="/add_order" element={<Navigate to="/formularz_zlecenia_produkcyjne" replace />} />
+          <Route path="/zlecenia/nowe" element={<Navigate to="/formularz_zlecenia_produkcyjne" replace />} />
           <Route
-            path="/orders/:id"
+            path="/zlecenia/:id"
             element={
               <RequirePermission permission="can_edit_orders">
                 <OrderFormPage />
@@ -100,7 +101,7 @@ function App() {
             }
           />
           <Route
-            path="/calculator"
+            path="/kalkulator_formularza_zlecen"
             element={
               <RequirePermission permission="can_use_calculator">
                 <CalculatorPage />
@@ -116,7 +117,7 @@ function App() {
             }
           />
           <Route
-            path="/users"
+            path="/jumar_pracownicy"
             element={
               <RequirePermission permission="can_manage_users">
                 <UsersPage />

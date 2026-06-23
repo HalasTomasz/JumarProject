@@ -149,129 +149,141 @@ export default function ReportsPage() {
   }
 
   return (
-    <section className="reports">
-      <h1>Raport 3 - workers</h1>
-
-      <div className="report-block">
-        <h2>Pracownicy (grupowanie: Data, Zmiana, Nr Wytl., Rodzaj folii)</h2>
-        <div className="filters" style={{ marginBottom: '12px' }}>
-          <label>
-            Data od
-            <input
-              type="date"
-              value={workersDateFrom}
-              max={workersDateTo || undefined}
-              onChange={(event) => setWorkersDateFrom(event.target.value)}
-            />
-          </label>
-          <label>
-            Data do
-            <input
-              type="date"
-              value={workersDateTo}
-              min={workersDateFrom || undefined}
-              onChange={(event) => setWorkersDateTo(event.target.value)}
-            />
-          </label>
-          <label>
-            Zmiana
-            <select
-              value={workersShiftFilter}
-              onChange={(event) => setWorkersShiftFilter(event.target.value)}
-            >
-              {shiftOptions.map((shift) => (
-                <option key={shift || 'all'} value={shift}>
-                  {shift || 'Wszystkie'}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Operator
-            <input
-              type="text"
-              value={workersOperatorFilter}
-              onChange={(event) => setWorkersOperatorFilter(event.target.value)}
-              placeholder="Filtruj po operatorze"
-            />
-          </label>
-          <label style={{ minWidth: '220px', flex: '1 1 260px' }}>
-            Szukaj
-            <input
-              type="text"
-              value={workersSearch}
-              onChange={(event) => setWorkersSearch(event.target.value)}
-              placeholder="Data, zmiana, wytlaczarka, operator..."
-            />
-          </label>
-          <label>
-            Wierszy
-            <select
-              value={workersPageSize}
-              onChange={(event) => setWorkersPageSize(Number(event.target.value))}
-            >
-              {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            className="btn btn-outline"
-            onClick={() => {
-              setWorkersDateFrom('');
-              setWorkersDateTo('');
-              setWorkersShiftFilter('');
-              setWorkersOperatorFilter('');
-              setWorkersSearch('');
-            }}
-            disabled={
-              !workersDateFrom &&
-              !workersDateTo &&
-              !workersShiftFilter &&
-              !workersOperatorFilter.trim() &&
-              !workersSearch.trim()
-            }
-            style={{ alignSelf: 'flex-end' }}
-          >
-            Wyczysc filtry
-          </button>
+    <section className="orders-page">
+      <div className="orders-layout-top">
+        <div className="orders-top-main-column">
+          <header className="orders-intro-card">
+            <div className="orders-intro-heading">
+              <h1>Raport 3 - wydajnosc pracownikow</h1>
+              <p>Grupowanie: data, zmiana, wytlaczarka i rodzaj folii.</p>
+            </div>
+            <div className="filters orders-filters orders-intro-filters orders-intro-filters-workers">
+              <label>
+                Szukaj
+                <input
+                  type="text"
+                  value={workersSearch}
+                  onChange={(event) => setWorkersSearch(event.target.value)}
+                  placeholder="Data, zmiana, wytlaczarka, operator..."
+                />
+              </label>
+              <label>
+                Operator
+                <input
+                  type="text"
+                  value={workersOperatorFilter}
+                  onChange={(event) => setWorkersOperatorFilter(event.target.value)}
+                  placeholder="Filtruj po operatorze"
+                />
+              </label>
+              <label>
+                Data od
+                <input
+                  type="date"
+                  value={workersDateFrom}
+                  max={workersDateTo || undefined}
+                  onChange={(event) => setWorkersDateFrom(event.target.value)}
+                />
+              </label>
+              <label>
+                Data do
+                <input
+                  type="date"
+                  value={workersDateTo}
+                  min={workersDateFrom || undefined}
+                  onChange={(event) => setWorkersDateTo(event.target.value)}
+                />
+              </label>
+              <label>
+                Zmiana
+                <select
+                  value={workersShiftFilter}
+                  onChange={(event) => setWorkersShiftFilter(event.target.value)}
+                >
+                  {shiftOptions.map((shift) => (
+                    <option key={shift || 'all'} value={shift}>
+                      {shift || 'Wszystkie'}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Wierszy
+                <select
+                  value={workersPageSize}
+                  onChange={(event) => setWorkersPageSize(Number(event.target.value))}
+                >
+                  {pageSizeOptions.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="orders-intro-filter-actions">
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    setWorkersDateFrom('');
+                    setWorkersDateTo('');
+                    setWorkersShiftFilter('');
+                    setWorkersOperatorFilter('');
+                    setWorkersSearch('');
+                  }}
+                  disabled={
+                    !workersDateFrom &&
+                    !workersDateTo &&
+                    !workersShiftFilter &&
+                    !workersOperatorFilter.trim() &&
+                    !workersSearch.trim()
+                  }
+                >
+                  Wyczysc filtry
+                </button>
+              </div>
+            </div>
+          </header>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Nr</th>
-              <th>Data</th>
-              <th>Zmiana</th>
-              <th>Nr Wytl.</th>
-              <th>Rodzaj folii</th>
-              <th>Dlugosc Produkcja [mb]</th>
-              <th>Waga Produkcja [kg]</th>
-              <th>Operator</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr key={`${row.Data}-${row.Zmiana}-${row.NrWytl}-${row.Rodzaj}`}>
-                <td>{startIndex + index + 1}</td>
-                <td>{row.Data}</td>
-                <td>{row.Zmiana}</td>
-                <td>{row.nrwyt_label || row.NrWytl}</td>
-                <td>{row.foil_type_label || row.Rodzaj}</td>
-                <td>{formatMetric(row.total_dlugosc)}</td>
-                <td>{formatMetric(row.total_waga)}</td>
-                <td>{row.operators || '—'}</td>
-              </tr>
-            ))}
-            {!rows.length && (
+      </div>
+
+      <div className="report-block report-block-workers">
+        <h2>Pracownicy</h2>
+        <div className="table-wrapper orders-table-wrap">
+          <table>
+            <thead>
               <tr>
-                <td colSpan={8}>Brak danych.</td>
+                <th>Nr</th>
+                <th>Data</th>
+                <th>Zmiana</th>
+                <th>Nr Wytl.</th>
+                <th>Rodzaj folii</th>
+                <th>Dlugosc Produkcja [mb]</th>
+                <th>Waga Produkcja [kg]</th>
+                <th>Operator</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((row, index) => (
+                <tr key={`${row.Data}-${row.Zmiana}-${row.NrWytl}-${row.Rodzaj}`}>
+                  <td>{startIndex + index + 1}</td>
+                  <td>{row.Data}</td>
+                  <td>{row.Zmiana}</td>
+                  <td>{row.nrwyt_label || row.NrWytl}</td>
+                  <td>{row.foil_type_label || row.Rodzaj}</td>
+                  <td>{formatMetric(row.total_dlugosc)}</td>
+                  <td>{formatMetric(row.total_waga)}</td>
+                  <td>{row.operators || '—'}</td>
+                </tr>
+              ))}
+              {!rows.length && (
+                <tr>
+                  <td colSpan={8}>Brak danych.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
         {!!pagination.count && (
           <div className="table-pagination">
             <div className="table-pagination-info">

@@ -1,0 +1,23 @@
+1. Mozna dalej dopisywac i edytowac rolki dla zlecen, ktore nie sa juz w produkcji.
+   - events/api/views.py:259 tworzy rolke na podstawie samego NrZp bez sprawdzenia statusu zamowienia.
+   - events/api/views.py:272 pozwala aktualizowac istniejace rolki bez walidacji statusu.
+   - Skutek: API moze przyjac produkcje dla zlecen ZREALIZOWANE albo ANULOWANE.
+
+2. Ochrona integralnosci zamowienia nie jest atomowa.
+   - events/api/serializers.py:197 i events/api/views.py:181 opieraja sie na rolls.exists(), ale nie blokuje to rekordu zamowienia.
+   - events/api/views.py:261 tworzy rolki z select_for_update(), wiec przy rownoleglych requestach mozliwy jest wyscig miedzy check i update/delete.
+   - Skutek: da sie przepchnac zmiane konfiguracji po starcie produkcji albo dostac blad przy delete przez ProtectedError.
+
+3. Raport zrealizowanej produkcji nie jest historycznym snapshotem.
+   - events/api/views.py:371 pobiera Artykul, wymiary i Uwagi z aktualnego Zamowienie.
+   - events/api/serializers.py:204 blokuje po utworzeniu rolek tylko pola NrWytl i Rodzaj.
+   - Skutek: po zmianie np. Artykul, SzerWorka albo Uwagi stare wiersze raportu zmienia sie retroaktywnie.
+
+4. W repo jest stary modul events/serializer.py, ktory nadal opisuje Rolki po starym modelu i uzywa fields="__all__".
+   - Teraz nie jest importowany, ale jest to pulapka na przyszlosc.
+   - Przy przypadkowym uzyciu ominie aktualny kontrakt API i moze rozjechac sie z nowym FK.
+
+Weryfikacja:
+- manage.py check przechodzi.
+- manage.py makemigrations --check --dry-run nie pokazuje driftu modeli.
+- manage.py test events nie zostal domkniety, bo sandbox nie ma dostepu do MySQL: (2003, Can't connect to MySQL server on 'localhost').

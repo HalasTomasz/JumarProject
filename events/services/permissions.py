@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from events.user_roles import is_reserved_admin_user
 
-
 ADMIN_GROUPS = {"admin"}
 MANAGER_GROUPS = {"kierownik", "manager"}
-WORKER_GROUPS = {"pracownik", "operator"}
+WORKER_GROUPS = {"pracownik", "pracownik_maszyna", "operator"}
 
 
 def get_user_groups(user) -> set[str]:

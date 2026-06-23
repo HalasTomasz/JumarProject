@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from django.contrib.auth.models import Group
 
-
 RESERVED_ADMIN_USERNAMES = frozenset({"tom"})
 
 

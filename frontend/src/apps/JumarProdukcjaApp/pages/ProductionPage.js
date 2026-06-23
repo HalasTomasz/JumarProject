@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../../api/client';
 import { getEffectivePlannedLength } from '../../../utils/orderMetrics';
+import {
+  getPriorityClassName,
+  sortProductionOrders,
+  sortProductionRolls,
+} from './productionPageUtils';
 
 const numberFormatter = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
 
@@ -105,7 +110,7 @@ export default function ProductionPage() {
     setLoading(true);
     return apiClient
       .get('production/orders/')
-      .then(({ data }) => setOrders(data.results || data))
+      .then(({ data }) => setOrders(sortProductionOrders(data.results || data)))
       .finally(() => setLoading(false));
   };
 
@@ -134,7 +139,7 @@ export default function ProductionPage() {
       apiClient.get(`production/orders/${encodedOrderCode}/summary/`),
     ])
       .then(([{ data: rollData }, { data: summaryData }]) => {
-        setRolls(rollData.results || rollData);
+        setRolls(sortProductionRolls(rollData.results || rollData));
         setSummary(summaryData);
       })
       .catch(() => {
@@ -199,9 +204,6 @@ export default function ProductionPage() {
           <h1>Produkcja</h1>
           <p>Zlecenia w realizacji i raport rolki.</p>
         </div>
-        <button className="btn btn-outline" onClick={loadOrders}>
-          Odśwież
-        </button>
       </header>
 
       {loading ? (
@@ -210,18 +212,26 @@ export default function ProductionPage() {
         <div className="production-grid">
           <div className="orders-list">
             <h2>Aktywne zlecenia</h2>
+            <div className="production-priority-legend" aria-label="Legenda priorytetów">
+              <span className="production-priority-chip is-high-priority">Czerwony: pilne</span>
+              <span className="production-priority-chip is-medium-priority">Żółty: średni priorytet</span>
+              <span className="production-priority-chip is-low-priority">Biały: bez priorytetu</span>
+            </div>
             <ul>
               {orders.map((order) => (
                 <li key={order.id}>
                   <button
-                    className={selected?.id === order.id ? 'is-active' : ''}
+                    className={`production-order-button ${getPriorityClassName(order)}${selected?.id === order.id ? ' is-active' : ''}`}
                     onClick={() => setSelected(order)}
                   >
                     <span className="order-list-main">
-                      <strong>{order.NrZp}</strong>
-                      <small>{order.Artykul || 'Brak artykułu'}</small>
+                      <strong>{order.Artykul || 'Brak artykułu'}</strong>
+                      <small className="production-order-date">{formatDate(order.Data)}</small>
                     </span>
-                    <span>{order.foil_type_label}</span>
+                    <span className="production-order-meta">
+                      <small>{order.nrwyt_label || '—'}</small>
+                      <span>{order.foil_type_label}</span>
+                    </span>
                   </button>
                 </li>
               ))}
@@ -278,40 +288,6 @@ export default function ProductionPage() {
                       <strong>{formatNumber(selected.IloscRolekZlec)}</strong>
                     </div>
                   </div>
-                </div>
-
-                <div className="summary">
-                  <h2>Podsumowanie</h2>
-                  {summary ? (
-                    <div className="grid stats">
-                      <div className="stat-card">
-                        <p>Waga produkcja [kg]</p>
-                        <strong>{formatNumber(summary.weight_produced)}</strong>
-                      </div>
-                      <div className="stat-card">
-                        <p>Waga do zakończenia [kg]</p>
-                        <strong>{formatNumber(remainingWeight)}</strong>
-                      </div>
-                      <div className="stat-card">
-                        <p>Długość produkcja [mb]</p>
-                        <strong>{formatNumber(summary.length_produced)}</strong>
-                      </div>
-                      <div className="stat-card">
-                        <p>Długość do zakończenia [mb]</p>
-                        <strong>{formatNumber(remainingLength)}</strong>
-                      </div>
-                      <div className="stat-card">
-                        <p>Rolki produkcja [szt]</p>
-                        <strong>{formatNumber(summary.rolls_produced)}</strong>
-                      </div>
-                      <div className="stat-card">
-                        <p>Rolki do zakończenia [szt]</p>
-                        <strong>{formatNumber(remainingRolls)}</strong>
-                      </div>
-                    </div>
-                  ) : (
-                    <p>Brak danych.</p>
-                  )}
                 </div>
 
                 <div className="rolls">
@@ -377,6 +353,39 @@ export default function ProductionPage() {
                   >
                     {statusLoading ? 'Aktualizowanie…' : 'Zrealizuj'}
                   </button>
+                </div>
+                <div className="summary production-summary">
+                  <h2>Podsumowanie</h2>
+                  {summary ? (
+                    <div className="grid stats">
+                      <div className="stat-card">
+                        <p>Waga produkcja [kg]</p>
+                        <strong>{formatNumber(summary.weight_produced)}</strong>
+                      </div>
+                      <div className="stat-card">
+                        <p>Waga do zakończenia [kg]</p>
+                        <strong>{formatNumber(remainingWeight)}</strong>
+                      </div>
+                      <div className="stat-card">
+                        <p>Długość produkcja [mb]</p>
+                        <strong>{formatNumber(summary.length_produced)}</strong>
+                      </div>
+                      <div className="stat-card">
+                        <p>Długość do zakończenia [mb]</p>
+                        <strong>{formatNumber(remainingLength)}</strong>
+                      </div>
+                      <div className="stat-card">
+                        <p>Rolki produkcja [szt]</p>
+                        <strong>{formatNumber(summary.rolls_produced)}</strong>
+                      </div>
+                      <div className="stat-card">
+                        <p>Rolki do zakończenia [szt]</p>
+                        <strong>{formatNumber(remainingRolls)}</strong>
+                      </div>
+                    </div>
+                  ) : (
+                    <p>Brak danych.</p>
+                  )}
                 </div>
               </>
             ) : (

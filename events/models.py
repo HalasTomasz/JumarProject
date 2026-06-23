@@ -149,7 +149,14 @@ class Rolki(models.Model):
         ('III', 'Zmiana III'),
     ]
     
-    NrZp = models.CharField('Numer zlecenia', max_length=50, db_index=True)
+    order = models.ForeignKey(
+        Zamowienie,
+        db_column='NrZp',
+        to_field='NrZp',
+        on_delete=models.PROTECT,
+        related_name='rolls',
+        verbose_name='Zlecenie',
+    )
     Data = models.DateField('Data produkcji')
     Zmiana = models.CharField('Zmiana', max_length=3, choices=SHIFT_CHOICES)
     Rolka = models.IntegerField('Numer rolki')
@@ -179,16 +186,16 @@ class Rolki(models.Model):
         ordering = ['-Data', '-Zmiana', 'Rolka']
         verbose_name = 'Rolka'
         verbose_name_plural = 'Rolki'
-        unique_together = [['NrZp', 'Rolka']]
+        unique_together = [['order', 'Rolka']]
         indexes = [
-            models.Index(fields=['NrZp', 'Data']),
+            models.Index(fields=['order', 'Data']),
             models.Index(fields=['UserName', 'Data']),
-            models.Index(fields=['Data', 'NrWytl', 'NrZp', 'Rolka'], name='events_rolls_completed_idx'),
+            models.Index(fields=['Data', 'NrWytl', 'order', 'Rolka'], name='events_rolls_completed_idx'),
             models.Index(fields=['Data', 'Zmiana', 'NrWytl', 'Rodzaj'], name='events_rolls_workers_idx'),
         ]
     
     def __str__(self):
-        return f"{self.NrZp} - Rolka {self.Rolka}"
+        return f"{self.order_id} - Rolka {self.Rolka}"
 
 
 @receiver(post_save, sender=User)

@@ -6,7 +6,7 @@ const numberFormatter = new Intl.NumberFormat('pl-PL', {
   maximumFractionDigits: 2,
 });
 
-const pageSizeOptions = [10, 20, 40];
+const PAGE_SIZE = 15;
 const extruderOptions = [
   { value: '', label: 'Wszystkie' },
   { value: '0', label: 'W1' },
@@ -62,7 +62,6 @@ export default function WytOrderedPage() {
   const [extruderFilter, setExtruderFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ count: 0, next: null, previous: null });
 
@@ -76,7 +75,7 @@ export default function WytOrderedPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [dateFrom, dateTo, extruderFilter, debouncedSearchTerm, pageSize]);
+  }, [dateFrom, dateTo, extruderFilter, debouncedSearchTerm]);
 
   useEffect(() => {
     let active = true;
@@ -91,8 +90,8 @@ export default function WytOrderedPage() {
             extruder: extruderFilter || undefined,
             q: debouncedSearchTerm || undefined,
             page,
-            page_size: pageSize,
-          },
+            page_size: PAGE_SIZE,
+            },
         });
 
         if (!active) {
@@ -123,11 +122,11 @@ export default function WytOrderedPage() {
     return () => {
       active = false;
     };
-  }, [dateFrom, dateTo, extruderFilter, debouncedSearchTerm, page, pageSize]);
+  }, [dateFrom, dateTo, extruderFilter, debouncedSearchTerm, page]);
 
-  const totalPages = Math.max(1, Math.ceil((pagination.count || 0) / pageSize));
+  const totalPages = Math.max(1, Math.ceil((pagination.count || 0) / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
-  const startIndex = rows.length ? (currentPage - 1) * pageSize : 0;
+  const startIndex = rows.length ? (currentPage - 1) * PAGE_SIZE : 0;
   const paginationItems = useMemo(() => getPaginationItems(currentPage, totalPages), [currentPage, totalPages]);
 
   useEffect(() => {
@@ -148,74 +147,70 @@ export default function WytOrderedPage() {
   return (
     <section className="orders-page">
       <div className="orders-layout-top">
-        <header className="orders-intro-card">
-          <h1>Zlecenia zrealizowane po wytlaczarkach</h1>
-        </header>
-        <div className="filters orders-filters">
-          <label>
-            Data od
-            <input
-              type="date"
-              value={dateFrom}
-              max={dateTo || undefined}
-              onChange={(event) => setDateFrom(event.target.value)}
-            />
-          </label>
-          <label>
-            Data do
-            <input
-              type="date"
-              value={dateTo}
-              min={dateFrom || undefined}
-              onChange={(event) => setDateTo(event.target.value)}
-            />
-          </label>
-          <label>
-            Nr Wytl.
-            <select
-              value={extruderFilter}
-              onChange={(event) => setExtruderFilter(event.target.value)}
-            >
-              {extruderOptions.map((option) => (
-                <option key={option.label} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label style={{ minWidth: '220px', flex: '1 1 260px' }}>
-            Szukaj
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Nr ZP, artykul, operator, uwagi..."
-            />
-          </label>
-          <label>
-            Wierszy
-            <select value={pageSize} onChange={(event) => setPageSize(Number(event.target.value))}>
-              {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            className="btn btn-outline"
-            onClick={() => {
-              setDateFrom('');
-              setDateTo('');
-              setExtruderFilter('');
-              setSearchTerm('');
-            }}
-            disabled={!dateFrom && !dateTo && !extruderFilter && !searchTerm.trim()}
-            style={{ alignSelf: 'flex-end' }}
-          >
-            Wyczysc filtry
-          </button>
+        <div className="orders-top-main-column">
+          <header className="orders-intro-card">
+            <div className="orders-intro-heading">
+              <h1>Zlecenia zrealizowane po wytlaczarkach</h1>
+              <p>Grupowanie: numer zlecenia, wytlaczarka, operator i parametry wyprodukowanej rolki.</p>
+            </div>
+            <div className="filters orders-filters orders-intro-filters orders-intro-filters-wyt">
+              <label>
+                Szukaj
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Nr ZP, artykul, operator, uwagi..."
+                />
+              </label>
+              <label>
+                Data od
+                <input
+                  type="date"
+                  value={dateFrom}
+                  max={dateTo || undefined}
+                  onChange={(event) => setDateFrom(event.target.value)}
+                />
+              </label>
+              <label>
+                Data do
+                <input
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || undefined}
+                  onChange={(event) => setDateTo(event.target.value)}
+                />
+              </label>
+              <label>
+                Nr Wytl.
+                <select
+                  value={extruderFilter}
+                  onChange={(event) => setExtruderFilter(event.target.value)}
+                >
+                  {extruderOptions.map((option) => (
+                    <option key={option.label} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="orders-intro-filter-actions">
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    setDateFrom('');
+                    setDateTo('');
+                    setExtruderFilter('');
+                    setSearchTerm('');
+                  }}
+                  disabled={!dateFrom && !dateTo && !extruderFilter && !searchTerm.trim()}
+                >
+                  Wyczysc filtry
+                </button>
+              </div>
+            </div>
+          </header>
         </div>
       </div>
 

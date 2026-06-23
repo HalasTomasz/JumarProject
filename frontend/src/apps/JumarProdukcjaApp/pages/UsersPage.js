@@ -15,6 +15,31 @@ const createInitialFormState = () => ({
   phone_number: '',
 });
 
+const usersPerPage = 5;
+
+const getPaginationItems = (currentPage, totalPages) => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  const pages = [1];
+  const rangeStart = Math.max(2, currentPage - 1);
+  const rangeEnd = Math.min(totalPages - 1, currentPage + 1);
+
+  if (rangeStart > 2) {
+    pages.push('start-ellipsis');
+  }
+  for (let pageNumber = rangeStart; pageNumber <= rangeEnd; pageNumber += 1) {
+    pages.push(pageNumber);
+  }
+  if (rangeEnd < totalPages - 1) {
+    pages.push('end-ellipsis');
+  }
+
+  pages.push(totalPages);
+  return pages;
+};
+
 export default function UsersPage() {
   const { user } = useAuth();
   const canManageUsers = Boolean(user?.permissions?.can_manage_users);
@@ -32,10 +57,19 @@ export default function UsersPage() {
   const [editError, setEditError] = useState('');
   const [editMessage, setEditMessage] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fullName = useMemo(
     () => `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
     [user?.first_name, user?.last_name]
+  );
+
+  const totalPages = Math.max(1, Math.ceil(users.length / usersPerPage));
+  const pageStartIndex = (currentPage - 1) * usersPerPage;
+  const visibleUsers = users.slice(pageStartIndex, pageStartIndex + usersPerPage);
+  const paginationItems = useMemo(
+    () => getPaginationItems(currentPage, totalPages),
+    [currentPage, totalPages]
   );
 
   const isAdminUser = (account = {}) =>
@@ -69,6 +103,12 @@ export default function UsersPage() {
       })
       .finally(() => setLoading(false));
   }, [canManageUsers]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -215,7 +255,7 @@ export default function UsersPage() {
       </header>
 
       <div className="table-wrapper">
-          <table>
+          <table className="users-table">
             <thead>
               <tr>
                 <th>Login</th>
@@ -227,7 +267,7 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((account) => (
+              {visibleUsers.map((account) => (
                 <tr key={account.id}>
                   <td>{account.username}</td>
                   <td>
@@ -269,6 +309,51 @@ export default function UsersPage() {
               ))}
             </tbody>
           </table>
+          {users.length > usersPerPage && (
+            <div className="table-pagination users-pagination">
+              <div className="table-pagination-info">
+                <strong>
+                  Pozycje {pageStartIndex + 1}-{Math.min(pageStartIndex + visibleUsers.length, users.length)} z{' '}
+                  {users.length}
+                </strong>
+                Strona {currentPage} z {totalPages}
+              </div>
+              <div className="table-pagination-controls" aria-label="Nawigacja po stronach użytkowników">
+                <button
+                  type="button"
+                  className="btn btn-outline btn-small"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                >
+                  Poprzednia
+                </button>
+                {paginationItems.map((item) =>
+                  typeof item === 'string' ? (
+                    <span key={item} aria-hidden="true">…</span>
+                  ) : (
+                    <button
+                      key={item}
+                      type="button"
+                      className="btn btn-outline btn-small"
+                      aria-current={item === currentPage ? 'page' : undefined}
+                      onClick={() => setCurrentPage(item)}
+                      style={item === currentPage ? { background: '#2f6fed', color: '#ffffff' } : undefined}
+                    >
+                      {item}
+                    </button>
+                  )
+                )}
+                <button
+                  type="button"
+                  className="btn btn-outline btn-small"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                >
+                  Następna
+                </button>
+              </div>
+            </div>
+          )}
           {editMessage && <div className="callout success">{editMessage}</div>}
           {!users.length && <p className="empty">Brak użytkowników do wyświetlenia.</p>}
           <div className="add-user-toggle">

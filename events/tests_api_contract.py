@@ -8,6 +8,7 @@ from django.contrib.auth.models import Group, User
 from rest_framework.test import APITestCase
 
 from events.models import Rolki, UserProfile, Zamowienie
+from events.services.permissions import get_user_permissions
 
 
 class FrontendApiContractTests(APITestCase):
@@ -48,7 +49,7 @@ class FrontendApiContractTests(APITestCase):
         )
 
         self.roll = Rolki.objects.create(
-            NrZp=self.order.NrZp,
+            order=self.order,
             Data=self.order.Data,
             Zmiana="I",
             Rolka=1,
@@ -90,7 +91,7 @@ class FrontendApiContractTests(APITestCase):
         )
 
         self.completed_roll = Rolki.objects.create(
-            NrZp=self.completed_order.NrZp,
+            order=self.completed_order,
             Data=self.completed_order.Data,
             Zmiana="II",
             Rolka=1,
@@ -151,6 +152,52 @@ class FrontendApiContractTests(APITestCase):
         self.assertEqual(status_response.status_code, 200)
         self.order.refresh_from_db()
         self.assertEqual(self.order.Status, Zamowienie.StatusChoices.ZREALIZOWANE)
+
+    def test_roll_creation_requires_an_existing_order_and_uses_its_configuration(self):
+        payload = {
+            "Data": "2026-03-01",
+            "Zmiana": "II",
+            "NrWytl": 4,
+            "Rodzaj": Zamowienie.FoilTypeChoices.MDPE,
+            "DlugRolkiProd": "1000.00",
+            "WagaRolkiProd": "18.50",
+        }
+
+        missing_order_response = self.client.post(
+            "/api/production/orders/does-not-exist/rolls/",
+            payload,
+            format="json",
+        )
+        self.assertEqual(missing_order_response.status_code, 404)
+
+        response = self.client.post(
+            f"/api/production/orders/{quote(self.order.NrZp, safe='')}/rolls/",
+            payload,
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        created_roll = Rolki.objects.get(pk=response.data["id"])
+        self.assertEqual(created_roll.order_id, self.order.NrZp)
+        self.assertEqual(created_roll.NrWytl, self.order.NrWytl)
+        self.assertEqual(created_roll.Rodzaj, self.order.Rodzaj)
+
+    def test_order_configuration_cannot_change_after_rolls_exist(self):
+        response = self.client.patch(
+            f"/api/orders/{self.order.id}/",
+            {"NrWytl": 3, "Rodzaj": Zamowienie.FoilTypeChoices.MDPE},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("NrWytl", response.data)
+        self.assertIn("Rodzaj", response.data)
+
+    def test_order_with_rolls_cannot_be_deleted(self):
+        response = self.client.delete(f"/api/orders/{self.order.id}/")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue(Zamowienie.objects.filter(pk=self.order.id).exists())
 
     def test_main_order_update_cannot_bypass_status_transition_rules(self):
         response = self.client.patch(
@@ -243,7 +290,7 @@ class FrontendApiContractTests(APITestCase):
 
     def test_workers_report_is_paginated_and_aggregated(self):
         Rolki.objects.create(
-            NrZp=self.order.NrZp,
+            order=self.order,
             Data=self.order.Data,
             Zmiana="I",
             Rolka=2,
@@ -283,16 +330,19 @@ class FrontendApiPermissionTests(APITestCase):
         self.admin_group, _ = Group.objects.get_or_create(name="admin")
         self.manager_group, _ = Group.objects.get_or_create(name="kierownik")
         self.worker_group, _ = Group.objects.get_or_create(name="pracownik")
+        self.machine_worker_group, _ = Group.objects.get_or_create(name="pracownik_maszyna")
 
         self.admin = User.objects.create_user(username="admin", password="testpass123")
         self.manager = User.objects.create_user(username="manager", password="testpass123")
         self.worker = User.objects.create_user(username="worker", password="testpass123")
+        self.machine_worker = User.objects.create_user(username="machine_worker", password="testpass123")
 
         self.admin.groups.add(self.admin_group)
         self.manager.groups.add(self.manager_group)
         self.worker.groups.add(self.worker_group)
+        self.machine_worker.groups.add(self.machine_worker_group)
 
-        for user in (self.admin, self.manager, self.worker):
+        for user in (self.admin, self.manager, self.worker, self.machine_worker):
             UserProfile.objects.get_or_create(user=user)
 
         self.order = Zamowienie.objects.create(
@@ -320,7 +370,7 @@ class FrontendApiPermissionTests(APITestCase):
         )
 
         self.roll = Rolki.objects.create(
-            NrZp=self.order.NrZp,
+            order=self.order,
             Data=self.order.Data,
             Zmiana="I",
             Rolka=1,
@@ -548,3 +598,12 @@ class FrontendApiPermissionTests(APITestCase):
                 "can_manage_users": False,
             },
         )
+
+    def test_pracownik_maszyna_has_same_permissions_as_pracownik(self):
+        worker_permissions = get_user_permissions(self.worker)
+        machine_worker_permissions = get_user_permissions(self.machine_worker)
+
+        self.assertEqual(worker_permissions, machine_worker_permissions)
+        self.assertTrue(machine_worker_permissions["is_worker"])
+        self.assertTrue(machine_worker_permissions["can_view_reports"])
+        self.assertFalse(machine_worker_permissions["can_manage_production"])

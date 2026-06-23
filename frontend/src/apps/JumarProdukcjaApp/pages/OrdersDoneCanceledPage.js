@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import apiClient from '../../../api/client';
 import { getFoilCorrectionLength } from '../../../utils/orderMetrics';
 
@@ -57,7 +57,9 @@ const getPaginationItems = (currentPage, totalPages) => {
   return items;
 };
 
-const pageSizeOptions = [10, 20, 40];
+const pageSizeOptions = [15, 20, 40];
+const IN_PROGRESS_STATUS = 1;
+const STATUS_MODAL_OPTIONS = [{ value: IN_PROGRESS_STATUS, label: 'W realizacji' }];
 
 export default function OrdersDoneCanceledPage() {
   const [orders, setOrders] = useState([]);
@@ -69,17 +71,21 @@ export default function OrdersDoneCanceledPage() {
   const [completionPagination, setCompletionPagination] = useState({ count: 0, next: null, previous: null });
   const [completionPercentById, setCompletionPercentById] = useState({});
   const [completionPage, setCompletionPage] = useState(1);
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [editingStatus, setEditingStatus] = useState(String(IN_PROGRESS_STATUS));
+  const [statusSaving, setStatusSaving] = useState(false);
+  const [statusError, setStatusError] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const statusFilter = '3';
-  const title = 'OrderDoneCanceled';
+  const title = 'Zlecenia zrealizowane lub anulowane';
   const description = 'Zlecenia zrealizowane lub anulowane.';
   const searchTerm = searchParams.get('q') || '';
   const yearFilter = searchParams.get('year') || '';
   const dateFrom = searchParams.get('date_from') || '';
   const dateTo = searchParams.get('date_to') || '';
   const page = Number(searchParams.get('page') || 1);
-  const rawPageSize = Number(searchParams.get('page_size') || 20);
-  const pageSize = pageSizeOptions.includes(rawPageSize) ? rawPageSize : 20;
+  const rawPageSize = Number(searchParams.get('page_size') || 15);
+  const pageSize = pageSizeOptions.includes(rawPageSize) ? rawPageSize : 15;
   const currentYear = new Date().getFullYear();
   const yearOptions = useMemo(
     () => Array.from({ length: 15 }, (_, index) => String(currentYear - index)),
@@ -123,6 +129,21 @@ export default function OrdersDoneCanceledPage() {
     setSelectedOrderId(orderId);
   }, []);
 
+  const openStatusModal = useCallback((order) => {
+    setEditingOrder(order);
+    setEditingStatus(String(IN_PROGRESS_STATUS));
+    setStatusSaving(false);
+    setStatusError('');
+  }, []);
+
+  const closeStatusModal = useCallback(() => {
+    if (statusSaving) {
+      return;
+    }
+    setEditingOrder(null);
+    setStatusError('');
+  }, [statusSaving]);
+
   const loadOrders = useCallback(async () => {
     setLoading(true);
     try {
@@ -158,6 +179,40 @@ export default function OrdersDoneCanceledPage() {
       setLoading(false);
     }
   }, [statusFilter, searchTerm, effectiveDateFrom, effectiveDateTo, page, pageSize]);
+
+  const handleStatusChanged = useCallback(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  const handleStatusSave = useCallback(
+    async (event) => {
+      event.preventDefault();
+      if (!editingOrder?.id) {
+        return;
+      }
+
+      setStatusSaving(true);
+      setStatusError('');
+      try {
+        await apiClient.post(`orders/${editingOrder.id}/status/`, { status: Number(editingStatus) });
+        setEditingOrder(null);
+        handleStatusChanged();
+      } catch (error) {
+        const detail = error?.response?.data?.detail;
+        const statusDetail = error?.response?.data?.Status;
+        setStatusError(
+          Array.isArray(statusDetail)
+            ? statusDetail.join(' ')
+            : Array.isArray(detail)
+              ? detail.join(' ')
+              : detail || 'Nie udało się zmienić statusu.',
+        );
+      } finally {
+        setStatusSaving(false);
+      }
+    },
+    [editingOrder?.id, editingStatus, handleStatusChanged],
+  );
 
   useEffect(() => {
     loadOrders();
@@ -374,48 +429,48 @@ export default function OrdersDoneCanceledPage() {
       <div className="orders-layout-top">
         <div className="orders-top-main-column">
           <header className="orders-intro-card">
-            <h1>{title}</h1>
-            <p>{description}</p>
-          </header>
-          {allowYearFilter && (
-            <div className="orders-year-spotlight">
+            <div className="orders-intro-heading">
+              <h1>{title}</h1>
+              <p>{description}</p>
+            </div>
+            <div className="filters orders-filters orders-intro-filters orders-intro-filters-single-line">
               <label>
-                Wybierz rok
-                <select value={yearFilter} onChange={handleYearChange}>
-                  <option value="">Wszystkie lata</option>
-                  {yearOptions.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                Szukaj po numerze
+                <input value={searchTerm} onChange={handleSearch} placeholder="np. 2024/15" />
+              </label>
+              {allowYearFilter && (
+                <label>
+                  Wybierz rok
+                  <select value={yearFilter} onChange={handleYearChange}>
+                    <option value="">Wszystkie lata</option>
+                    {yearOptions.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <label>
+                Data od
+                <input
+                  type="date"
+                  value={dateFrom}
+                  max={dateTo || undefined}
+                  onChange={handleDateChange('date_from')}
+                />
+              </label>
+              <label>
+                Data do
+                <input
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || undefined}
+                  onChange={handleDateChange('date_to')}
+                />
               </label>
             </div>
-          )}
-        </div>
-        <div className="filters orders-filters">
-          <label>
-            Szukaj po numerze
-            <input value={searchTerm} onChange={handleSearch} placeholder="np. 2024/15" />
-          </label>
-          <label>
-            Data od
-            <input
-              type="date"
-              value={dateFrom}
-              max={dateTo || undefined}
-              onChange={handleDateChange('date_from')}
-            />
-          </label>
-          <label>
-            Data do
-            <input
-              type="date"
-              value={dateTo}
-              min={dateFrom || undefined}
-              onChange={handleDateChange('date_to')}
-            />
-          </label>
+          </header>
         </div>
       </div>
 
@@ -446,6 +501,7 @@ export default function OrdersDoneCanceledPage() {
                       order={order}
                       isSelected={order.id === selectedOrderId}
                       onSelect={handleOrderSelect}
+                      onEditStatus={openStatusModal}
                     />
                   ))}
                 </tbody>
@@ -543,9 +599,53 @@ export default function OrdersDoneCanceledPage() {
               onSelectOrder={handleOrderSelect}
             />
           )}
-          <OrdersDetailPanel order={selectedOrder} showCompletionFeature={showCompletionFeature} />
+          <OrdersDetailPanel
+            order={selectedOrder}
+            showCompletionFeature={showCompletionFeature}
+          />
         </aside>
       </div>
+
+      {editingOrder && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true">
+          <div className="modal-card">
+            <div className="modal-header">
+              <h3>Edytuj status zlecenia</h3>
+              <button type="button" className="modal-close" onClick={closeStatusModal} disabled={statusSaving}>
+                {'\u00d7'}
+              </button>
+            </div>
+            <p className="orders-status-modal-caption">
+              Nr ZP: <strong>{editingOrder.NrZp || '—'}</strong>
+            </p>
+            {statusError && <div className="callout error">{statusError}</div>}
+            <form className="modal-form" onSubmit={handleStatusSave}>
+              <label>
+                Status
+                <select
+                  value={editingStatus}
+                  onChange={(event) => setEditingStatus(event.target.value)}
+                  disabled={statusSaving}
+                >
+                  {STATUS_MODAL_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="modal-actions">
+                <button type="button" className="btn btn-outline" onClick={closeStatusModal} disabled={statusSaving}>
+                  Anuluj
+                </button>
+                <button type="submit" className="btn" disabled={statusSaving}>
+                  {statusSaving ? 'Zapisywanie…' : 'Zapisz status'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -664,7 +764,7 @@ function OrdersCompletionTable({
   );
 }
 
-const OrderRow = memo(function OrderRow({ order, isSelected, onSelect }) {
+const OrderRow = memo(function OrderRow({ order, isSelected, onSelect, onEditStatus }) {
   const handleClick = useCallback(
     (event) => {
       if (event.target.closest('a, button')) {
@@ -710,9 +810,9 @@ const OrderRow = memo(function OrderRow({ order, isSelected, onSelect }) {
         {order.Uwagi || '—'}
       </td>
       <td>
-        <Link className="btn btn-link" to={`/orders/${order.id}`}>
+        <button type="button" className="btn btn-link" onClick={() => onEditStatus(order)}>
           Edytuj
-        </Link>
+        </button>
       </td>
     </tr>
   );

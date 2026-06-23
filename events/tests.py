@@ -37,8 +37,9 @@ class SequenceAllocationTests(TestCase):
         )
 
     def create_roll(self, nr_zp: str, roll_number: int) -> Rolki:
+        order = Zamowienie.objects.get(NrZp=nr_zp)
         return Rolki.objects.create(
-            NrZp=nr_zp,
+            order=order,
             Data=self.order_date,
             Zmiana="I",
             Rolka=roll_number,
@@ -75,6 +76,7 @@ class SequenceAllocationTests(TestCase):
 
     def test_roll_number_backfills_from_existing_rolls(self):
         nr_zp = f"{self.date_prefix}/1001"
+        self.create_order(nr_zp)
         self.create_roll(nr_zp, 1)
         self.create_roll(nr_zp, 4)
 
@@ -89,6 +91,7 @@ class SequenceAllocationTests(TestCase):
     def test_roll_number_never_lags_existing_data(self):
         nr_zp = f"{self.date_prefix}/1002"
         OrderRollCounter.objects.create(NrZp=nr_zp, last_value=2)
+        self.create_order(nr_zp)
         self.create_roll(nr_zp, 6)
 
         next_roll = get_next_roll_number(nr_zp)
