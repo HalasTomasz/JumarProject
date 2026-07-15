@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../../api/client';
+import { calculateOrderDerivedValues } from '../../../utils/orderCalculations';
 
 const createEmptyOrder = () => ({
   Data: new Date().toISOString().slice(0, 10),
@@ -31,13 +32,14 @@ const createEmptyOrder = () => ({
 });
 
 const editableKeys = Object.keys(createEmptyOrder());
+const createFormState = () => calculateOrderDerivedValues({ ...createEmptyOrder(), NrZp: '' });
 
 export default function OrderFormPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
   const [metadata, setMetadata] = useState({ status: [], priority: [], foil_types: [] });
-  const [form, setForm] = useState({ ...createEmptyOrder(), NrZp: '' });
+  const [form, setForm] = useState(createFormState);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -55,7 +57,7 @@ export default function OrderFormPage() {
         }
       });
       mapped.NrZp = data.NrZp;
-      setForm(mapped);
+      setForm(calculateOrderDerivedValues(mapped));
     });
   }, [id, isEdit]);
 
@@ -65,7 +67,7 @@ export default function OrderFormPage() {
     if (name === 'Tasma') {
       nextValue = value === '1';
     }
-    setForm((prev) => ({ ...prev, [name]: nextValue }));
+    setForm((prev) => calculateOrderDerivedValues({ ...prev, [name]: nextValue }));
   };
 
   const handleSubmit = async (event) => {
@@ -84,7 +86,7 @@ export default function OrderFormPage() {
         await apiClient.post('orders/', payload);
       }
       if (!isEdit && submitAction === 'save_and_new') {
-        setForm({ ...createEmptyOrder(), NrZp: '' });
+        setForm(createFormState());
       } else {
         navigate('/zlecenia/planowanie');
       }
