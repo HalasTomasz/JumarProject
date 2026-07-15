@@ -33,6 +33,7 @@ const createEmptyOrder = () => ({
 
 const editableKeys = Object.keys(createEmptyOrder());
 const createFormState = () => calculateOrderDerivedValues({ ...createEmptyOrder(), NrZp: '' });
+const blankStringFields = new Set(['Kod', 'MMK', 'Barwnik', 'Uwagi']);
 
 export default function OrderFormPage() {
   const { id } = useParams();
@@ -78,7 +79,13 @@ export default function OrderFormPage() {
     try {
       const payload = editableKeys.reduce((acc, key) => {
         const value = form[key];
-        return { ...acc, [key]: value === '' ? null : value };
+        if (value !== '') {
+          return { ...acc, [key]: value };
+        }
+        return {
+          ...acc,
+          [key]: blankStringFields.has(key) ? '' : null,
+        };
       }, {});
       if (isEdit) {
         await apiClient.put(`orders/${id}/`, payload);

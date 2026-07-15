@@ -90,12 +90,16 @@ describe('OrderFormPage', () => {
         'orders/',
         expect.objectContaining({
           Artykul: 'Test zlecenia',
+          Kod: '',
+          MMK: '',
+          Barwnik: '',
           Zakladka: 30,
           WagaFoliZlec: 143.64,
           DlugFoliPlan: 6000,
           DlugRolkiPlan: 1000,
           DlugFoliZlec_Korekta: 6090,
           WagaRolkiZlec: 23.94,
+          Uwagi: '',
         })
       )
     );
