@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../../api/client';
 import { calculateOrderDerivedValues } from '../../../utils/orderCalculations';
 
@@ -38,6 +38,7 @@ const blankStringFields = new Set(['Kod', 'MMK', 'Barwnik', 'Uwagi']);
 export default function OrderFormPage() {
   const { id } = useParams();
   const isEdit = Boolean(id);
+  const location = useLocation();
   const navigate = useNavigate();
   const [metadata, setMetadata] = useState({ status: [], priority: [], foil_types: [] });
   const [form, setForm] = useState(createFormState);
@@ -61,6 +62,17 @@ export default function OrderFormPage() {
       setForm(calculateOrderDerivedValues(mapped));
     });
   }, [id, isEdit]);
+
+  useEffect(() => {
+    if (isEdit) return;
+
+    const prefill = location.state?.prefill;
+    if (!prefill || typeof prefill !== 'object') {
+      return;
+    }
+
+    setForm((prev) => calculateOrderDerivedValues({ ...prev, ...prefill }));
+  }, [isEdit, location.state]);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;

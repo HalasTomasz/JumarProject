@@ -65,6 +65,26 @@ export default function CalculatorPage() {
     setForm(initialForm);
   };
 
+  const handleCreateOrder = () => {
+    if (iloscZlec === null) {
+      return;
+    }
+
+    navigate('/formularz_zlecenia_produkcyjne', {
+      state: {
+        prefill: {
+          Rodzaj: Number(form.Rodzaj),
+          Tasma: form.Tasma === '1',
+          SzerWorka: form.SzerWorka,
+          SzerRekawa: form.SzerRekawa,
+          GrubWorka: form.GrubWorka,
+          DlugWorka: String(BAG_LENGTH_MM),
+          IloscZlec: iloscZlec.toFixed(2),
+        },
+      },
+    });
+  };
+
   return (
     <section className="calculator-legacy">
       <div className="calculator-legend">
@@ -210,7 +230,7 @@ export default function CalculatorPage() {
           <button type="button" className="btn btn-outline" onClick={handleClear}>
             Wyczyść
           </button>
-          <button type="button" className="btn btn-outline">
+          <button type="button" className="btn btn-outline" onClick={handleCreateOrder} disabled={iloscZlec === null}>
             Utwórz zlecenie
           </button>
         </div>

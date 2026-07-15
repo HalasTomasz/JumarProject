@@ -5,6 +5,7 @@ import apiClient from '../../../api/client';
 
 const mockNavigate = jest.fn();
 const mockUseParams = jest.fn();
+const mockUseLocation = jest.fn();
 
 jest.mock('../../../api/client', () => ({
   __esModule: true,
@@ -18,6 +19,7 @@ jest.mock('../../../api/client', () => ({
 jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
   useParams: () => mockUseParams(),
+  useLocation: () => mockUseLocation(),
 }), { virtual: true });
 
 const metadataResponse = {
@@ -58,6 +60,7 @@ describe('OrderFormPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseParams.mockReturnValue({});
+    mockUseLocation.mockReturnValue({ state: null });
     apiClient.get.mockResolvedValue(metadataResponse);
     apiClient.post.mockResolvedValue({ data: { id: 1 } });
   });
@@ -105,5 +108,33 @@ describe('OrderFormPage', () => {
     );
 
     expect(mockNavigate).toHaveBeenCalledWith('/zlecenia/planowanie');
+  });
+
+  test('prefills the order form from calculator navigation state', async () => {
+    mockUseLocation.mockReturnValue({
+      state: {
+        prefill: {
+          Rodzaj: 1,
+          Tasma: true,
+          SzerWorka: '300',
+          SzerRekawa: '360',
+          GrubWorka: '35',
+          DlugWorka: '1000',
+          IloscZlec: '3340.76',
+        },
+      },
+    });
+
+    render(<OrderFormPage />);
+
+    await waitFor(() => {
+      expect(getField('Rodzaj').value).toBe('1');
+      expect(getField('Tasma').value).toBe('1');
+      expect(getField('SzerWorka').value).toBe('300');
+      expect(getField('SzerRekawa').value).toBe('360');
+      expect(getField('GrubWorka').value).toBe('35');
+      expect(getField('DlugWorka').value).toBe('1000');
+      expect(getField('IloscZlec').value).toBe('3340.76');
+    });
   });
 });
