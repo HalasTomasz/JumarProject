@@ -211,6 +211,39 @@ class FrontendApiContractTests(APITestCase):
         self.order.refresh_from_db()
         self.assertEqual(self.order.Status, Zamowienie.StatusChoices.W_REALIZACJI)
 
+    def test_order_create_accepts_empty_optional_fields(self):
+        response = self.client.post(
+            "/api/orders/",
+            {
+                "Data": "2026-07-15",
+                "Artykul": "Minimal order",
+                "Kod": None,
+                "MMK": None,
+                "Barwnik": None,
+                "Status": Zamowienie.StatusChoices.PLANOWANE,
+                "Priorytet": Zamowienie.PriorityChoices.SREDNI,
+                "Rodzaj": Zamowienie.FoilTypeChoices.HDPE,
+                "IloscZlec": "12000.00",
+                "SzerWorka": 300,
+                "SzerRekawa": 360,
+                "DlugWorka": 500,
+                "GrubWorka": 35,
+                "DlugFoilPlan_Korekta": None,
+                "IloscRolekZlec": None,
+                "DlugRolkiZlec_Korekta": None,
+                "NrWytl": 0,
+                "Tasma": False,
+                "Uwagi": None,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["Kod"], "")
+        self.assertEqual(response.data["MMK"], "")
+        self.assertEqual(response.data["Barwnik"], "")
+        self.assertEqual(response.data["Uwagi"], "")
+
     def test_production_and_report_endpoints_are_paginated(self):
         Zamowienie.objects.create(
             NrZp="20260303/1003",

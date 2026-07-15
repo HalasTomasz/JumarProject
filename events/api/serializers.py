@@ -193,6 +193,12 @@ class OrderSerializer(serializers.ModelSerializer):
             'created_by_name',
         ]
         read_only_fields = ['NrZp', 'created_at', 'updated_at', 'created_by', 'created_by_name']
+        extra_kwargs = {
+            'Kod': {'required': False, 'allow_blank': True, 'allow_null': True},
+            'MMK': {'required': False, 'allow_blank': True, 'allow_null': True},
+            'Barwnik': {'required': False, 'allow_blank': True, 'allow_null': True},
+            'Uwagi': {'required': False, 'allow_blank': True, 'allow_null': True},
+        }
 
     def validate(self, attrs):
         if self.instance is None:
